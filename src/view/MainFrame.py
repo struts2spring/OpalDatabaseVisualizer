@@ -6,28 +6,28 @@ Created on 11-Dec-2016
 
 
 import wx
-import wx.aui
+# import wx.aui
 import os
 from src.view.TreePanel import CreatingTreePanel
-
+from wx.lib.agw import aui
 
 ID_About = wx.NewId()
 ID_newDatabaseConnection = wx.NewId()
 ID_openDatabaseConnection = wx.NewId()
 #---------------------------------------------------------------------------
 
-class MainPanel(wx.Panel):
-    """
-    Just a simple derived panel where we override Freeze and Thaw so they are
-    only used on wxMSW.    
-    """
-    def Freeze(self):
-        if 'wxMSW' in wx.PlatformInfo:
-            return super(MainPanel, self).Freeze()
-                         
-    def Thaw(self):
-        if 'wxMSW' in wx.PlatformInfo:
-            return super(MainPanel, self).Thaw()
+# class MainPanel(wx.Panel):
+#     """
+#     Just a simple derived panel where we override Freeze and Thaw so they are
+#     only used on wxMSW.    
+#     """
+#     def Freeze(self):
+#         if 'wxMSW' in wx.PlatformInfo:
+#             return super(MainPanel, self).Freeze()
+#                          
+#     def Thaw(self):
+#         if 'wxMSW' in wx.PlatformInfo:
+#             return super(MainPanel, self).Thaw()
 class DatabaseMainFrame(wx.Frame):
 
     def __init__(self, parent):
@@ -37,7 +37,7 @@ class DatabaseMainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
 #         self.SetIcon(GetMondrianIcon())
         self.SetMinSize(wx.Size(400, 300))
-        self.pnl = pnl = MainPanel(self)
+#         self.pnl = pnl = MainPanel(self)
         self.createMenuBar()
         self.createStatusBar()
 #         self.creatingTreeCtrl()
@@ -48,7 +48,7 @@ class DatabaseMainFrame(wx.Frame):
 #         self.creatingToolbar()
         
 #         self.creatingTreeCtrl()
-        
+        self._mgr.Update()  
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
         treePanel=CreatingTreePanel(self)
@@ -79,9 +79,16 @@ class DatabaseMainFrame(wx.Frame):
     
     def createAuiManager(self):
         # tell FrameManager to manage this frame
-        self._mgr = wx.aui.AuiManager()
+        self._mgr = aui.AuiManager()
         self._mgr.SetManagedWindow(self)
+        # set up default notebook style
+        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
+        self._notebook_theme = 0      
         
+        # min size for the frame itself isn't completely done.
+        # see the end up AuiManager.Update() for the test
+        # code. For now, just hard code a frame minimum size
+        self.SetMinSize(wx.Size(400, 300))    
         self._perspectives = []
         
         
@@ -90,25 +97,25 @@ class DatabaseMainFrame(wx.Frame):
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().Name("test1").Caption("Pane Caption").Top().CloseButton(True).MaximizeButton(True))
                 # add the toolbars to the manager
 
-        self._mgr.AddPane(self.constructToolBar(), wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
                           Name("tb1").Caption("Big Toolbar").
                           ToolbarPane().Top().
                           LeftDockable(False).RightDockable(False))    
-        self._mgr.AddPane(self.creatingTreeCtrl(), wx.aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
                           Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
     
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().Name("test4").Caption("SQL execution").LeftDockable(True).
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().Name("test4").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))        
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
                           Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
             
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
                           Name("sqlLog").Caption("SQL Log").Dockable(True).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))    
         
