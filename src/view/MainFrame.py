@@ -16,18 +16,7 @@ ID_newDatabaseConnection = wx.NewId()
 ID_openDatabaseConnection = wx.NewId()
 #---------------------------------------------------------------------------
 
-# class MainPanel(wx.Panel):
-#     """
-#     Just a simple derived panel where we override Freeze and Thaw so they are
-#     only used on wxMSW.    
-#     """
-#     def Freeze(self):
-#         if 'wxMSW' in wx.PlatformInfo:
-#             return super(MainPanel, self).Freeze()
-#                          
-#     def Thaw(self):
-#         if 'wxMSW' in wx.PlatformInfo:
-#             return super(MainPanel, self).Thaw()
+
 class DatabaseMainFrame(wx.Frame):
 
     def __init__(self, parent):
@@ -37,7 +26,6 @@ class DatabaseMainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
 #         self.SetIcon(GetMondrianIcon())
         self.SetMinSize(wx.Size(400, 300))
-#         self.pnl = pnl = MainPanel(self)
         self.createMenuBar()
         self.createStatusBar()
 #         self.creatingTreeCtrl()
