@@ -236,7 +236,21 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     def Thaw(self):
         if 'wxMSW' in wx.PlatformInfo:
             return super(databaseNavigationTree, self).Thaw()
+#---------------------------------------------------------------------------
 
+class MainPanel(wx.Panel):
+    """
+    Just a simple derived panel where we override Freeze and Thaw so they are
+    only used on wxMSW.    
+    """
+    def Freeze(self):
+        if 'wxMSW' in wx.PlatformInfo:
+            return super(MainPanel, self).Freeze()
+                         
+    def Thaw(self):
+        if 'wxMSW' in wx.PlatformInfo:
+            return super(MainPanel, self).Thaw()
+#---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
