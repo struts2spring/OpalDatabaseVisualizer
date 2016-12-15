@@ -10,10 +10,12 @@ import wx
 import os
 from src.view.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
+from src.view import Editor
+from src.view.Editor import CreatingEditorPanel
 
 ID_About = wx.NewId()
-ID_newDatabaseConnection = wx.NewId()
-ID_openDatabaseConnection = wx.NewId()
+ID_newConnection = wx.NewId()
+ID_openConnection = wx.NewId()
 #---------------------------------------------------------------------------
 
 
@@ -52,11 +54,11 @@ class DatabaseMainFrame(wx.Frame):
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(48, 48))
-        tb1.AddLabelTool(id=ID_newDatabaseConnection, label="New Connection", shortHelp="New Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "new.png")))
+        tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "new.png")))
         tb1.AddSeparator()
         
-        tb1.AddLabelTool(id=ID_newDatabaseConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-        tb1.AddLabelTool(id=ID_newDatabaseConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
+        tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
+        tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
@@ -92,7 +94,7 @@ class DatabaseMainFrame(wx.Frame):
         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
                           Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
     
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().Name("test4").Caption("SQL execution").LeftDockable(True).
+        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Name("test4").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").
@@ -114,7 +116,10 @@ class DatabaseMainFrame(wx.Frame):
         all_panes = self._mgr.GetAllPanes()
         # "commit" all changes made to FrameManager
         self._mgr.Update()        
-        
+
+    def constructSqlPane(self):
+        editor = CreatingEditorPanel(self)        
+        return editor
     def createStatusBar(self):
         print('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
