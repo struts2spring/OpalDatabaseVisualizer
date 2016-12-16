@@ -10,15 +10,15 @@ import sys
 
 class ConnectSqlite():
     def __init__(self):
-        self.connection=None
+        self.connection=sqlite3.connect('_opal.sqlite')
         pass
     
-    def getConnection(self):
+    def getObject(self):
     
         con = None
         
         try:
-            self.connection = sqlite3.connect('_opal.sqlite')
+#             self.connection = sqlite3.connect('_opal.sqlite')
             
             cur = self.connection.cursor()    
             cur.execute('SELECT SQLITE_VERSION()')
@@ -27,7 +27,20 @@ class ConnectSqlite():
             
             print "SQLite version: %s" % data   
             cur.execute("select tbl_name from sqlite_master where type='table';")
-            print cur.fetchall()
+            types=cur.execute("select distinct type from sqlite_master;").fetchall()
+            dbObjects=list()
+            print types
+            for t in types:
+                print t[0], type(t)
+                tObjectArrayList=list()
+                query="select tbl_name from sqlite_master where type='"+t[0]+"' order by tbl_name;"
+                print query
+                tObjectList=cur.execute(query).fetchall()
+                for tObj in tObjectList:
+                    tObjectArrayList.append(tObj[0])
+                dbObjects.append((t[0],tObjectArrayList))
+#                 dbObjects.append(tObjectArrayList)
+            print dbObjects
 #             print cur.fetchallDict()
 #             for row in cur.execute("select tbl_name from sqlite_master where type='table';"):
 #                 print row                
@@ -44,7 +57,8 @@ class ConnectSqlite():
             
             if self.connection:
                 self.connection.close()
+        return dbObjects
 if __name__ == '__main__':
     connectSqlite=ConnectSqlite()
-    connectSqlite.getConnection()
+    connectSqlite.getObject()
     pass

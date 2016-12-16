@@ -14,3 +14,10 @@ CREATE TABLE DEPARTMENT(
    DEPT           CHAR(50) NOT NULL,
    EMP_ID         INT      NOT NULL
 );
+
+
+
+
+CREATE VIEW book_author AS
+SELECT book.book_name, author.author_name
+FROM  book, author, book_author_link where book.id=book_author_link.id and author.id=book_author_link.id;

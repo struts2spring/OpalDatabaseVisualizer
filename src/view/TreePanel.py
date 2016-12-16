@@ -8,37 +8,40 @@ from wx.lib.mixins.treemixin import ExpansionState
 import wx
 from src.view.images import catalog
 import os
+from src.connect.sqlite.Connect import ConnectSqlite
 
 
 _demoPngs = ["overview", "recent", "frame", "dialog", "moredialog", "core",
      "book", "customcontrol", "morecontrols", "layout", "process",
      "clipboard", "images", "miscellaneous"]
-_treeList = [
-    # new stuff
-    (
-     'Tables', [
-        'Appearance',
-        'Search',
-        'Workspace',
-        'Keys'
-        ]
-     ),
-    (
-     'Views', [
-        'Email book',
-        'Open cloud',
-        'Configure device',
-        ]
-     ),
-    (
-     'Indexs', [
-        'Email book',
-        'Open cloud',
-        'Configure device',
-        ]
-     )
+# _treeList = [
+#     # new stuff
+#     (
+#      'Tables', [
+#         'Appearance',
+#         'Search',
+#         'Workspace',
+#         'Keys'
+#         ]
+#      ),
+#     (
+#      'Views', [
+#         'Email book',
+#         'Open cloud',
+#         'Configure device',
+#         ]
+#      ),
+#     (
+#      'Indexs', [
+#         'Email book',
+#         'Open cloud',
+#         'Configure device',
+#         ]
+#      )
+# 
+# ]
 
-]
+# _treeList=[(u'table', [u'author', u'author_book_link', u'book', u'book_format', u'book_format_link']), (u'index', [u'author', u'book'])]
 class CreatingTreePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -47,6 +50,8 @@ class CreatingTreePanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
+        connectSqlite=ConnectSqlite()
+        self._treeList=connectSqlite.getObject()
         self.treeMap = {}
         self.searchItems = {}
         self.tree = databaseNavigationTree(self)
@@ -75,7 +80,7 @@ class CreatingTreePanel(wx.Panel):
 
         wx.BeginBusyCursor()
         
-        for category, items in _treeList:
+        for category, items in self._treeList:
             self.searchItems[category] = []
             for childItem in items:
 #                 if SearchDemo(childItem, value):
@@ -131,7 +136,7 @@ class CreatingTreePanel(wx.Panel):
         filter = self.filter.GetValue()
         count = 0
         
-        for category, items in _treeList:
+        for category, items in self._treeList:
             count += 1
             if filter:
                 if fullSearch:
