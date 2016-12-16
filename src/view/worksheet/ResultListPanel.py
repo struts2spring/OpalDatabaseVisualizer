@@ -298,7 +298,7 @@ if __name__ == '__main__':
     musicdata = musicdata.items()
     musicdata.sort()
     musicdata = [[str(k)] + list(v) for k,v in musicdata]
-    panel = ResultPanel(frame, musicdata)
+    panel = ResultPanel(frame, data=musicdata)
     frame.Show()
     app.MainLoop()
 

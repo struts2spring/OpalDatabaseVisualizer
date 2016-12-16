@@ -10,8 +10,8 @@ import wx
 import os
 from src.view.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
-from src.view import Editor
-from src.view.Editor import CreatingEditorPanel
+
+from src.view.worksheet.WorksheetPanel import CreatingWorksheetPanel
 
 ID_About = wx.NewId()
 ID_newConnection = wx.NewId()
@@ -118,14 +118,14 @@ class DatabaseMainFrame(wx.Frame):
         self._mgr.Update()        
 
     def constructSqlPane(self):
-        editor = CreatingEditorPanel(self)        
-        return editor
+        worksheet = CreatingWorksheetPanel(self)        
+        return worksheet
     def createStatusBar(self):
         print('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText("Ready", 0)
-        self.statusbar.SetStatusText("Welcome To wxPython!", 1)
+        self.statusbar.SetStatusText("Welcome Opal database!", 1)
         
     def createMenuBar(self):
         print('creating menu bar')
