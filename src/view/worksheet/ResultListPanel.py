@@ -35,7 +35,7 @@ class ResultModel(dv.PyDataViewIndexListModel):
 
     # This method is called when the user edits a data item in the view.
     def SetValueByRow(self, value, row, col):
-        self.log.write("SetValue: (%d,%d) %s\n" % (row, col, value))
+        print("SetValue: (%d,%d) %s\n" % (row, col, value))
         self.data[row][col] = value
 
     # Report how many columns this model provides data for.

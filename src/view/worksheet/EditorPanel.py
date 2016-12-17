@@ -7,6 +7,9 @@ Created on 15-Dec-2016
 import wx
 import wx.stc as stc
 import keyword
+from src.view.images import images
+import os
+import sys
 
 
 #----------------------------------------------------------------------
@@ -71,6 +74,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                  pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style=0):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
+        self.popmenu = None
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
         #init key short cut
@@ -81,6 +85,11 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(0,0)
+        #editor style
+        self.SetMargins(2,2)        #set left and right outer margins to 0 width
+        self.SetMarginMask(1, 0)    #can't place any marker in margin 1
+        self.SetMarginWidth(0, 0)   #used as symbol
+        self.SetMarginWidth(2, 0)   #used as folder
 
         self.SetViewWhiteSpace(False)
         self.SetBufferedDraw(False)
@@ -90,6 +99,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
         self.SetEdgeColumn(78)
+        #set backspace to unindent
+        self.SetBackSpaceUnIndents(True)
+        #set scroll bar range
+        self.SetEndAtLastLine(False)
 
         # Setup a margin to hold fold markers
         #self.SetFoldFlags(16)  ###  WHAT IS THIS VALUE?  WHAT ARE THE OTHER FLAGS?  DOES IT MATTER?
@@ -100,9 +113,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         # Make some styles,  The lexer defines what each style is used for, we
         # just have to define what each style looks like.  This set is adapted from
         # Scintilla sample property files.
-
+        #set style
+#        font = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        font = wx.Font(10, wx.TELETYPE, wx.NORMAL, wx.NORMAL, True)
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:10" % font.GetFaceName())
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#AAFFAA,face:%s,size:10" % font.GetFaceName())
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "face:%(helv)s,size:%(size)d" % faces)
+#         self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "face:%(helv)s,size:%(size)d" % faces)
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
@@ -113,6 +130,194 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,    "fore:#000000,back:#FF0000,bold")   
              
         self.sqlStyle()
+        self.registerAllImages()
+        
+        
+#         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
+        wx.EVT_RIGHT_DOWN(self, self.OnPopUp)
+        self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
+        self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
+        
+
+    def registerAllImages(self):
+        # register some images for use in the AutoComplete box.
+        print os.getcwd()
+        print os.path.dirname(sys.modules['__main__'].__file__)
+        textImage=wx.Bitmap(os.path.join("..", "images", "new.png"))
+        self.RegisterImage(1, textImage)
+        self.RegisterImage(2, 
+            wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16,16)))
+        self.RegisterImage(3, 
+            wx.ArtProvider.GetBitmap(wx.ART_COPY, size=(16,16)))
+    def OnKeyPressed(self, event):
+        if self.CallTipActive():
+            self.CallTipCancel()
+        key = event.GetKeyCode()
+
+        if key == 32 and event.ControlDown():
+            pos = self.GetCurrentPos()
+
+            # Tips
+            if event.ShiftDown():
+                self.CallTipSetBackground("yellow")
+                self.CallTipShow(pos, 'lots of of text: blah, blah, blah\n\n'
+                                 'show some suff, maybe parameters..\n\n'
+                                 'fubar(param1, param2)')
+            # Code completion
+            else:
+                #lst = []
+                #for x in range(50000):
+                #    lst.append('%05d' % x)
+                #st = " ".join(lst)
+                #print len(st)
+                #self.AutoCompShow(0, st)
+
+                kw = keyword.kwlist[:]
+                kw.append("zzzzzz?2")
+                kw.append("aaaaa?2")
+                kw.append("__init__?3")
+                kw.append("zzaaaaa?2")
+                kw.append("zzbaaaa?2")
+                kw.append("this_is_a_longer_value")
+                #kw.append("this_is_a_much_much_much_much_much_much_much_longer_value")
+
+                kw.sort()  # Python sorts are case sensitive
+                self.AutoCompSetIgnoreCase(False)  # so this needs to match
+
+                # Images are specified with a appended "?type"
+                for i in range(len(kw)):
+                    if kw[i] in keyword.kwlist:
+                        kw[i] = kw[i] + "?1"
+
+                self.AutoCompShow(0, " ".join(kw))
+        else:
+            event.Skip()
+    def OnUpdateUI(self, evt):
+        # check for matching braces
+        braceAtCaret = -1
+        braceOpposite = -1
+        charBefore = None
+        caretPos = self.GetCurrentPos()
+
+        if caretPos > 0:
+            charBefore = self.GetCharAt(caretPos - 1)
+            styleBefore = self.GetStyleAt(caretPos - 1)
+
+        # check before
+        if charBefore and chr(charBefore) in "[]{}()" and styleBefore == stc.STC_P_OPERATOR:
+            braceAtCaret = caretPos - 1
+
+        # check after
+        if braceAtCaret < 0:
+            charAfter = self.GetCharAt(caretPos)
+            styleAfter = self.GetStyleAt(caretPos)
+
+            if charAfter and chr(charAfter) in "[]{}()" and styleAfter == stc.STC_P_OPERATOR:
+                braceAtCaret = caretPos
+
+        if braceAtCaret >= 0:
+            braceOpposite = self.BraceMatch(braceAtCaret)
+
+        if braceAtCaret != -1  and braceOpposite == -1:
+            self.BraceBadLight(braceAtCaret)
+        else:
+            self.BraceHighlight(braceAtCaret, braceOpposite)
+            #pt = self.PointFromPosition(braceOpposite)
+            #self.Refresh(True, wxRect(pt.x, pt.y, 5,5))
+            #print pt
+            #self.Refresh(False)
+    def OnMarginClick(self, event):
+        print('on_margin_click', self, event)
+        # fold and unfold as needed
+        if event.GetMargin() == 2:
+            if event.GetShift() and event.GetControl():
+                self.FoldAll()
+            else:
+                lineClicked = self.LineFromPosition(event.GetPosition())
+
+                if self.GetFoldLevel(lineClicked) & stc.STC_FOLDLEVELHEADERFLAG:
+                    if event.GetShift():
+                        self.SetFoldExpanded(lineClicked, True)
+                        self.Expand(lineClicked, True, True, 1)
+                    elif event.GetControl():
+                        if self.GetFoldExpanded(lineClicked):
+                            self.SetFoldExpanded(lineClicked, False)
+                            self.Expand(lineClicked, False, True, 0)
+                        else:
+                            self.SetFoldExpanded(lineClicked, True)
+                            self.Expand(lineClicked, True, True, 100)
+                    else:
+                        self.ToggleFold(lineClicked)
+    def FoldAll(self):
+        lineCount = self.GetLineCount()
+        expanding = True
+
+        # find out if we are folding or unfolding
+        for lineNum in range(lineCount):
+            if self.GetFoldLevel(lineNum) & stc.STC_FOLDLEVELHEADERFLAG:
+                expanding = not self.GetFoldExpanded(lineNum)
+                break
+
+        lineNum = 0
+
+        while lineNum < lineCount:
+            level = self.GetFoldLevel(lineNum)
+            if level & stc.STC_FOLDLEVELHEADERFLAG and \
+               (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+
+                if expanding:
+                    self.SetFoldExpanded(lineNum, True)
+                    lineNum = self.Expand(lineNum, True)
+                    lineNum = lineNum - 1
+                else:
+                    lastChild = self.GetLastChild(lineNum, -1)
+                    self.SetFoldExpanded(lineNum, False)
+
+                    if lastChild > lineNum:
+                        self.HideLines(lineNum+1, lastChild)
+
+            lineNum = lineNum + 1
+
+
+
+    def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
+        lastChild = self.GetLastChild(line, level)
+        line = line + 1
+
+        while line <= lastChild:
+            if force:
+                if visLevels > 0:
+                    self.ShowLines(line, line)
+                else:
+                    self.HideLines(line, line)
+            else:
+                if doExpand:
+                    self.ShowLines(line, line)
+
+            if level == -1:
+                level = self.GetFoldLevel(line)
+
+            if level & stc.STC_FOLDLEVELHEADERFLAG:
+                if force:
+                    if visLevels > 1:
+                        self.SetFoldExpanded(line, True)
+                    else:
+                        self.SetFoldExpanded(line, False)
+
+                    line = self.Expand(line, doExpand, force, visLevels-1)
+
+                else:
+                    if doExpand and self.GetFoldExpanded(line):
+                        line = self.Expand(line, True, force, visLevels-1)
+                    else:
+                        line = self.Expand(line, False, force, visLevels-1)
+            else:
+                line = line + 1
+
+        return line
+    def OnPopUp(self, event):
+        print('OnPopUp', self, event)
         
     def initKeyShortCut(self):
         self.CmdKeyClearAll()
