@@ -12,6 +12,7 @@ from src.view.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
 
 from src.view.worksheet.WorksheetPanel import CreatingWorksheetPanel
+from src.view.history.HistoryListPanel import HistoryPanel
 
 ID_About = wx.NewId()
 ID_newConnection = wx.NewId()
@@ -100,12 +101,12 @@ class DatabaseMainFrame(wx.Frame):
 #                           Name("test9").Caption("Min Size 200x100").
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))        
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().
                           Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
             
-        self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
+        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().
                           Name("sqlLog").Caption("SQL Log").Dockable(True).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))    
         
@@ -117,6 +118,17 @@ class DatabaseMainFrame(wx.Frame):
         # "commit" all changes made to FrameManager
         self._mgr.Update()        
 
+    def constructHistoryPane(self):
+        musicdata = {
+        1 : ("select * from book;", "15-Dec-2016"),
+        2 : ("select * from author;", "15-Dec-2016"),
+    
+        }
+        musicdata = musicdata.items()
+        musicdata.sort()
+        musicdata = [[str(k)] + list(v) for k,v in musicdata]
+        historyPanel=HistoryPanel(self, data=musicdata)
+        return historyPanel
     def constructSqlPane(self):
         worksheet = CreatingWorksheetPanel(self)        
         return worksheet
