@@ -2,6 +2,7 @@
 import wx
 import wx.dataview as dv
 from wx import ListCtrl
+import os
 
 #----------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ from wx import ListCtrl
 #
 # For this example our data is stored in a simple list of lists.  In
 # real life you can use whatever you want or need to hold your data.
-
+ID_run=wx.NewId()
 class ResultModel(dv.PyDataViewIndexListModel):
     def __init__(self, data):
         dv.PyDataViewIndexListModel.__init__(self, len(data))
@@ -44,13 +45,13 @@ class ResultModel(dv.PyDataViewIndexListModel):
 
     # Report the number of rows in the model
     def GetCount(self):
-        #self.log.write('GetCount')
+        #print('GetCount')
         return len(self.data)
     
     # Called to check if non-standard attributes should be used in the
     # cell at (row, col)
     def GetAttrByRow(self, row, col, attr):
-        ##self.log.write('GetAttrByRow: (%d, %d)' % (row, col))
+        ##print('GetAttrByRow: (%d, %d)' % (row, col))
         if col == 3:
             attr.SetColour('blue')
             attr.SetBold(True)
@@ -172,13 +173,40 @@ class ResultPanel(wx.Panel):
         btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)
         btnbox.Add(b2, 0, wx.LEFT|wx.RIGHT, 5)
         btnbox.Add(b3, 0, wx.LEFT|wx.RIGHT, 5)
+        
+        
         self.Sizer.Add(btnbox, 0, wx.TOP|wx.BOTTOM, 5)
+        self.Sizer.Add(self.constructWorksheetToolBar(), 0, wx.TOP|wx.BOTTOM, 5)
 
         # Bind some events so we can see what the DVC sends us
         self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
         self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
+        
 
 
+    def constructWorksheetToolBar(self):
+        
+        # create some toolbars
+        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+                         wx.TB_FLAT | wx.TB_NODIVIDER)
+        tb1.SetToolBitmapSize(wx.Size(48, 48))
+        
+        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
+            playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
+        elif "view"==os.path.split(os.getcwd())[-1:][0]:
+            playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
+        
+        tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=playImage)
+        tb1.AddSeparator()
+        
+#         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
+#         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
+        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
+        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
+        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
+        tb1.Realize()
+        
+        return tb1 
     def OnNewView(self, evt):
         f = wx.Frame(None, title="New view, shared model", size=(600,400))
         ResultPanel(f, self.log, self.model)
@@ -207,10 +235,10 @@ class ResultPanel(wx.Panel):
                 
 
     def OnEditingDone(self, evt):
-        self.log.write("OnEditingDone\n")
+        print("OnEditingDone\n")
 
     def OnValueChanged(self, evt):
-        self.log.write("OnValueChanged\n")
+        print("OnValueChanged\n")
 
         
 #----------------------------------------------------------------------

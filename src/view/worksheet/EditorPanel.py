@@ -9,7 +9,6 @@ import wx.stc as stc
 import keyword
 from src.view.images import images
 import os
-import sys
 
 
 #----------------------------------------------------------------------
@@ -115,7 +114,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         # Scintilla sample property files.
         #set style
 #        font = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
-        font = wx.Font(10, wx.TELETYPE, wx.NORMAL, wx.NORMAL, True)
+        font = wx.Font(8, wx.TELETYPE, wx.NORMAL, wx.NORMAL, True)
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:10" % font.GetFaceName())
         self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#AAFFAA,face:%s,size:10" % font.GetFaceName())
         # Global default styles for all languages
@@ -142,9 +141,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
     def registerAllImages(self):
         # register some images for use in the AutoComplete box.
-        print os.getcwd()
-        print os.path.dirname(sys.modules['__main__'].__file__)
-        textImage=wx.Bitmap(os.path.join("..", "images", "new.png"))
+        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
+            textImage=wx.Bitmap(os.path.join("..","..", "images", "new.png"))
+        elif "view"==os.path.split(os.getcwd())[-1:][0]:
+            textImage=wx.Bitmap(os.path.join("..", "images", "new.png"))
         self.RegisterImage(1, textImage)
         self.RegisterImage(2, 
             wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16,16)))

@@ -11,7 +11,7 @@ import os
 from src.view.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
 
-from src.view.worksheet.WorksheetPanel import CreatingWorksheetPanel
+from src.view.worksheet.WorksheetPanel import   CreateWorksheetTabPanel
 from src.view.history.HistoryListPanel import HistoryPanel
 
 ID_About = wx.NewId()
@@ -42,7 +42,7 @@ class DatabaseMainFrame(wx.Frame):
         self._mgr.Update()  
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
-        treePanel=CreatingTreePanel(self)
+        treePanel = CreatingTreePanel(self)
 
 
         return treePanel
@@ -126,11 +126,11 @@ class DatabaseMainFrame(wx.Frame):
         }
         musicdata = musicdata.items()
         musicdata.sort()
-        musicdata = [[str(k)] + list(v) for k,v in musicdata]
-        historyPanel=HistoryPanel(self, data=musicdata)
+        musicdata = [[str(k)] + list(v) for k, v in musicdata]
+        historyPanel = HistoryPanel(self, data=musicdata)
         return historyPanel
     def constructSqlPane(self):
-        worksheet = CreatingWorksheetPanel(self)        
+        worksheet = CreateWorksheetTabPanel(self)        
         return worksheet
     def createStatusBar(self):
         print('creating status bar')

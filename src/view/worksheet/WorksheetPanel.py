@@ -7,11 +7,33 @@ import wx
 from src.view.worksheet.EditorPanel import CreatingEditorPanel
 from src.view.worksheet.ResultListPanel import ResultPanel
 import os
+from wx.lib.splitter import MultiSplitterWindow
 
 
 ID_run=wx.NewId()
 
-class CreatingWorksheetPanel(wx.Panel):
+class CreateWorksheetTabPanel(wx.Panel):
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent
+
+        # Attributes
+        self._nb = wx.Notebook(self) 
+        worksheetPanel = CreatingWorksheetWithToolbarPanel( self._nb,)
+        self._nb.AddPage(worksheetPanel,"2")
+        # Layout
+        self.__DoLayout()
+
+    def __DoLayout(self):
+        """Layout the panel"""
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self._nb, 1, wx.EXPAND)
+        self.SetAutoLayout(True)
+        self.SetSizer(sizer)
+        
+
+        sizer.Fit(self)
+class CreatingWorksheetWithToolbarPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -19,20 +41,17 @@ class CreatingWorksheetPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        
-        
-        
         worksheetToolbar = self.constructWorksheetToolBar()
-        editorPanel = CreatingEditorPanel(self)
-        resultPanel = ResultPanel(self, data=self.getData())
-#         editorPanel = CreatingEditorPanel(self)
+        worksheetPanel = CreatingWorksheetPanel( self)
+        
         ####################################################################
-        vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL)
-        vBox.Add(editorPanel , 1, wx.EXPAND | wx.ALL)
-        vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
+        vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
+#         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
+#         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
-        self.SetSizer(sizer)
+        self.SetSizer(sizer)    
         
     def constructWorksheetToolBar(self):
         
@@ -40,7 +59,16 @@ class CreatingWorksheetPanel(wx.Panel):
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(48, 48))
-        tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join("..", "images", "play.png")))
+        playImage=None
+        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
+            imageLocation=os.path.join("..","..",  "images")
+#             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
+        elif "view"==os.path.split(os.getcwd())[-1:][0]:
+            imageLocation=os.path.join("..", "images")
+#             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
+            
+        playImage=wx.Bitmap(os.path.join(imageLocation, "resultset_next.png"))
+        tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=playImage)
         tb1.AddSeparator()
         
 #         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
@@ -50,7 +78,45 @@ class CreatingWorksheetPanel(wx.Panel):
         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         tb1.Realize()
         
-        return tb1        
+        return tb1     
+class CreatingWorksheetPanel(wx.Panel):
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent
+        
+        vBox = wx.BoxSizer(wx.VERTICAL)
+
+        ####################################################################
+        
+        self._nb = wx.Notebook(self)
+        
+#         worksheetToolbar = self.constructWorksheetToolBar()
+        splitter = MultiSplitterWindow(self, style=wx.SP_LIVE_UPDATE)
+        self.splitter = splitter
+        editorPanel = CreatingEditorPanel(self)
+        resultPanel = ResultPanel(self, data=self.getData())
+        splitter.AppendWindow(editorPanel)
+        splitter.AppendWindow(resultPanel)
+        splitter.SetOrientation(wx.VERTICAL)
+        splitter.SizeWindows()  
+        
+#         editorPanel = CreatingEditorPanel(self)
+        ####################################################################
+        vBox.Add(splitter , 1, wx.EXPAND | wx.ALL, 0)
+#         vBox.Add(editorPanel , 1, wx.EXPAND | wx.ALL)
+#         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+#         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
+        sizer.Add(vBox, 1, wx.EXPAND , 0)
+        self.SetSizer(sizer)
+        
+    def SetOrientation(self, value):
+        if value:
+            self.splitter.SetOrientation(wx.VERTICAL)
+        else:
+            self.splitter.SetOrientation(wx.HORIZONTAL)
+        self.splitter.SizeWindows()        
+       
     def getData(self):
         # Get the data from the ListCtrl sample to play with, converting it
         # from a dictionary to a list of lists, including the dictionary key
@@ -120,6 +186,6 @@ class CreatingWorksheetPanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = CreatingWorksheetPanel(frame)
+    panel = CreateWorksheetTabPanel(frame)
     frame.Show()
     app.MainLoop()
