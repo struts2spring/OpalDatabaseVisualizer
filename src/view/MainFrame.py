@@ -27,7 +27,15 @@ class DatabaseMainFrame(wx.Frame):
         style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
-#         self.SetIcon(GetMondrianIcon())
+        print os.getcwd()
+        
+        print '1----------------------->'
+        imageLocation=os.path.join("..",  "images")
+        image = wx.Image(os.path.join(imageLocation, "Opal_database.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        icon = wx.EmptyIcon()
+        icon.CopyFromBitmap(image)
+        
+        self.SetIcon(icon)
         self.SetMinSize(wx.Size(400, 300))
         self.createMenuBar()
         self.createStatusBar()
