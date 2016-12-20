@@ -11,7 +11,7 @@ setup(
     author_email='',
     description='Database tool for developers, DBAs and analysts..',
     long_description=__doc__,
-    packages=['src'],
+    packages=['src','src.view','src.connect','src.view.history','src.view.worksheet'],
     py_modules=['src'],
     zip_safe=False,
     platforms='any',
