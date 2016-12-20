@@ -63,10 +63,10 @@ class DatabaseMainFrame(wx.Frame):
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(48, 48))
-        tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "new.png")))
+        tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "connect.png")))
         tb1.AddSeparator()
         
-        tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
+        tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "database_connect.png")))
         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))

@@ -11,6 +11,7 @@ from wx.lib.splitter import MultiSplitterWindow
 
 
 ID_run=wx.NewId()
+ID_executeScript=wx.NewId()
 
 class CreateWorksheetTabPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -67,15 +68,17 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
             imageLocation=os.path.join("..", "images")
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
-        playImage=wx.Bitmap(os.path.join(imageLocation, "resultset_next.png"))
-        tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=playImage)
+#         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
+        tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png")))
+        tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_script_exec.png")))
         tb1.AddSeparator()
+        tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "abc.png")))
         
 #         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
 #         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
+#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
+#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
+#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         tb1.Realize()
         
         return tb1     
