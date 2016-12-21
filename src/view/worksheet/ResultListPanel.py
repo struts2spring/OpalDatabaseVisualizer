@@ -1,8 +1,6 @@
 
 import wx
 import wx.dataview as dv
-from wx import ListCtrl
-import os
 
 #----------------------------------------------------------------------
 
@@ -18,10 +16,7 @@ import os
 #
 # For this example our data is stored in a simple list of lists.  In
 # real life you can use whatever you want or need to hold your data.
-ID_run=wx.NewId()
-ID_addRow=wx.NewId()
-ID_deleteRow=wx.NewId()
-ID_saveToDatabase=wx.NewId()
+
 class ResultModel(dv.PyDataViewIndexListModel):
     def __init__(self, data):
         dv.PyDataViewIndexListModel.__init__(self, len(data))
@@ -39,7 +34,7 @@ class ResultModel(dv.PyDataViewIndexListModel):
 
     # This method is called when the user edits a data item in the view.
     def SetValueByRow(self, value, row, col):
-        print("SetValue: (%d,%d) %s\n" % (row, col, value))
+        self.log.write("SetValue: (%d,%d) %s\n" % (row, col, value))
         self.data[row][col] = value
 
     # Report how many columns this model provides data for.
@@ -48,13 +43,13 @@ class ResultModel(dv.PyDataViewIndexListModel):
 
     # Report the number of rows in the model
     def GetCount(self):
-        #print('GetCount')
+        #self.log.write('GetCount')
         return len(self.data)
     
     # Called to check if non-standard attributes should be used in the
     # cell at (row, col)
     def GetAttrByRow(self, row, col, attr):
-        ##print('GetAttrByRow: (%d, %d)' % (row, col))
+        ##self.log.write('GetAttrByRow: (%d, %d)' % (row, col))
         if col == 3:
             attr.SetColour('blue')
             attr.SetBold(True)
@@ -101,14 +96,14 @@ class ResultModel(dv.PyDataViewIndexListModel):
         
             
 class ResultPanel(wx.Panel):
-    def __init__(self, parent,model=None, data=None,size=wx.DefaultSize,):
+    def __init__(self, parent,model=None, data=None):
         wx.Panel.__init__(self, parent, -1)
 
         # Create a dataview control
         self.dvc = dv.DataViewCtrl(self,
                                    style=wx.BORDER_THEME
                                    | dv.DV_ROW_LINES # nice alternating bg colors
-                                | dv.DV_HORIZ_RULES
+                                   #| dv.DV_HORIZ_RULES
                                    | dv.DV_VERT_RULES
                                    | dv.DV_MULTIPLE
                                    )
@@ -165,56 +160,27 @@ class ResultPanel(wx.Panel):
         self.Sizer.Add(self.dvc, 1, wx.EXPAND)
         
         # Add some buttons to help out with the tests
-#         b1 = wx.Button(self, label="New View", name="newView")
-#         self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
-#         b2 = wx.Button(self, label="Add Row")
-#         self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
-#         b3 = wx.Button(self, label="Delete Row(s)")
-#         self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
+        b1 = wx.Button(self, label="New View", name="newView")
+        self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
+        b2 = wx.Button(self, label="Add Row")
+        self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
+        b3 = wx.Button(self, label="Delete Row(s)")
+        self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
 
-#         btnbox = wx.BoxSizer(wx.HORIZONTAL)
-#         btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)
-#         btnbox.Add(b2, 0, wx.LEFT|wx.RIGHT, 5)
-#         btnbox.Add(b3, 0, wx.LEFT|wx.RIGHT, 5)
-#         
-#         
-#         self.Sizer.Add(btnbox, 0, wx.TOP|wx.BOTTOM, 5)
-        self.Sizer.Add(self.constructWorksheetToolBar(), 0, wx.TOP|wx.BOTTOM, 5)
+        btnbox = wx.BoxSizer(wx.HORIZONTAL)
+        btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)
+        btnbox.Add(b2, 0, wx.LEFT|wx.RIGHT, 5)
+        btnbox.Add(b3, 0, wx.LEFT|wx.RIGHT, 5)
+        self.Sizer.Add(btnbox, 0, wx.TOP|wx.BOTTOM, 5)
 
         # Bind some events so we can see what the DVC sends us
-#         self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
-#         self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
-        
-        self.SetSizer(self.Sizer)
+        self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
+        self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
 
-    def constructWorksheetToolBar(self):
-        
-        # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(48, 48))
-        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
-            imageLocation=os.path.join("..","..", "images")
-        elif "view"==os.path.split(os.getcwd())[-1:][0]:
-            imageLocation=os.path.join("..", "images")
-        
-#         tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "play.png")))
-        tb1.AddLabelTool(id=ID_addRow, label="Add row", shortHelp="Add Row ", bitmap=wx.Bitmap(os.path.join(imageLocation, "row_add.png")))
-        tb1.AddSeparator()
-        
-#         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-#         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-        tb1.AddLabelTool(id=ID_deleteRow, label="Delete row", shortHelp="Delete Row ", bitmap=wx.Bitmap(os.path.join(imageLocation, "row_delete.png")))
-        tb1.AddLabelTool(id=ID_deleteRow, label="Save to database ", shortHelp="Save to database", bitmap=wx.Bitmap(os.path.join(imageLocation, "save_to_database.png")))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
-        tb1.Realize()
-        
-        return tb1 
+
     def OnNewView(self, evt):
         f = wx.Frame(None, title="New view, shared model", size=(600,400))
-        ResultPanel(f, self.log, self.model)
+        ResultPanel(f,  self.model)
         b = f.FindWindowByName("newView")
         b.Disable()
         f.Show()
@@ -240,10 +206,10 @@ class ResultPanel(wx.Panel):
                 
 
     def OnEditingDone(self, evt):
-        print("OnEditingDone\n")
+        self.log.write("OnEditingDone\n")
 
     def OnValueChanged(self, evt):
-        print("OnValueChanged\n")
+        self.log.write("OnValueChanged\n")
 
         
 #----------------------------------------------------------------------
