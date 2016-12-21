@@ -50,13 +50,13 @@ class HistoryModel(dv.PyDataViewIndexListModel):
 
     # Report the number of rows in the model
     def GetCount(self):
-        #self.log.write('GetCount')
+        # self.log.write('GetCount')
         return len(self.data)
     
     # Called to check if non-standard attributes should be used in the
     # cell at (row, col)
     def GetAttrByRow(self, row, col, attr):
-        ##self.log.write('GetAttrByRow: (%d, %d)' % (row, col))
+        # #self.log.write('GetAttrByRow: (%d, %d)' % (row, col))
         if col == 3:
             attr.SetColour('blue')
             attr.SetBold(True)
@@ -71,7 +71,7 @@ class HistoryModel(dv.PyDataViewIndexListModel):
     # data set and comparing them.  The return value is -1, 0, or 1,
     # just like Python's cmp() function.
     def Compare(self, item1, item2, col, ascending):
-        if not ascending: # swap sort order?
+        if not ascending:  # swap sort order?
             item2, item1 = item1, item2
         row1 = self.GetRow(item1)
         row2 = self.GetRow(item2)
@@ -103,14 +103,14 @@ class HistoryModel(dv.PyDataViewIndexListModel):
         
             
 class HistoryPanel(wx.Panel):
-    def __init__(self, parent,model=None, data=None):
+    def __init__(self, parent, model=None, data=None):
         wx.Panel.__init__(self, parent, -1)
 
         # Create a dataview control
         self.dvc = dv.DataViewCtrl(self,
                                    style=wx.BORDER_THEME
-                                   | dv.DV_ROW_LINES # nice alternating bg colors
-                                   #| dv.DV_HORIZ_RULES
+                                   | dv.DV_ROW_LINES  # nice alternating bg colors
+                                   | dv.DV_HORIZ_RULES
                                    | dv.DV_VERT_RULES
                                    | dv.DV_MULTIPLE
                                    )
@@ -135,8 +135,12 @@ class HistoryPanel(wx.Panel):
         # fetch the data from.  This means that you can have views
         # using the same model that show different columns of data, or
         # that they can be in a different order than in the model.
-        self.dvc.AppendTextColumn("SQl",  1, width=370, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("date time",   2, width=260, mode=dv.DATAVIEW_CELL_EDITABLE)
+        self.dvc.AppendTextColumn("SQL", 1, width=370, mode=dv.DATAVIEW_CELL_EDITABLE)
+        self.dvc.AppendTextColumn("Connection", 2, width=100, mode=dv.DATAVIEW_CELL_EDITABLE)
+        self.dvc.AppendTextColumn("Time Stamp", 3, width=60, mode=dv.DATAVIEW_CELL_EDITABLE)
+        self.dvc.AppendTextColumn("Type", 4, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
+        self.dvc.AppendTextColumn("Executed", 5, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
+        self.dvc.AppendTextColumn("Duration (seconds)", 6, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
 
         # There are Prepend methods too, and also convenience methods
         # for other data types but we are only using strings in this
@@ -174,10 +178,10 @@ class HistoryPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
 
         btnbox = wx.BoxSizer(wx.HORIZONTAL)
-        btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)
-        btnbox.Add(b2, 0, wx.LEFT|wx.RIGHT, 5)
-        btnbox.Add(b3, 0, wx.LEFT|wx.RIGHT, 5)
-        self.Sizer.Add(btnbox, 0, wx.TOP|wx.BOTTOM, 5)
+        btnbox.Add(b1, 0, wx.LEFT | wx.RIGHT, 5)
+        btnbox.Add(b2, 0, wx.LEFT | wx.RIGHT, 5)
+        btnbox.Add(b3, 0, wx.LEFT | wx.RIGHT, 5)
+        self.Sizer.Add(btnbox, 0, wx.TOP | wx.BOTTOM, 5)
 
         # Bind some events so we can see what the DVC sends us
         self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
@@ -185,7 +189,7 @@ class HistoryPanel(wx.Panel):
 
 
     def OnNewView(self, evt):
-        f = wx.Frame(None, title="New view, shared model", size=(600,400))
+        f = wx.Frame(None, title="New view, shared model", size=(600, 400))
         HistoryPanel(f, self.log, self.model)
         b = f.FindWindowByName("newView")
         b.Disable()
@@ -245,13 +249,13 @@ if __name__ == '__main__':
     # from a dictionary to a list of lists, including the dictionary key
     # as the first element of each sublist.
     musicdata = {
-    1 : ("select * from book;", "15-Dec-2016"),
-    2 : ("select * from author;", "15-Dec-2016"),
+    1 : ('SELECT * FROM T_MDUR_MDL_RSV;', 'Local_App_Owner' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
+    2 : ('select * from author;', 'Local_App_Owner_' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
 
     }
     musicdata = musicdata.items()
     musicdata.sort()
-    musicdata = [[str(k)] + list(v) for k,v in musicdata]
+    musicdata = [[str(k)] + list(v) for k, v in musicdata]
     panel = HistoryPanel(frame, data=musicdata)
     frame.Show()
     app.MainLoop()
