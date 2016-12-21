@@ -101,14 +101,14 @@ class ResultModel(dv.PyDataViewIndexListModel):
         
             
 class ResultPanel(wx.Panel):
-    def __init__(self, parent,model=None, data=None):
+    def __init__(self, parent,model=None, data=None,size=wx.DefaultSize,):
         wx.Panel.__init__(self, parent, -1)
 
         # Create a dataview control
         self.dvc = dv.DataViewCtrl(self,
                                    style=wx.BORDER_THEME
                                    | dv.DV_ROW_LINES # nice alternating bg colors
-                                   #| dv.DV_HORIZ_RULES
+                                | dv.DV_HORIZ_RULES
                                    | dv.DV_VERT_RULES
                                    | dv.DV_MULTIPLE
                                    )
@@ -165,12 +165,12 @@ class ResultPanel(wx.Panel):
         self.Sizer.Add(self.dvc, 1, wx.EXPAND)
         
         # Add some buttons to help out with the tests
-        b1 = wx.Button(self, label="New View", name="newView")
-        self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
-        b2 = wx.Button(self, label="Add Row")
-        self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
-        b3 = wx.Button(self, label="Delete Row(s)")
-        self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
+#         b1 = wx.Button(self, label="New View", name="newView")
+#         self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
+#         b2 = wx.Button(self, label="Add Row")
+#         self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
+#         b3 = wx.Button(self, label="Delete Row(s)")
+#         self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
 
 #         btnbox = wx.BoxSizer(wx.HORIZONTAL)
 #         btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)

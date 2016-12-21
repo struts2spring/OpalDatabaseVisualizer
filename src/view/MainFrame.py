@@ -62,7 +62,7 @@ class DatabaseMainFrame(wx.Frame):
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(48, 48))
+        tb1.SetToolBitmapSize(wx.Size(16, 16))
         tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "connect.png")))
         tb1.AddSeparator()
         
@@ -103,7 +103,7 @@ class DatabaseMainFrame(wx.Frame):
         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
                           Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
     
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Name("test4").Caption("SQL execution").LeftDockable(True).
+        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").

@@ -19,9 +19,19 @@ class CreateWorksheetTabPanel(wx.Panel):
         self.parent = parent
 
         # Attributes
-        self._nb = wx.Notebook(self) 
-        worksheetPanel = CreatingWorksheetWithToolbarPanel( self._nb,)
-        self._nb.AddPage(worksheetPanel,"2")
+        self._nb = wx.Notebook(self)
+        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
+            imageLocation=os.path.join("..","..",  "images")
+#             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
+        elif "view"==os.path.split(os.getcwd())[-1:][0]:
+            imageLocation=os.path.join("..", "images")
+        imgList = wx.ImageList(16, 16)
+        imgList.Add(wx.Bitmap(os.path.join(imageLocation, "sql_script.png")))
+        
+        self._nb.AssignImageList(imgList) 
+        
+        worksheetPanel = CreatingWorksheetWithToolbarPanel( self._nb, -1, style=wx.CLIP_CHILDREN)
+        self._nb.AddPage(worksheetPanel,"2",imageId=0)
         # Layout
         self.__DoLayout()
 
@@ -91,8 +101,10 @@ class CreatingWorksheetPanel(wx.Panel):
 
         ####################################################################
         
-        self._nb = wx.Notebook(self)
+#         self._nb = wx.Notebook(self)
+
         
+        ####################################################################
 #         worksheetToolbar = self.constructWorksheetToolBar()
         splitter = MultiSplitterWindow(self, style=wx.SP_LIVE_UPDATE)
         self.splitter = splitter

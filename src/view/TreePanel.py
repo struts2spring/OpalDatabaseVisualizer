@@ -11,7 +11,7 @@ import os
 from src.connect.sqlite.Connect import ConnectSqlite
 
 
-_demoPngs = ["overview", "recent", "frame", "dialog", "moredialog", "core",
+_demoPngs = ["database", "table", "view", "indexs", "moredialog", "core",
      "book", "customcontrol", "morecontrols", "layout", "process",
      "clipboard", "images", "miscellaneous"]
 # _treeList = [
@@ -138,12 +138,14 @@ class CreatingTreePanel(wx.Panel):
         
         for category, items in self._treeList:
             count += 1
+            print "1: ",category,items
             if filter:
                 if fullSearch:
                     items = self.searchItems[category]
                 else:
                     items = [item for item in items if filter.lower() in item.lower()]
             if items:
+                print "2: ", category, count
                 child = self.tree.AppendItem(self.root, category, image=count)
                 self.tree.SetItemFont(child, catFont)
                 self.tree.SetItemPyData(child, count)
@@ -152,7 +154,8 @@ class CreatingTreePanel(wx.Panel):
                     image = count
 #                     if DoesModifiedExist(childItem):
 #                         image = len(_demoPngs)
-                    theDemo = self.tree.AppendItem(child, childItem, image=image)
+                    print "3: ",child, childItem, count
+                    theDemo = self.tree.AppendItem(child, childItem, image=count)
                     self.tree.SetItemPyData(theDemo, count)
                     self.treeMap[childItem] = theDemo
                     if current and (childItem, category) == current:
@@ -222,11 +225,16 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
 
         # add the image for modified demos.
 
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "new.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database_category.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "folder_view.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "folder.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "table.png"))))
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "view.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "index.png"))))
 #         imgList.Add(wx.Bitmap(path2))
-        for png in _demoPngs:
-            imgList.Add(catalog[png].GetBitmap())
+#         for png in _demoPngs:
+#             imgList.Add(catalog[png].GetBitmap())
             
 
         self.AssignImageList(imgList)
