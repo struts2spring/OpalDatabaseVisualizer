@@ -10,8 +10,8 @@ import os
 from wx.lib.splitter import MultiSplitterWindow
 
 
-ID_run=wx.NewId()
-ID_executeScript=wx.NewId()
+ID_run = wx.NewId()
+ID_executeScript = wx.NewId()
 
 class CreateWorksheetTabPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -20,18 +20,18 @@ class CreateWorksheetTabPanel(wx.Panel):
 
         # Attributes
         self._nb = wx.Notebook(self)
-        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
-            imageLocation=os.path.join("..","..",  "images")
+        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+            imageLocation = os.path.join("..", "..", "images")
 #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
-        elif "view"==os.path.split(os.getcwd())[-1:][0]:
-            imageLocation=os.path.join("..", "images")
+        elif "view" == os.path.split(os.getcwd())[-1:][0]:
+            imageLocation = os.path.join("..", "images")
         imgList = wx.ImageList(16, 16)
         imgList.Add(wx.Bitmap(os.path.join(imageLocation, "sql_script.png")))
         
         self._nb.AssignImageList(imgList) 
         
-        worksheetPanel = CreatingWorksheetWithToolbarPanel( self._nb, -1, style=wx.CLIP_CHILDREN)
-        self._nb.AddPage(worksheetPanel,"2",imageId=0)
+        worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+        self._nb.AddPage(worksheetPanel, "2", imageId=0)
         # Layout
         self.__DoLayout()
 
@@ -41,9 +41,10 @@ class CreateWorksheetTabPanel(wx.Panel):
         sizer.Add(self._nb, 1, wx.EXPAND)
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
+        self.Layout()
         
 
-        sizer.Fit(self)
+#         sizer.Fit(self)
 class CreatingWorksheetWithToolbarPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -53,10 +54,10 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 
         ####################################################################
         worksheetToolbar = self.constructWorksheetToolBar()
-        worksheetPanel = CreatingWorksheetPanel( self)
+        worksheetPanel = CreatingWorksheetPanel(self)
         
         ####################################################################
-        vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
+#         vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
         vBox.Add(worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -69,13 +70,13 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(48, 48))
-        playImage=None
-        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
-            imageLocation=os.path.join("..","..",  "images")
+        tb1.SetToolBitmapSize(wx.Size(16, 16))
+        playImage = None
+        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+            imageLocation = os.path.join("..", "..", "images")
 #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
-        elif "view"==os.path.split(os.getcwd())[-1:][0]:
-            imageLocation=os.path.join("..", "images")
+        elif "view" == os.path.split(os.getcwd())[-1:][0]:
+            imageLocation = os.path.join("..", "images")
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
 #         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
@@ -106,10 +107,10 @@ class CreatingWorksheetPanel(wx.Panel):
         
         ####################################################################
 #         worksheetToolbar = self.constructWorksheetToolBar()
-        splitter = MultiSplitterWindow(self, style=wx.SP_LIVE_UPDATE)
+        splitter = MultiSplitterWindow(self,  id=-1,style=wx.SP_LIVE_UPDATE)
         self.splitter = splitter
-        editorPanel = CreatingEditorPanel(self)
-        resultPanel = ResultPanel(self, data=self.getData())
+        editorPanel = CreatingEditorPanel(splitter)
+        resultPanel = ResultPanel(splitter, data=self.getData())
         splitter.AppendWindow(editorPanel)
         splitter.AppendWindow(resultPanel)
         splitter.SetOrientation(wx.VERTICAL)
@@ -124,6 +125,7 @@ class CreatingWorksheetPanel(wx.Panel):
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+        self.SetAutoLayout(True)
         
     def SetOrientation(self, value):
         if value:
@@ -194,13 +196,14 @@ class CreatingWorksheetPanel(wx.Panel):
         }
         music = musicdata.items()
         music.sort()
-        music = [[str(k)] + list(v) for k,v in music]
+        music = [[str(k)] + list(v) for k, v in music]
         return music
     
     #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = CreateWorksheetTabPanel(frame)
+#     panel = CreateWorksheetTabPanel(frame)
+    panel = CreatingWorksheetPanel(frame)
     frame.Show()
     app.MainLoop()
