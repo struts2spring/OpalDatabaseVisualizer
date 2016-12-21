@@ -128,9 +128,9 @@ class DatabaseMainFrame(wx.Frame):
 
     def constructHistoryPane(self):
         musicdata = {
-        1 : ("select * from book;", "15-Dec-2016"),
-        2 : ("select * from author;", "15-Dec-2016"),
-    
+            1 : ('SELECT * FROM T_MDUR_MDL_RSV;', 'Local_App_Owner' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
+            2 : ('select * from author;', 'Local_App_Owner_' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
+            
         }
         musicdata = musicdata.items()
         musicdata.sort()
