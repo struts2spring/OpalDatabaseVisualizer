@@ -29,7 +29,8 @@ class ConnectSqlite():
             print "SQLite version: %s" % data   
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types=cur.execute("select distinct type from sqlite_master;").fetchall()
-            dbObjects=list()
+            databaseList=list()
+            dbObjects=[]
             print types
             for t in types:
                 print t[0], type(t)
@@ -58,7 +59,9 @@ class ConnectSqlite():
             
             if self.connection:
                 self.connection.close()
-        return dbObjects
+        databaseList.append('database')
+        databaseList.append(dbObjects)
+        return databaseList
     
     def createTable(self):
         try:

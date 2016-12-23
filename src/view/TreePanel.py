@@ -63,7 +63,14 @@ class CreatingTreePanel(wx.Panel):
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
         self.RecreateTree()
         
+#         self.tree.SetExpansionState(self.expansionState)
+        self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
+        self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
+        self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
+        self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
         
+        self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnTreeRightDown)
+        self.tree.Bind(wx.EVT_RIGHT_UP, self.OnTreeRightUp)
         ####################################################################
         vBox.Add(self.filter , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
@@ -113,7 +120,7 @@ class CreatingTreePanel(wx.Panel):
                     
         self.tree.Freeze()
         self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("Opal Preferences")
+        self.root = self.tree.AddRoot("Connections")
         self.tree.SetItemImage(self.root, 0)
         self.tree.SetItemPyData(self.root, 0)
 
@@ -137,8 +144,8 @@ class CreatingTreePanel(wx.Panel):
         count = 0
         
 
-        
-        for category, items in self._treeList:
+        databaseLeaf = self.tree.AppendItem(self.root, 'database', image=0)
+        for category, items in self._treeList[1]:
             count += 1
             print "1: ",category,items
             if filter:
@@ -148,16 +155,22 @@ class CreatingTreePanel(wx.Panel):
                     items = [item for item in items if filter.lower() in item.lower()]
             if items:
                 print "2: ", category, count
-                child = self.tree.AppendItem(self.root, category, image=count)
+                child = self.tree.AppendItem(databaseLeaf, category, image=count)
                 self.tree.SetItemFont(child, catFont)
                 self.tree.SetItemPyData(child, count)
                 if not firstChild: firstChild = child
                 for childItem in items:
-                    image = count
+                    imageCount = count
 #                     if DoesModifiedExist(childItem):
 #                         image = len(_demoPngs)
-                    print "3: ",child, childItem, count
-                    theDemo = self.tree.AppendItem(child, childItem, image=count)
+                    print "3: ",category, childItem, count
+                    if category=='table':
+                        imageCount=4
+                    elif category=='index':
+                        imageCount=5
+                    elif category=='view':
+                        imageCount=6
+                    theDemo = self.tree.AppendItem(child, childItem, image=imageCount)
                     self.tree.SetItemPyData(theDemo, count)
                     self.treeMap[childItem] = theDemo
                     if current and (childItem, category) == current:
@@ -199,9 +212,72 @@ class CreatingTreePanel(wx.Panel):
         if item == self.tree.GetSelection():
             print(self.tree.GetItemText(item) + " Overview")
         event.Skip()
-
     #---------------------------------------------
+    def OnSelChanged(self, event):
+        print 'OnSelChanged'
+    #---------------------------------------------
+    def OnTreeRightDown(self, event):
         
+        pt = event.GetPosition()
+        item, flags = self.tree.HitTest(pt)
+
+        if item:
+            self.tree.item = item
+            self.tree.item
+            print("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
+            self.tree.SelectItem(item)
+            print 'parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item))
+
+
+    def OnTreeRightUp(self, event):
+
+        item = self.tree.item     
+        
+        if not item:
+            event.Skip()
+            return
+        print 'OnTreeRightUp'
+#         if not self.tree.IsItemEnabled(item):
+#             event.Skip()
+#             return
+
+#         # Item Text Appearance
+#         ishtml = self.tree.IsItemHyperText(item)
+#         back = self.tree.GetItemBackgroundColour(item)
+#         fore = self.tree.GetItemTextColour(item)
+#         isbold = self.tree.IsBold(item)
+#         font = self.tree.GetItemFont(item)          
+
+
+        
+        menu = wx.Menu()
+        if self.tree.GetItemText(self.tree.GetItemParent(self.tree.item))=='database':
+            if self.tree.GetItemText(item)=='table':
+                item1 = menu.Append(wx.ID_ANY, "Change item background table")
+                item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+                self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+            if self.tree.GetItemText(item)=='view':
+                item1 = menu.Append(wx.ID_ANY, "Change item background view")
+                item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+                self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+            if self.tree.GetItemText(item)=='index':
+                item1 = menu.Append(wx.ID_ANY, "Change item background index")
+                item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+                self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+                
+        if self.tree.GetItemText(self.tree.GetItemParent(self.tree.item))=='table': 
+            print self.tree.GetItemText(item)   
+            item1 = menu.Append(wx.ID_ANY, "Change item background index")
+            item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+            self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+        
+        
+        
+        self.PopupMenu(menu)
+        menu.Destroy() 
+    
+    def OnItemBackground(self):
+        print 'OnItemBackground'
 class databaseNavigationTree(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in database page

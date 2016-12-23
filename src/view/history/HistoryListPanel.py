@@ -41,7 +41,7 @@ class HistoryModel(dv.PyDataViewIndexListModel):
 
     # This method is called when the user edits a data item in the view.
     def SetValueByRow(self, value, row, col):
-        self.log.write("SetValue: (%d,%d) %s\n" % (row, col, value))
+        print("SetValue: (%d,%d) %s\n" % (row, col, value))
         self.data[row][col] = value
 
     # Report how many columns this model provides data for.
@@ -50,13 +50,13 @@ class HistoryModel(dv.PyDataViewIndexListModel):
 
     # Report the number of rows in the model
     def GetCount(self):
-        # self.log.write('GetCount')
+        # print('GetCount')
         return len(self.data)
     
     # Called to check if non-standard attributes should be used in the
     # cell at (row, col)
     def GetAttrByRow(self, row, col, attr):
-        # #self.log.write('GetAttrByRow: (%d, %d)' % (row, col))
+        # #print('GetAttrByRow: (%d, %d)' % (row, col))
         if col == 3:
             attr.SetColour('blue')
             attr.SetBold(True)
@@ -216,10 +216,10 @@ class HistoryPanel(wx.Panel):
                 
 
     def OnEditingDone(self, evt):
-        self.log.write("OnEditingDone\n")
+        print("OnEditingDone\n")
 
     def OnValueChanged(self, evt):
-        self.log.write("OnValueChanged\n")
+        print("OnValueChanged\n")
 
         
 #----------------------------------------------------------------------
