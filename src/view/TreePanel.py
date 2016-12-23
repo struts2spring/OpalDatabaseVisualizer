@@ -136,6 +136,8 @@ class CreatingTreePanel(wx.Panel):
         filter = self.filter.GetValue()
         count = 0
         
+
+        
         for category, items in self._treeList:
             count += 1
             print "1: ",category,items
@@ -265,6 +267,13 @@ class MainPanel(wx.Panel):
             return super(MainPanel, self).Thaw()
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
+    treeImageLevel=dict()
+    treeImageLevel[(0,0)]=(0,'database.png')
+    treeImageLevel[(1,0)]=(0,'database_category.png')
+    treeImageLevel[(1,1)]=(0,'folder_view.png')
+    treeImageLevel[(1,2)]=(0,'folder.png')
+    
+    print treeImageLevel[(0,0)]
     app = wx.App(False)
     frame = wx.Frame(None)
     panel = CreatingTreePanel(frame, preferenceName='asfd')
