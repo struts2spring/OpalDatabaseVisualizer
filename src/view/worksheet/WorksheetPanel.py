@@ -57,7 +57,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         worksheetPanel = CreatingWorksheetPanel(self)
         
         ####################################################################
-#         vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
         vBox.Add(worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)

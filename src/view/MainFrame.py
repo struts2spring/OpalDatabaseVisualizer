@@ -17,6 +17,7 @@ from src.view.history.HistoryListPanel import HistoryPanel
 ID_About = wx.NewId()
 ID_newConnection = wx.NewId()
 ID_openConnection = wx.NewId()
+ID_worksheet = wx.NewId()
 #---------------------------------------------------------------------------
 
 
@@ -67,10 +68,11 @@ class DatabaseMainFrame(wx.Frame):
         tb1.AddSeparator()
         
         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "database_connect.png")))
-        tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-        tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
+        tb1.AddLabelTool(id=ID_worksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join("..", "images", "script.png")))
+        tb1.AddLabelTool(id=ID_worksheet, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join("..", "images", "preference.png")))
+#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
+#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
+#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         tb1.Realize()
         
         return tb1

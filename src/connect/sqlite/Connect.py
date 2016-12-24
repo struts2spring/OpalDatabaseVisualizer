@@ -30,7 +30,7 @@ class ConnectSqlite():
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types=cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList=list()
-            dbObjects=[]
+            dbObjects=list()
             print types
             for t in types:
                 print t[0], type(t)
@@ -38,9 +38,23 @@ class ConnectSqlite():
                 query="select tbl_name from sqlite_master where type='"+t[0]+"' order by tbl_name;"
                 print query
                 tObjectList=cur.execute(query).fetchall()
+                tableColumnList=list()
                 for tObj in tObjectList:
-                    tObjectArrayList.append(tObj[0])
-                dbObjects.append((t[0],tObjectArrayList))
+                    if t[0]!='view':
+                        tableColumnsOrIndexesSql="PRAGMA "+t[0]+"_info(%s);" % tObj[0]
+                        print tableColumnsOrIndexesSql
+                        tableColumnsOrIndexesList=cur.execute(tableColumnsOrIndexesSql).fetchall()
+#                         print objChildList
+                        tableColumnsOrIndexes=list()
+                        for objChild in tableColumnsOrIndexesList:
+                            tableColumnsOrIndexes.append(objChild)
+                            print objChild
+                        tableColumnList.append([tObj[0],tableColumnsOrIndexes])
+                        print tableColumnList
+#                 tObjectArrayList.append(tableColumnList)
+                print tObjectArrayList
+                dbObjects.append((t[0],tableColumnList))
+            print dbObjects
 #                 dbObjects.append(tObjectArrayList)
             print dbObjects
 #             print cur.fetchallDict()
