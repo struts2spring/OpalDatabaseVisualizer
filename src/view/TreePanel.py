@@ -201,13 +201,14 @@ class CreatingTreePanel(wx.Panel):
             return
 
         wx.BeginBusyCursor()
-        
-        for category, items in self._treeList:
-            self.searchItems[category] = []
-            for childItem in items:
-#                 if SearchDemo(childItem, value):
-                self.searchItems[category].append(childItem)
-
+        try:
+            for category, items in self._treeList[1]:
+                self.searchItems[category] = []
+                for childItem in items:
+    #                 if SearchDemo(childItem, value):
+                    self.searchItems[category].append(childItem)
+        except Exception as e:
+            print e
         wx.EndBusyCursor()
         self.RecreateTree()   
     #---------------------------------------------    
@@ -259,16 +260,16 @@ class CreatingTreePanel(wx.Panel):
         count = 0
         
 
-        databaseLeaf = self.tree.AppendItem(self.root, 'database', image=0)
+        databaseLeaf = self.tree.AppendItem(self.root, 'database', image=16)
         for category, items in self._treeList[1]:
             count += 1
-            print "1: ", category, items
+#             print "1: ", category, items
             itemList = list()
             if filter:
                 if fullSearch:
                     items = self.searchItems[category]
                 else:
-                    print items
+#                     print items
                     for item in items:
                         if type(item) != list:
                             if filter.lower() in item.lower():
@@ -276,11 +277,11 @@ class CreatingTreePanel(wx.Panel):
                             else:
                                 itemList.append(item[1].lower())
 #             items=itemList
-            print itemList
+#             print itemList
 #                     items = [item for item in items if filter.lower() in item.lower()]
             if items:
-                print "2: ", category, count
-                child = self.tree.AppendItem(databaseLeaf, category, image=count)
+#                 print "2: ", category, count
+                child = self.tree.AppendItem(databaseLeaf, category+' ('+str(len(items))+')', image=count)
                 self.tree.SetItemFont(child, catFont)
                 self.tree.SetItemPyData(child, count)
                 if not firstChild: firstChild = child
@@ -288,19 +289,19 @@ class CreatingTreePanel(wx.Panel):
                     imageCount = count
 #                     if DoesModifiedExist(childItem):
 #                         image = len(_demoPngs)
-                    print "3: ", category, childItem, count
-                    if category == 'table':
+#                     print "3: ", category, childItem, count
+                    if 'table' in category :
                         imageCount = 4
-                    elif category == 'index':
+                    elif 'index' in category :
                         imageCount = 5
-                    elif category == 'view':
+                    elif 'view' in category :
                         imageCount = 6
                     try:
                         if type(childItem) == list:
                             tableNameNode = self.tree.AppendItem(child, childItem[0], image=imageCount)
                             self.tree.SetItemPyData(tableNameNode, count)
                             
-                            if category == 'table':
+                            if 'table' in category :
                                 imageCount = 11
                                 columnsNode = self.tree.AppendItem(tableNameNode, 'Columns', image=imageCount)
                                 self.tree.SetItemPyData(columnsNode, count)
@@ -316,8 +317,8 @@ class CreatingTreePanel(wx.Panel):
                                 
                             secondLevelItems = childItem[1]
                             for secondLevelChild in secondLevelItems:  
-                                if category == 'table':
-                                    print 'secondLevelChild:', secondLevelChild
+                                if 'table' in category :
+#                                     print 'secondLevelChild:', secondLevelChild
                                     if secondLevelChild[5] == 1:
                                         imageCount = 9
                                     if secondLevelChild[2] == 'VARCHAR':
@@ -355,13 +356,13 @@ class CreatingTreePanel(wx.Panel):
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
-        print("OnItemExpanded: %s" % self.tree.GetItemText(item))
+#         print("OnItemExpanded: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
     def OnItemCollapsed(self, event):
         item = event.GetItem()
-        print("OnItemCollapsed: %s" % self.tree.GetItemText(item))
+#         print("OnItemCollapsed: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
@@ -554,6 +555,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "reference.png"))))  # 13
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "datetime.png"))))  # 14
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "columns.png"))))  # 15
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "sqlite.png"))))  # 16
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())
