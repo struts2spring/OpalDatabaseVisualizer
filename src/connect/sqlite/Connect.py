@@ -40,7 +40,7 @@ class ConnectSqlite():
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
-                    if t[0] != 'view':
+                    if t[0] == 'table' or t[0] == 'index':
                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
                         print tableColumnsOrIndexesSql
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
@@ -53,6 +53,17 @@ class ConnectSqlite():
                     if t[0] == 'view':
                         tableColumnList.append([tObj[0], []])
                         print 'view'
+                        
+#                     if t[0] == 'index':
+#                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
+#                         tablesHavingIndexesList = cur.execute(tablesHavingIndexesSql).fetchall()
+#                         print tablesHavingIndexesSql
+#                         for tableHavingIndexes in tablesHavingIndexesList:
+#                             tableIndexesSql = "PRAGMA " + t[0] + "_list(%s);" % tObj[0]
+# #                         print objChildList
+#                         tableColumnsOrIndexes = list()
+#                         for objChild in tableColumnsOrIndexesList:
+#                             tableColumnsOrIndexes.append(objChild)
                         
 #                         print tableColumnList
 #                 tObjectArrayList.append(tableColumnList)
@@ -85,7 +96,7 @@ class ConnectSqlite():
         try:
             self.connection = sqlite3.connect('_opal.sqlite')
             cur = self.connection.cursor() 
-            cur.execute('CREATE TABLE {tn} ({fn} {ft} PRIMARY KEY)'.format(tn=table_name, fn=id_field, ft=field_type))
+#             cur.execute('CREATE TABLE {tn} ({fn} {ft} PRIMARY KEY)'.format(tn=table_name, fn=id_field, ft=field_type))
         except sqlite3.Error, e:
             
             print "Error %s:" % e.args[0]

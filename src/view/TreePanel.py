@@ -146,16 +146,9 @@ keyMap = {
     wx.WXK_NUMPAD_DIVIDE : "WXK_NUMPAD_DIVIDE"
     }
 # _treeList=[(u'table', [u'author', u'author_book_link', u'book', u'book_format', u'book_format_link']), (u'index', [u'author', u'book'])]
-_treeList = [
-    (u'table', [
-    
-            [u'author', [u'id', u'author_name', u'about_author', u'email', u'created_on']],
-            [u'author_book_link', [u'id', u'book_id', u'author_id', u'created_on']],
-            [u'book', [u'id', u'book_name', u'sub_title', u'isbn_10', u'isbn_13', u'series', u'dimension', u'customer_review', u'book_description', u'edition_no', u'publisher', u'book_format', u'in_language', u'published_on', u'has_cover', u'has_code', u'book_path', u'rating', u'uuid', u'tag', u'book_file_name', u'book_img_name', u'wish_listed', u'itEbookUrlNumber', u'created_on']],
-            [u'book_format', [u'id', u'file_name', u'file_type', u'file_size', u'created_on']],
-            [u'book_format_link', [u'id', u'book_format_id', u'book_id', u'created_on']]
+_treeList = [(u'table', [[u'author', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'author_name', u'VARCHAR', 1, None, 0), (2, u'about_author', u'VARCHAR', 0, None, 0), (3, u'email', u'VARCHAR', 0, None, 0), (4, u'created_on', u'DATETIME', 0, None, 0)]], [u'author_book_link', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'book_id', u'INTEGER', 0, None, 0), (2, u'author_id', u'INTEGER', 0, None, 0), (3, u'created_on', u'DATETIME', 0, None, 0)]], [u'book', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'book_name', u'VARCHAR', 1, None, 0), (2, u'sub_title', u'VARCHAR', 0, None, 0), (3, u'isbn_10', u'VARCHAR', 0, None, 0), (4, u'isbn_13', u'VARCHAR', 0, None, 0), (5, u'series', u'VARCHAR', 0, None, 0), (6, u'dimension', u'VARCHAR', 0, None, 0), (7, u'customer_review', u'VARCHAR', 0, None, 0), (8, u'book_description', u'VARCHAR', 0, None, 0), (9, u'edition_no', u'VARCHAR', 0, None, 0), (10, u'publisher', u'TEXT', 0, None, 0), (11, u'book_format', u'VARCHAR', 0, None, 0), (12, u'in_language', u'VARCHAR', 0, None, 0), (13, u'published_on', u'DATETIME', 0, None, 0), (14, u'has_cover', u'VARCHAR', 0, None, 0), (15, u'has_code', u'VARCHAR', 0, None, 0), (16, u'book_path', u'VARCHAR', 0, None, 0), (17, u'rating', u'VARCHAR', 0, None, 0), (18, u'uuid', u'VARCHAR', 0, None, 0), (19, u'tag', u'VARCHAR', 0, None, 0), (20, u'book_file_name', u'VARCHAR', 0, None, 0), (21, u'book_img_name', u'VARCHAR', 0, None, 0), (22, u'wish_listed', u'VARCHAR', 0, None, 0), (23, u'itEbookUrlNumber', u'VARCHAR', 0, None, 0), (24, u'created_on', u'DATETIME', 0, None, 0)]], [u'book_format', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'file_name', u'VARCHAR', 0, None, 0), (2, u'file_type', u'VARCHAR', 1, None, 0), (3, u'file_size', u'VARCHAR', 0, None, 0), (4, u'created_on', u'DATETIME', 0, None, 0)]], [u'book_format_link', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'book_format_id', u'INTEGER', 0, None, 0), (2, u'book_id', u'INTEGER', 0, None, 0), (3, u'created_on', u'DATETIME', 0, None, 0)]]]), (u'index', [[u'author', []], [u'book', []]]), (u'view', [[u'book_author', []]])]
 
-        ])]
+
 class CreatingTreePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -281,7 +274,7 @@ class CreatingTreePanel(wx.Panel):
 #                     items = [item for item in items if filter.lower() in item.lower()]
             if items:
 #                 print "2: ", category, count
-                child = self.tree.AppendItem(databaseLeaf, category+' ('+str(len(items))+')', image=count)
+                child = self.tree.AppendItem(databaseLeaf, category + ' (' + str(len(items)) + ')', image=count)
                 self.tree.SetItemFont(child, catFont)
                 self.tree.SetItemPyData(child, count)
                 if not firstChild: firstChild = child
@@ -307,13 +300,13 @@ class CreatingTreePanel(wx.Panel):
                                 self.tree.SetItemPyData(columnsNode, count)
                                 imageCount = 11
                                 uniqueKeysNode = self.tree.AppendItem(tableNameNode, 'Unique Keys', image=imageCount)
-                                self.tree.SetItemPyData(columnsNode, count)
+                                self.tree.SetItemPyData(uniqueKeysNode, count)
                                 imageCount = 11
                                 foreignKeyNode = self.tree.AppendItem(tableNameNode, 'Foreign Keys', image=imageCount)
-                                self.tree.SetItemPyData(columnsNode, count)
+                                self.tree.SetItemPyData(foreignKeyNode, count)
                                 imageCount = 11
                                 referencesNode = self.tree.AppendItem(tableNameNode, 'References', image=imageCount)
-                                self.tree.SetItemPyData(columnsNode, count)
+                                self.tree.SetItemPyData(referencesNode, count)
                                 
                             secondLevelItems = childItem[1]
                             for secondLevelChild in secondLevelItems:  
@@ -444,23 +437,30 @@ class CreatingTreePanel(wx.Panel):
             
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
         if self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) == 'database':
-            if self.tree.GetItemText(item) == 'table':
-                item1 = menu.Append(wx.ID_ANY, "Change item background table")
-                item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+            if 'table' in self.tree.GetItemText(item):
+                item1 = menu.Append(wx.ID_ANY, "Create new table")
+                item2 = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                 self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-            if self.tree.GetItemText(item) == 'view':
-                item1 = menu.Append(wx.ID_ANY, "Change item background view")
-                item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+            if 'view' in self.tree.GetItemText(item):
+                item1 = menu.Append(wx.ID_ANY, "Create new view")
+                item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
                 self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-            if self.tree.GetItemText(item) == 'index':
-                item1 = menu.Append(wx.ID_ANY, "Change item background index")
-                item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+            if 'index' in self.tree.GetItemText(item) :
+                item1 = menu.Append(wx.ID_ANY, "Create new index")
+                item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
                 self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
                 
-        if self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) == 'table': 
+        if 'Columns' in self.tree.GetItemText(item) :
+            item1 = menu.Append(wx.ID_ANY, "Create new column")
+            
+        if 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             print self.tree.GetItemText(item)   
-            item1 = menu.Append(wx.ID_ANY, "Change item background index")
-            item2 = menu.Append(wx.ID_ANY, "Modify item text colour")
+            item1 = menu.Append(wx.ID_ANY, "Edit table")
+            self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+        if 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
+            print self.tree.GetItemText(item)   
+            item1 = menu.Append(wx.ID_ANY, "Edit column")
+            item1 = menu.Append(wx.ID_ANY, "Create new column")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
         
         
