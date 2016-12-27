@@ -9,6 +9,7 @@ from src.view.worksheet.ResultListPanel import ResultPanel
 import os
 from wx.lib.splitter import MultiSplitterWindow
 
+import wx.aui as aui
 
 ID_run = wx.NewId()
 ID_executeScript = wx.NewId()
@@ -19,7 +20,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         self.parent = parent
 
         # Attributes
-        self._nb = wx.Notebook(self)
+        self._nb = aui.AuiNotebook(self)
         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
             imageLocation = os.path.join("..", "..", "images")
 #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
@@ -30,10 +31,15 @@ class CreateWorksheetTabPanel(wx.Panel):
         
         self._nb.AssignImageList(imgList) 
         
-        worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
-        self._nb.AddPage(worksheetPanel, "2", imageId=0)
+        self.addTab();
+#         self._nb.AddPage(worksheetPanel, "2", imageId=0)
         # Layout
         self.__DoLayout()
+
+    def addTab(self, name='asf'):
+        print 'adding tab'
+        worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+        self._nb.AddPage(worksheetPanel, name, imageId=0)
 
     def __DoLayout(self):
         """Layout the panel"""
@@ -203,7 +209,8 @@ class CreatingWorksheetPanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-#     panel = CreateWorksheetTabPanel(frame)
-    panel = CreatingWorksheetPanel(frame)
+    panel = CreateWorksheetTabPanel(frame)
+    panel.addTab()
+    panel.addTab("123")
     frame.Show()
     app.MainLoop()
