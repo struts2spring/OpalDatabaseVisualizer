@@ -17,7 +17,8 @@ from src.view.history.HistoryListPanel import HistoryPanel
 ID_About = wx.NewId()
 ID_newConnection = wx.NewId()
 ID_openConnection = wx.NewId()
-ID_worksheet = wx.NewId()
+ID_newWorksheet = wx.NewId()
+ID_preferences = wx.NewId()
 #---------------------------------------------------------------------------
 
 
@@ -42,12 +43,12 @@ class DatabaseMainFrame(wx.Frame):
         self.createStatusBar()
 #         self.creatingTreeCtrl()
         
-        self.bindingEvent()
         
         self.createAuiManager()
 #         self.creatingToolbar()
         
 #         self.creatingTreeCtrl()
+        self.bindingEvent()
         self._mgr.Update()  
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
@@ -68,8 +69,8 @@ class DatabaseMainFrame(wx.Frame):
         tb1.AddSeparator()
         
         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Database Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "database_connect.png")))
-        tb1.AddLabelTool(id=ID_worksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join("..", "images", "script.png")))
-        tb1.AddLabelTool(id=ID_worksheet, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join("..", "images", "preference.png")))
+        tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join("..", "images", "script.png")))
+        tb1.AddLabelTool(id=ID_preferences, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join("..", "images", "preference.png")))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
@@ -168,7 +169,10 @@ class DatabaseMainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.OnAbout, id=ID_About)
         
-
+        self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
+        self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
+        self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
+        self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_preferences)
     
     def OnClose(self, event):
 #         self._mgr.UnInit()
@@ -177,6 +181,15 @@ class DatabaseMainFrame(wx.Frame):
     
     def OnExit(self, event):
         self.Close() 
+        
+    def onOpenConnection(self, event):
+        print 'onOpenConnection'
+    def onNewConnection(self, event):
+        print 'onNewConnection'
+    def onNewWorksheet(self, event):
+        print 'onNewWorksheet'
+    def onPreferences(self, event):
+        print 'onPreferences'
         
     def OnAbout(self, event):
         print('OnAbout')
