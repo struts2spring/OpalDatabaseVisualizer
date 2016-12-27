@@ -188,6 +188,8 @@ class DatabaseMainFrame(wx.Frame):
         print 'onNewConnection'
     def onNewWorksheet(self, event):
         print 'onNewWorksheet'
+        self.GetTopLevelParent()._mgr.GetAllPanes()
+        
     def onPreferences(self, event):
         print 'onPreferences'
         
