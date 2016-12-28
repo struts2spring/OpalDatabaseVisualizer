@@ -190,7 +190,7 @@ class DatabaseMainFrame(wx.Frame):
         print 'onNewWorksheet'
         all_panes = self._mgr.GetAllPanes()
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-        print sqlExecutionTab
+        sqlExecutionTab.window.addTab()
         
     def onPreferences(self, event):
         print 'onPreferences'

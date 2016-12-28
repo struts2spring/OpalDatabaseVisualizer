@@ -31,7 +31,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         
         self._nb.AssignImageList(imgList) 
         
-        self.addTab();
+        self.addTab()
 #         self._nb.AddPage(worksheetPanel, "2", imageId=0)
         # Layout
         self.__DoLayout()
