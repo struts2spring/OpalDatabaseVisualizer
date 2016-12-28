@@ -104,7 +104,7 @@ class DatabaseMainFrame(wx.Frame):
                           ToolbarPane().Top().
                           LeftDockable(False).RightDockable(False))    
         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
-                          Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True))
+                          Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
     
         self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
