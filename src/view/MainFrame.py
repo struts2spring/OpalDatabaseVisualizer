@@ -188,7 +188,9 @@ class DatabaseMainFrame(wx.Frame):
         print 'onNewConnection'
     def onNewWorksheet(self, event):
         print 'onNewWorksheet'
-        self.GetTopLevelParent()._mgr.GetAllPanes()
+        all_panes = self._mgr.GetAllPanes()
+        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        print sqlExecutionTab
         
     def onPreferences(self, event):
         print 'onPreferences'
