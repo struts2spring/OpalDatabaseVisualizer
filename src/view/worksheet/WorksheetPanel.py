@@ -36,9 +36,12 @@ class CreateWorksheetTabPanel(wx.Panel):
         # Layout
         self.__DoLayout()
 
-    def addTab(self, name='asf'):
+    def addTab(self, name='Start Page'):
         print 'adding tab'
-        worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+        if name=='Start Page':
+            pass
+        else:
+            worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
         self._nb.AddPage(worksheetPanel, name, imageId=0)
 
     def __DoLayout(self):
