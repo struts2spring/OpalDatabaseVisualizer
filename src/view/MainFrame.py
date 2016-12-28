@@ -70,7 +70,7 @@ class DatabaseMainFrame(wx.Frame):
         
         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Database Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "database_connect.png")))
         tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join("..", "images", "script.png")))
-        tb1.AddLabelTool(id=ID_preferences, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join("..", "images", "preference.png")))
+        tb1.AddLabelTool(id=wx.ID_PREFERENCES, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join("..", "images", "preference.png")))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
@@ -157,9 +157,21 @@ class DatabaseMainFrame(wx.Frame):
 
         file_menu = wx.Menu()
         file_menu.Append(wx.ID_EXIT, "Exit")
+        
+        edit_menu = wx.Menu()
+        edit_menu.Append(wx.ID_CUT, "Cut \tCtrl+X")
+        edit_menu.Append(wx.ID_COPY, "Copy \tCtrl+C")
+        edit_menu.Append(wx.ID_PASTE, "Paste \tCtrl+V")
+        
+        window_menu = wx.Menu()
+        window_menu.Append(wx.ID_VIEW_LIST, "Show View")
+        window_menu.Append(wx.ID_PREFERENCES, "Preferences")
+        
         help_menu = wx.Menu()
-        help_menu.Append(ID_About, "About...")
+        help_menu.Append(ID_About, "About Opal Database Visualizer")
         mb.Append(file_menu, "File")
+        mb.Append(edit_menu, "Edit")
+        mb.Append(window_menu, "Window")
         mb.Append(help_menu, "Help")
         self.SetMenuBar(mb)
         
@@ -198,8 +210,11 @@ class DatabaseMainFrame(wx.Frame):
     def OnAbout(self, event):
         print('OnAbout')
         msg = "Opal Database Visualizer \n" + \
+              "Version : 0.1 Release \n" + \
+              "Build : 0.1 Release \n" + \
               "An advanced Database tool for developers, DBAs and analysts.\n" + \
-              "(c) BSD"
+              "This product includes software developed by other open source projects.\n" + \
+              "\xa9 BSD"
         dlg = wx.MessageDialog(self, msg, "Opal Database Visualizer",
                                wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
