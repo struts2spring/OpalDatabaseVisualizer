@@ -13,12 +13,15 @@ from wx.lib.agw import aui
 
 from src.view.worksheet.WorksheetPanel import   CreateWorksheetTabPanel
 from src.view.history.HistoryListPanel import HistoryPanel
+from src.view.Constant import ID_newConnection, ID_openConnection,\
+    ID_newWorksheet, ID_UPDATE_CHECK
+from wx import ID_PREFERENCES
 
-ID_About = wx.NewId()
-ID_newConnection = wx.NewId()
-ID_openConnection = wx.NewId()
-ID_newWorksheet = wx.NewId()
-ID_preferences = wx.NewId()
+# ID_UPDATE_CHECK = wx.NewId()
+# ID_newConnection = wx.NewId()
+# ID_openConnection = wx.NewId()
+# ID_newWorksheet = wx.NewId()
+# ID_preferences = wx.NewId()
 #---------------------------------------------------------------------------
 
 
@@ -104,7 +107,7 @@ class DatabaseMainFrame(wx.Frame):
                           ToolbarPane().Top().
                           LeftDockable(False).RightDockable(False))    
         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
-                          Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
+                          Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
     
         self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
@@ -119,7 +122,7 @@ class DatabaseMainFrame(wx.Frame):
             
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().
                           Name("sqlLog").Caption("SQL Log").Dockable(True).
-                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))    
+                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
         
             
         self._mgr.GetPane("tb1").Show()
@@ -156,35 +159,65 @@ class DatabaseMainFrame(wx.Frame):
         mb = wx.MenuBar()
 
         file_menu = wx.Menu()
-        file_menu.Append(wx.ID_EXIT, "Exit")
+        qmi = wx.MenuItem(file_menu, wx.ID_EXIT, '&Quit \tCtrl+Q')
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_TOOLBAR, (16,16))
+        qmi.SetBitmap(bmp)
+        file_menu.AppendItem(qmi)
         
         edit_menu = wx.Menu()
-        edit_menu.Append(wx.ID_CUT, "Cut \tCtrl+X")
-        edit_menu.Append(wx.ID_COPY, "Copy \tCtrl+C")
-        edit_menu.Append(wx.ID_PASTE, "Paste \tCtrl+V")
+        
+        cutBmp = wx.MenuItem(file_menu, wx.ID_CUT, "Cut \tCtrl+X")
+        cutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_CUT, wx.ART_TOOLBAR, (16,16)))
+        
+        copyBmp = wx.MenuItem(file_menu, wx.ID_COPY, "Copy \tCtrl+C")
+        copyBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_COPY, wx.ART_TOOLBAR, (16,16)))
+        
+        pasteBmp = wx.MenuItem(file_menu, wx.ID_PASTE, "Paste \tCtrl+V")
+        pasteBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_PASTE, wx.ART_TOOLBAR, (16,16)))
+        
+        edit_menu.AppendItem(cutBmp)
+        edit_menu.AppendItem(copyBmp)
+        edit_menu.AppendItem(pasteBmp)
+        
+#         edit_menu.Append(wx.ID_COPY, "Copy \tCtrl+C")
+#         edit_menu.Append(wx.ID_PASTE, "Paste \tCtrl+V")
         
         window_menu = wx.Menu()
-        window_menu.Append(wx.ID_VIEW_LIST, "Show View")
-        window_menu.Append(wx.ID_PREFERENCES, "Preferences")
+                
+        preferenceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Preferences")
+        preferenceBmp.SetBitmap(wx.Bitmap(os.path.join("..", "images", "preference.png")))
+                
+        
+        window_menu.Append(wx.ID_VIEW_LIST, "Show &View")
+        window_menu.AppendItem(preferenceBmp)
         
         help_menu = wx.Menu()
-        help_menu.Append(ID_About, "About Opal Database Visualizer")
-        mb.Append(file_menu, "File")
-        mb.Append(edit_menu, "Edit")
-        mb.Append(window_menu, "Window")
-        mb.Append(help_menu, "Help")
+        
+        aboutBmp = wx.MenuItem(help_menu, wx.ID_HELP, "&About Opal Database Visualizer")
+        aboutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_HELP, wx.ART_TOOLBAR, (16,16)))
+        updateCheckBmp = wx.MenuItem(help_menu, ID_UPDATE_CHECK, "Check for &Updates")
+        updateCheckBmp.SetBitmap(wx.Bitmap(os.path.join("..", "images", "object_refresh.png")))
+                
+        
+        help_menu.AppendItem(updateCheckBmp)
+        help_menu.AppendItem(aboutBmp)
+        
+        mb.Append(file_menu, "&File")
+        mb.Append(edit_menu, "&Edit")
+        mb.Append(window_menu, "&Window")
+        mb.Append(help_menu, "&Help")
         self.SetMenuBar(mb)
         
     def bindingEvent(self):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_MENU, self.OnAbout, id=ID_About)
+        self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_HELP)
         
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
-        self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_preferences)
+        self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_PREFERENCES)
     
     def OnClose(self, event):
 #         self._mgr.UnInit()
@@ -202,7 +235,7 @@ class DatabaseMainFrame(wx.Frame):
         print 'onNewWorksheet'
         all_panes = self._mgr.GetAllPanes()
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-        sqlExecutionTab.window.addTab()
+        sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
         print 'onPreferences'
