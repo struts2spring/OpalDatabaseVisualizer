@@ -557,6 +557,7 @@ class CreatingEditorPanel(wx.Panel):
         self.sstc.SetText(demoText + open('book.sql').read())
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
+        self.sstc.SetBestFittingSize(wx.Size(400, 400))
 
         # line numbers in the margin
         self.sstc.SetMarginType(1, stc.STC_MARGIN_NUMBER)

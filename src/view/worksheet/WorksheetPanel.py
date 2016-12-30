@@ -42,7 +42,7 @@ class CreateWorksheetTabPanel(wx.Panel):
             pass
         else:
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
-        self._nb.AddPage(worksheetPanel, name, imageId=0)
+            self._nb.AddPage(worksheetPanel, name, imageId=0)
 
     def __DoLayout(self):
         """Layout the panel"""

@@ -16,6 +16,7 @@ from src.view.history.HistoryListPanel import HistoryPanel
 from src.view.Constant import ID_newConnection, ID_openConnection,\
     ID_newWorksheet, ID_UPDATE_CHECK
 from wx import ID_PREFERENCES
+from src.view.preference.OpalPreferences import OpalPreference
 
 # ID_UPDATE_CHECK = wx.NewId()
 # ID_newConnection = wx.NewId()
@@ -104,24 +105,29 @@ class DatabaseMainFrame(wx.Frame):
 
         self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
                           Name("tb1").Caption("Big Toolbar").
-                          ToolbarPane().Top().
-                          LeftDockable(False).RightDockable(False))    
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Name("databaseNaviagor").Caption("Database Navigator").
-                          Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
+                          ToolbarPane().Top().CloseButton(True).
+                          LeftDockable(False).RightDockable(False).Gripper(True))    
+        
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "folder_database.png"))).
+                          Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
+                          Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
     
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
+        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "script.png"))).
+                          Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
-#                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))        
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().
-                          Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
-                          Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
+#                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
+
+  
+#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "sql.png"))).
+#                           Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
+#                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
             
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().
-                          Name("sqlLog").Caption("SQL Log").Dockable(True).
+        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "sql.png"))).
+                          Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
         
             
@@ -151,7 +157,7 @@ class DatabaseMainFrame(wx.Frame):
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText("Ready", 0)
-        self.statusbar.SetStatusText("Welcome Opal database!", 1)
+        self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
         
     def createMenuBar(self):
         print('creating menu bar')
@@ -239,15 +245,18 @@ class DatabaseMainFrame(wx.Frame):
         
     def onPreferences(self, event):
         print 'onPreferences'
+        frame1 = OpalPreference(None, "Opal preferences")
         
     def OnAbout(self, event):
         print('OnAbout')
-        msg = "Opal Database Visualizer \n" + \
-              "Version : 0.1 Release \n" + \
-              "Build : 0.1 Release \n" + \
-              "An advanced Database tool for developers, DBAs and analysts.\n" + \
-              "This product includes software developed by other open source projects.\n" + \
-              "\xa9 BSD"
+#         msg=u"\u00A9"
+        msg = u"""Opal Database Visualizer 
+Version : 0.1 Release 
+Build : 0.1 Release 
+An advanced Database tool for developers, DBAs and analysts.
+This product includes software developed by other open source projects.
+\u00A9 BSD"""
+#         msg=msg.unicode('utf-8')
         dlg = wx.MessageDialog(self, msg, "Opal Database Visualizer",
                                wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
