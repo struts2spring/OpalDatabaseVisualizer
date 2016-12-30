@@ -9,6 +9,7 @@ import wx
 from src.view.images import catalog, images
 import os
 from src.connect.sqlite.Connect import ConnectSqlite
+from src.view.Constant import ID_newWorksheet
 
 
 _demoPngs = ["database", "table", "view", "indexs", "moredialog", "core",
@@ -426,9 +427,18 @@ class CreatingTreePanel(wx.Panel):
         if self.tree.GetItemText(item) == 'database':
             item1 = menu.Append(wx.ID_ANY, "Disconnect")
             item2 = menu.Append(wx.ID_ANY, "Connect")
-            item3 = menu.Append(wx.ID_ANY, "SQL Editor")
+            
+            sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor")
+            sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "script.png"))))
+            item3 = menu.AppendItem(sqlEditorBmp)
+            
             item4 = menu.Append(wx.ID_ANY, "Properties")
-            item5 = menu.Append(wx.ID_ANY, "Refresh")
+            
+            refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
+            refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database_refresh.png"))))
+            item5 = menu.AppendItem(refreshBmp)
+            
+            
             item6 = menu.Append(wx.ID_ANY, "Edit Connection")
             menu.AppendSeparator()
             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
@@ -436,6 +446,7 @@ class CreatingTreePanel(wx.Panel):
             menu.AppendItem(item7)
             
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+            
         if self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) == 'database':
             if 'table' in self.tree.GetItemText(item):
                 item1 = menu.Append(wx.ID_ANY, "Create new table")
@@ -450,14 +461,14 @@ class CreatingTreePanel(wx.Panel):
                 item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
                 self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
                 
-        if 'Columns' in self.tree.GetItemText(item) :
+        elif 'Columns' in self.tree.GetItemText(item) :
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             
-        if 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
+        elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             print self.tree.GetItemText(item)   
             item1 = menu.Append(wx.ID_ANY, "Edit table")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-        if 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
+        elif 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             print self.tree.GetItemText(item)   
             item1 = menu.Append(wx.ID_ANY, "Edit column")
             item1 = menu.Append(wx.ID_ANY, "Create new column")
