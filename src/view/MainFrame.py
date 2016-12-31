@@ -14,7 +14,7 @@ from wx.lib.agw import aui
 from src.view.worksheet.WorksheetPanel import   CreateWorksheetTabPanel
 from src.view.history.HistoryListPanel import HistoryPanel
 from src.view.Constant import ID_newConnection, ID_openConnection,\
-    ID_newWorksheet, ID_UPDATE_CHECK
+    ID_newWorksheet, ID_UPDATE_CHECK, ID_SQL_LOG, ID_SQL_EXECUTION
 from wx import ID_PREFERENCES
 from src.view.preference.OpalPreferences import OpalPreference
 
@@ -193,8 +193,11 @@ class DatabaseMainFrame(wx.Frame):
         preferenceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Preferences")
         preferenceBmp.SetBitmap(wx.Bitmap(os.path.join("..", "images", "preference.png")))
                 
-        
-        window_menu.Append(wx.ID_VIEW_LIST, "Show &View")
+        window_menu.AppendSeparator()
+        childViewMenu = wx.Menu()
+        childViewMenu.Append(ID_SQL_EXECUTION, 'SQL Execution')
+        childViewMenu.Append(ID_SQL_LOG, 'SQL Log')
+        window_menu.AppendMenu(wx.ID_VIEW_LIST, "Show &View",childViewMenu)
         window_menu.AppendItem(preferenceBmp)
         
         help_menu = wx.Menu()
@@ -224,6 +227,8 @@ class DatabaseMainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_PREFERENCES)
+        self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
+        self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
     
     def OnClose(self, event):
 #         self._mgr.UnInit()
@@ -239,13 +244,23 @@ class DatabaseMainFrame(wx.Frame):
         print 'onNewConnection'
     def onNewWorksheet(self, event):
         print 'onNewWorksheet'
-        all_panes = self._mgr.GetAllPanes()
+#         all_panes = self._mgr.GetAllPanes()
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
         print 'onPreferences'
         frame1 = OpalPreference(None, "Opal preferences")
+        
+    def onSqlLog(self, event):
+        print 'onSqlLog'
+        sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
+        self.GetTopLevelParent()._mgr.Update()
+        
+    def onSqlExecution(self, event):
+        print 'onSqlExecution'
+        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
+        self.GetTopLevelParent()._mgr.Update()
         
     def OnAbout(self, event):
         print('OnAbout')

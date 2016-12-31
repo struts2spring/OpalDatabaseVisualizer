@@ -198,7 +198,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
-        print key
+        print 'OnKeyPressed------->',key,event.ControlDown()
         if key == 32 and event.ControlDown():
             pos = self.GetCurrentPos()
 
@@ -362,6 +362,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         return line
     def OnPopUp(self, event):
         print('OnPopUp', self, event)
+        if self.popmenu:
+            self.popmenu.Destroy()
+            self.popmenu = None
         
     def initKeyShortCut(self):
         self.CmdKeyClearAll()
@@ -416,6 +419,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             ('Ctrl+Shift+D', stc.STC_CMD_LINECUT),
 #       wxSTC_CMD_LINEDELETE Delete the line containing the caret
             ('Ctrl+D', stc.STC_CMD_LINEDELETE),
+            ('Ctrl+Enter', stc.STC_CMD_LINEDELETE),
 #       wxSTC_CMD_LINEDOWN Move caret down one line
             ('Down', stc.STC_CMD_LINEDOWN),
 #       wxSTC_CMD_LINEDOWNEXTEND Move caret down one line extending selection to new caret position
@@ -497,6 +501,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def convert_key(self, keydef):
         f = 0
         ikey = 0
+        print 'keydef-------------->',keydef
         for k in keydef.split('+'):
             uk = k.upper()
             if uk == 'CTRL':
@@ -513,6 +518,14 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 print("[TextEditor] Undefined char [%s]" % uk)
                 continue
         return f, ikey      
+
+    def execute_key(self, keydef):
+        if isinstance(keydef, str):
+            cmd = self.keydefs.get(keydef.upper(), None)
+        else:
+            cmd = keydef
+        if cmd:
+            self.CmdKeyExecute(cmd)
     def sqlStyle(self):
         # Sql styles
         # Default 
