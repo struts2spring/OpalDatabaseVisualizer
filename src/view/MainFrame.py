@@ -17,6 +17,8 @@ from src.view.Constant import ID_newConnection, ID_openConnection,\
     ID_newWorksheet, ID_UPDATE_CHECK, ID_SQL_LOG, ID_SQL_EXECUTION
 from wx import ID_PREFERENCES
 from src.view.preference.OpalPreferences import OpalPreference
+from src.view.connect.GetConnect import CreatingNewConnectionPanel,\
+    CreatingNewConnectionFrame
 
 # ID_UPDATE_CHECK = wx.NewId()
 # ID_newConnection = wx.NewId()
@@ -172,6 +174,12 @@ class DatabaseMainFrame(wx.Frame):
         
         edit_menu = wx.Menu()
         
+        undoBmp = wx.MenuItem(file_menu, wx.ID_UNDO, "Undo \tCtrl+Z")
+        undoBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_UNDO, wx.ART_TOOLBAR, (16,16)))
+        
+        redoBmp = wx.MenuItem(file_menu, wx.ID_REDO, "Redo \tShift+Ctrl+Z")
+        redoBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_REDO, wx.ART_TOOLBAR, (16,16)))
+        
         cutBmp = wx.MenuItem(file_menu, wx.ID_CUT, "Cut \tCtrl+X")
         cutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_CUT, wx.ART_TOOLBAR, (16,16)))
         
@@ -181,6 +189,8 @@ class DatabaseMainFrame(wx.Frame):
         pasteBmp = wx.MenuItem(file_menu, wx.ID_PASTE, "Paste \tCtrl+V")
         pasteBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_PASTE, wx.ART_TOOLBAR, (16,16)))
         
+        edit_menu.AppendItem(undoBmp)
+        edit_menu.AppendItem(redoBmp)
         edit_menu.AppendItem(cutBmp)
         edit_menu.AppendItem(copyBmp)
         edit_menu.AppendItem(pasteBmp)
@@ -242,6 +252,8 @@ class DatabaseMainFrame(wx.Frame):
         print 'onOpenConnection'
     def onNewConnection(self, event):
         print 'onNewConnection'
+        newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
+        
     def onNewWorksheet(self, event):
         print 'onNewWorksheet'
 #         all_panes = self._mgr.GetAllPanes()
