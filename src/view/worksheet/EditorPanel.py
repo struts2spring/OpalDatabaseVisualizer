@@ -199,9 +199,14 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CallTipCancel()
         key = event.GetKeyCode()
         print 'OnKeyPressed------->',key,event.ControlDown()
-        if key == 32 and event.ControlDown():
+        
+        if key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
-
+            print pos
+            print self.GetSelectedText()
+#             self.AddText('viajy')
+            self.AddSelection('viajy')
+            
             # Tips
             if event.ShiftDown():
                 self.CallTipSetBackground("yellow")
@@ -362,9 +367,16 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         return line
     def OnPopUp(self, event):
         print('OnPopUp', self, event)
-        if self.popmenu:
-            self.popmenu.Destroy()
-            self.popmenu = None
+#         if self.popmenu:
+#             self.popmenu.Destroy()
+#             self.popmenu = None
+#         fileMenu = wx.Menu()   
+#         imp = wx.Menu()
+#         imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
+#         fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
+#         self.popmenu.Append(fileMenu)
+#         self.PopupMenu(self.popmenu, event.GetPosition())
+        
         
     def initKeyShortCut(self):
         self.CmdKeyClearAll()
@@ -520,6 +532,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         return f, ikey      
 
     def execute_key(self, keydef):
+        print 'execute_key--->',keydef
         if isinstance(keydef, str):
             cmd = self.keydefs.get(keydef.upper(), None)
         else:

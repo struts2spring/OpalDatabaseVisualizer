@@ -277,7 +277,8 @@ class CreatingTreePanel(wx.Panel):
             self.tree.item
             print("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
             self.tree.SelectItem(item)
-            print 'parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item))
+            if self.tree.GetItemText(self.tree.item) != 'Connections':
+                print 'parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item))
 
     #---------------------------------------------
     def OnTreeRightUp(self, event):
@@ -343,7 +344,9 @@ class CreatingTreePanel(wx.Panel):
             
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             
-        if self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) == 'database':
+        if self.tree.GetItemText(self.tree.item) == 'Connections':
+            item1 = menu.Append(wx.ID_ANY, "Refresh \tF5")
+        elif self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) == 'database':
             if 'table' in self.tree.GetItemText(item):
                 item1 = menu.Append(wx.ID_ANY, "Create new table")
                 item2 = menu.Append(wx.ID_ANY, "Refresh  \tF5")
