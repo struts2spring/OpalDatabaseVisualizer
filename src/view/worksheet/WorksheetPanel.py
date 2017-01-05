@@ -10,8 +10,8 @@ import os
 from wx.lib.splitter import MultiSplitterWindow
 
 import wx.aui as aui
+from src.view.Constant import ID_RUN
 
-ID_run = wx.NewId()
 ID_executeScript = wx.NewId()
 
 class CreateWorksheetTabPanel(wx.Panel):
@@ -38,7 +38,7 @@ class CreateWorksheetTabPanel(wx.Panel):
 
     def addTab(self, name='Start Page'):
         print 'adding tab'
-        if name=='Start Page':
+        if name == 'Start Page':
             pass
         else:
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
@@ -64,7 +64,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         ####################################################################
         worksheetToolbar = self.constructWorksheetToolBar()
         worksheetPanel = CreatingWorksheetPanel(self)
-        
+        self.bindingEvent()
         ####################################################################
         vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
         vBox.Add(worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
@@ -89,7 +89,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
 #         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
-        tb1.AddLabelTool(id=ID_run, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png")))
+        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png")))
         tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_script_exec.png")))
         tb1.AddSeparator()
         tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "abc.png")))
@@ -102,11 +102,16 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         tb1.Realize()
         
         return tb1     
+    
+    def bindingEvent(self):
+        self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
+    def executeSQL(self, event):
+        print 'CreatingWorksheetWithToolbarPanel.executeSQL'
+    
 class CreatingWorksheetPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -115,13 +120,14 @@ class CreatingWorksheetPanel(wx.Panel):
 
         
         ####################################################################
+        self.data = dict()
 #         worksheetToolbar = self.constructWorksheetToolBar()
-        splitter = MultiSplitterWindow(self,  id=-1,style=wx.SP_LIVE_UPDATE)
+        splitter = MultiSplitterWindow(self, id=-1, style=wx.SP_LIVE_UPDATE)
         self.splitter = splitter
         editorPanel = CreatingEditorPanel(splitter)
-        resultPanel = ResultPanel(splitter, data=self.getData())
+        self.resultPanel = ResultPanel(splitter, data=self.getData())
         splitter.AppendWindow(editorPanel)
-        splitter.AppendWindow(resultPanel)
+        splitter.AppendWindow(self.resultPanel)
         splitter.SetOrientation(wx.VERTICAL)
         splitter.SizeWindows()  
         
@@ -142,11 +148,8 @@ class CreatingWorksheetPanel(wx.Panel):
         else:
             self.splitter.SetOrientation(wx.HORIZONTAL)
         self.splitter.SizeWindows()        
-       
-    def getData(self):
-        # Get the data from the ListCtrl sample to play with, converting it
-        # from a dictionary to a list of lists, including the dictionary key
-        # as the first element of each sublist.
+    
+    def setResultData(self, data=None):  
         musicdata = {
         1 : ("Bad English", "The Price Of Love", "Rock"),
         2 : ("DNA featuring Suzanne Vega", "Tom's Diner", "Rock"),
@@ -205,8 +208,15 @@ class CreatingWorksheetPanel(wx.Panel):
         }
         music = musicdata.items()
         music.sort()
-        music = [[str(k)] + list(v) for k, v in music]
-        return music
+        music = [[str(k)] + list(v) for k, v in music] 
+        self.data = music
+        self.resultPanel.Layout()
+    def getData(self):
+        # Get the data from the ListCtrl sample to play with, converting it
+        # from a dictionary to a list of lists, including the dictionary key
+        # as the first element of each sublist.
+        
+        return self.data
     
     #---------------------------------------------------------------------------
 if __name__ == '__main__':
