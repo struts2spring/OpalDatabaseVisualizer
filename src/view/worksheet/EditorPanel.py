@@ -9,6 +9,7 @@ import wx.stc as stc
 import keyword
 from src.view.images import images
 import os
+from src.view.connect.ConnectExecute import SQLExecuter
 
 
 #----------------------------------------------------------------------
@@ -77,19 +78,19 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.popmenu = None
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
-        #init key short cut
+        # init key short cut
         self.initKeyShortCut()
         self.SetLexer(stc.STC_LEX_SQL)
         self.SetKeyWords(0, " ".join(keyword.kwlist))
 
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
-        self.SetMargins(0,0)
-        #editor style
-        self.SetMargins(2,2)        #set left and right outer margins to 0 width
-        self.SetMarginMask(1, 0)    #can't place any marker in margin 1
-        self.SetMarginWidth(0, 0)   #used as symbol
-        self.SetMarginWidth(2, 0)   #used as folder
+        self.SetMargins(0, 0)
+        # editor style
+        self.SetMargins(2, 2)  # set left and right outer margins to 0 width
+        self.SetMarginMask(1, 0)  # can't place any marker in margin 1
+        self.SetMarginWidth(0, 0)  # used as symbol
+        self.SetMarginWidth(2, 0)  # used as folder
 
         self.SetViewWhiteSpace(False)
         self.SetBufferedDraw(False)
@@ -99,13 +100,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
         self.SetEdgeColumn(78)
-        #set backspace to unindent
+        # set backspace to unindent
         self.SetBackSpaceUnIndents(True)
-        #set scroll bar range
+        # set scroll bar range
         self.SetEndAtLastLine(False)
 
         # Setup a margin to hold fold markers
-        #self.SetFoldFlags(16)  ###  WHAT IS THIS VALUE?  WHAT ARE THE OTHER FLAGS?  DOES IT MATTER?
+        # self.SetFoldFlags(16)  ###  WHAT IS THIS VALUE?  WHAT ARE THE OTHER FLAGS?  DOES IT MATTER?
         self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
         self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(2, True)
@@ -113,7 +114,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         # Make some styles,  The lexer defines what each style is used for, we
         # just have to define what each style looks like.  This set is adapted from
         # Scintilla sample property files.
-        #set style
+        # set style
 #        font = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
         font = wx.Font(8, wx.TELETYPE, wx.NORMAL, wx.NORMAL, True)
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:10" % font.GetFaceName())
@@ -123,54 +124,54 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "face:%(helv)s,size:%(size)d" % faces)
-        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "back:#C0C0C0,face:%(helv)s,size:%(size2)d" % faces)
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(helv)s,size:%(size)d" % faces)
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#C0C0C0,face:%(helv)s,size:%(size2)d" % faces)
         self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%(other)s" % faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,  "fore:#FFFFFF,back:#0000FF,bold")
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,    "fore:#000000,back:#FF0000,bold")   
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#FFFFFF,back:#0000FF,bold")
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")   
         
         
         
         
         if self.fold_symbols == 0:
             # Arrow pointing right for contracted folders, arrow pointing down for expanded
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_ARROWDOWN, "black", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_ARROW, "black", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_EMPTY, "black", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_EMPTY, "black", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_EMPTY,     "white", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_EMPTY,     "white", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_EMPTY,     "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_ARROWDOWN, "black", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_ARROW, "black", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_EMPTY, "black", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_EMPTY, "black", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_EMPTY, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_EMPTY, "white", "black")
             
         elif self.fold_symbols == 1:
             # Plus for contracted folders, minus for expanded
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_MINUS, "white", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_PLUS,  "white", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_EMPTY, "white", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_EMPTY, "white", "black")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_EMPTY, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_MINUS, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_PLUS, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_EMPTY, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_EMPTY, "white", "black")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_EMPTY, "white", "black")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_EMPTY, "white", "black")
 
         elif self.fold_symbols == 2:
             # Like a flattened tree control using circular headers and curved joins
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_CIRCLEMINUS,          "white", "#404040")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_CIRCLEPLUS,           "white", "#404040")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_VLINE,                "white", "#404040")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_LCORNERCURVE,         "white", "#404040")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_CIRCLEPLUSCONNECTED,  "white", "#404040")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_CIRCLEMINUS, "white", "#404040")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_CIRCLEPLUS, "white", "#404040")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#404040")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, "white", "#404040")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_CIRCLEPLUSCONNECTED, "white", "#404040")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_CIRCLEMINUSCONNECTED, "white", "#404040")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_TCORNERCURVE,         "white", "#404040")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_TCORNERCURVE, "white", "#404040")
 
         elif self.fold_symbols == 3:
             # Like a flattened tree control using square headers
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_BOXMINUS,          "white", "#808080")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_BOXPLUS,           "white", "#808080")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_VLINE,             "white", "#808080")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_LCORNER,           "white", "#808080")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_BOXPLUSCONNECTED,  "white", "#808080")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, "white", "#808080")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, "white", "#808080")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#808080")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNER, "white", "#808080")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_BOXPLUSCONNECTED, "white", "#808080")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_BOXMINUSCONNECTED, "white", "#808080")
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_TCORNER,           "white", "#808080")
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_TCORNER, "white", "#808080")
              
         self.sqlStyle()
         self.registerAllImages()
@@ -185,21 +186,22 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
     def registerAllImages(self):
         # register some images for use in the AutoComplete box.
-        if "worksheet"==os.path.split(os.getcwd())[-1:][0]:
-            textImage=wx.Bitmap(os.path.join("..","..", "images", "new.png"))
-        elif "view"==os.path.split(os.getcwd())[-1:][0]:
-            textImage=wx.Bitmap(os.path.join("..", "images", "new.png"))
+        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+            textImage = wx.Bitmap(os.path.join("..", "..", "images", "new.png"))
+        elif "view" == os.path.split(os.getcwd())[-1:][0]:
+            textImage = wx.Bitmap(os.path.join("..", "images", "new.png"))
         self.RegisterImage(1, textImage)
-        self.RegisterImage(2, 
-            wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16,16)))
-        self.RegisterImage(3, 
-            wx.ArtProvider.GetBitmap(wx.ART_COPY, size=(16,16)))
+        self.RegisterImage(2,
+            wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16, 16)))
+        self.RegisterImage(3,
+            wx.ArtProvider.GetBitmap(wx.ART_COPY, size=(16, 16)))
     def OnKeyPressed(self, event):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
-        print 'OnKeyPressed------->',key,event.ControlDown()
-        
+#         print 'OnKeyPressed------->', key, event.ControlDown(), wx.WXK_RETURN
+        if key == wx.WXK_RETURN and event.ControlDown():
+            self.executeSQL()
         if key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
             print pos
@@ -207,20 +209,24 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #             self.AddText('viajy')
             self.AddSelection('viajy')
             
+            
+                
             # Tips
             if event.ShiftDown():
                 self.CallTipSetBackground("yellow")
                 self.CallTipShow(pos, 'lots of of text: blah, blah, blah\n\n'
                                  'show some suff, maybe parameters..\n\n'
                                  'fubar(param1, param2)')
+            
             # Code completion
+            
             else:
-                #lst = []
-                #for x in range(50000):
+                # lst = []
+                # for x in range(50000):
                 #    lst.append('%05d' % x)
-                #st = " ".join(lst)
-                #print len(st)
-                #self.AutoCompShow(0, st)
+                # st = " ".join(lst)
+                # print len(st)
+                # self.AutoCompShow(0, st)
 
                 kw = keyword.kwlist[:]
                 kw.append("zzzzzz?2")
@@ -229,7 +235,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 kw.append("zzaaaaa?2")
                 kw.append("zzbaaaa?2")
                 kw.append("this_is_a_longer_value")
-                #kw.append("this_is_a_much_much_much_much_much_much_much_longer_value")
+                # kw.append("this_is_a_much_much_much_much_much_much_much_longer_value")
 
                 kw.sort()  # Python sorts are case sensitive
                 self.AutoCompSetIgnoreCase(False)  # so this needs to match
@@ -272,10 +278,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.BraceBadLight(braceAtCaret)
         else:
             self.BraceHighlight(braceAtCaret, braceOpposite)
-            #pt = self.PointFromPosition(braceOpposite)
-            #self.Refresh(True, wxRect(pt.x, pt.y, 5,5))
-            #print pt
-            #self.Refresh(False)
+            # pt = self.PointFromPosition(braceOpposite)
+            # self.Refresh(True, wxRect(pt.x, pt.y, 5,5))
+            # print pt
+            # self.Refresh(False)
     def OnMarginClick(self, event):
         print('on_margin_click', self, event)
         # fold and unfold as needed
@@ -324,7 +330,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                     self.SetFoldExpanded(lineNum, False)
 
                     if lastChild > lineNum:
-                        self.HideLines(lineNum+1, lastChild)
+                        self.HideLines(lineNum + 1, lastChild)
 
             lineNum = lineNum + 1
 
@@ -354,13 +360,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                     else:
                         self.SetFoldExpanded(line, False)
 
-                    line = self.Expand(line, doExpand, force, visLevels-1)
+                    line = self.Expand(line, doExpand, force, visLevels - 1)
 
                 else:
                     if doExpand and self.GetFoldExpanded(line):
-                        line = self.Expand(line, True, force, visLevels-1)
+                        line = self.Expand(line, True, force, visLevels - 1)
                     else:
-                        line = self.Expand(line, False, force, visLevels-1)
+                        line = self.Expand(line, False, force, visLevels - 1)
             else:
                 line = line + 1
 
@@ -431,7 +437,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             ('Ctrl+Shift+D', stc.STC_CMD_LINECUT),
 #       wxSTC_CMD_LINEDELETE Delete the line containing the caret
             ('Ctrl+D', stc.STC_CMD_LINEDELETE),
-            ('Ctrl+Enter', stc.STC_CMD_LINEDELETE),
+            ('Ctrl+Enter', 5000),
 #       wxSTC_CMD_LINEDOWN Move caret down one line
             ('Down', stc.STC_CMD_LINEDOWN),
 #       wxSTC_CMD_LINEDOWNEXTEND Move caret down one line extending selection to new caret position
@@ -513,7 +519,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def convert_key(self, keydef):
         f = 0
         ikey = 0
-        print 'keydef-------------->',keydef
+#         print 'keydef-------------->', keydef
         for k in keydef.split('+'):
             uk = k.upper()
             if uk == 'CTRL':
@@ -532,13 +538,35 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         return f, ikey      
 
     def execute_key(self, keydef):
-        print 'execute_key--->',keydef
+#         print 'execute_key--->', keydef
         if isinstance(keydef, str):
             cmd = self.keydefs.get(keydef.upper(), None)
         else:
             cmd = keydef
         if cmd:
             self.CmdKeyExecute(cmd)
+    
+    def executeSQL(self):
+        
+        print 'executeSQL'      ,self.GetSelectedText()  
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        book_row = [
+                    {'id':'2',
+                     'book_name':'abc0'},
+                    {'id':'3', 'book_name':'abc1'}
+                ]
+        sqlExecuter.sqlite_insert_or_update('book', book_row)
+        print sqlExecuter.sqlite_select('book')
+        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        window=sqlExecutionTab.window
+        creatingWorksheetPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
+        creatingWorksheetPanel.setResultData()
+        resultListPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
+#         resultListPanel.setResultData()
+        print resultListPanel.Layout()
+        
+        print window
+            
     def sqlStyle(self):
         # Sql styles
         # Default 
@@ -579,7 +607,7 @@ class CreatingEditorPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        self.sstc=SqlStyleTextCtrl(self, -1)
+        self.sstc = SqlStyleTextCtrl(self, -1)
         self.sstc.SetText(demoText + open('book.sql').read())
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
