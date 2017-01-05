@@ -55,7 +55,7 @@ class ResultModel(dv.PyDataViewIndexListModel):
     def GetAttrByRow(self, row, col, attr):
         ##print('GetAttrByRow: (%d, %d)' % (row, col))
         if col == 3:
-            attr.SetColour('blue')
+            attr.SetColour('gray')
             attr.SetBold(True)
             return True
         return False
@@ -118,46 +118,9 @@ class ResultPanel(wx.Panel):
         else:
             self.model = model            
 
-        # ...and associate it with the dataview control.  Models can
-        # be shared between multiple DataViewCtrls, so this does not
-        # assign ownership like many things in wx do.  There is some
-        # internal reference counting happening so you don't really
-        # need to hold a reference to it either, but we do for this
-        # example so we can fiddle with the model from the widget
-        # inspector or whatever.
-        self.dvc.AssociateModel(self.model)
 
-        # Now we create some columns.  The second parameter is the
-        # column number within the model that the DataViewColumn will
-        # fetch the data from.  This means that you can have views
-        # using the same model that show different columns of data, or
-        # that they can be in a different order than in the model.
-        self.dvc.AppendTextColumn("Artist",  1, width=170, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Title",   2, width=260, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Genre",   3, width=80,  mode=dv.DATAVIEW_CELL_EDITABLE)
 
-        # There are Prepend methods too, and also convenience methods
-        # for other data types but we are only using strings in this
-        # example.  You can also create a DataViewColumn object
-        # yourself and then just use AppendColumn or PrependColumn.
-        c0 = self.dvc.PrependTextColumn("Id", 0, width=40)
 
-        # The DataViewColumn object is returned from the Append and
-        # Prepend methods, and we can modify some of it's properties
-        # like this.
-        c0.Alignment = wx.ALIGN_RIGHT
-        c0.Renderer.Alignment = wx.ALIGN_RIGHT
-        c0.MinWidth = 40
-
-        # Through the magic of Python we can also access the columns
-        # as a list via the Columns property.  Here we'll mark them
-        # all as sortable and reorderable.
-        for c in self.dvc.Columns:
-            c.Sortable = True
-            c.Reorderable = True
-
-        # Let's change our minds and not let the first col be moved.
-        c0.Reorderable = False
 
         # set the Sizer property (same as SetSizer)
         self.Sizer = wx.BoxSizer(wx.VERTICAL) 
@@ -181,7 +144,50 @@ class ResultPanel(wx.Panel):
         self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
         self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
 
+    def createDataViewCtrl(self, headerList=["Artist","Title","Genre"]):
 
+        # ...and associate it with the dataview control.  Models can
+        # be shared between multiple DataViewCtrls, so this does not
+        # assign ownership like many things in wx do.  There is some
+        # internal reference counting happening so you don't really
+        # need to hold a reference to it either, but we do for this
+        # example so we can fiddle with the model from the widget
+        # inspector or whatever.
+        self.dvc.AssociateModel(self.model)
+
+        # Now we create some columns.  The second parameter is the
+        # column number within the model that the DataViewColumn will
+        # fetch the data from.  This means that you can have views
+        # using the same model that show different columns of data, or
+        # that they can be in a different order than in the model.
+        for header in headerList:
+            self.dvc.AppendTextColumn(header,  1, width=170, mode=dv.DATAVIEW_CELL_EDITABLE)
+#         self.dvc.AppendTextColumn("Title",   2, width=260, mode=dv.DATAVIEW_CELL_EDITABLE)
+#         self.dvc.AppendTextColumn("Genre",   3, width=80,  mode=dv.DATAVIEW_CELL_EDITABLE)
+
+        # There are Prepend methods too, and also convenience methods
+        # for other data types but we are only using strings in this
+        # example.  You can also create a DataViewColumn object
+        # yourself and then just use AppendColumn or PrependColumn.
+        c0 = self.dvc.PrependTextColumn("Id", 0, width=40)
+
+        # The DataViewColumn object is returned from the Append and
+        # Prepend methods, and we can modify some of it's properties
+        # like this.
+        c0.Alignment = wx.ALIGN_RIGHT
+        c0.Renderer.Alignment = wx.ALIGN_RIGHT
+        c0.MinWidth = 40
+
+        # Through the magic of Python we can also access the columns
+        # as a list via the Columns property.  Here we'll mark them
+        # all as sortable and reorderable.
+        for c in self.dvc.Columns:
+            c.Sortable = True
+            c.Reorderable = True
+            
+        # Let's change our minds and not let the first col be moved.
+        c0.Reorderable = False     
+             
     def OnNewView(self, evt):
         f = wx.Frame(None, title="New view, shared model", size=(600,400))
         ResultPanel(f,  self.model)
