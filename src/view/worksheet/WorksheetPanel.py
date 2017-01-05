@@ -37,6 +37,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         self.__DoLayout()
 
     def addTab(self, name='Start Page'):
+        
         print 'adding tab'
         if name == 'Start Page':
             pass
