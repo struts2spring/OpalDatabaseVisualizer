@@ -37,7 +37,7 @@ class DatabaseMainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
         print os.getcwd()
         
-        print '1----------------------->'
+        print '1----------------------->', os.getcwd()
         imageLocation=os.path.join("..",  "images")
         image = wx.Image(os.path.join(imageLocation, "Opal_database.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         icon = wx.EmptyIcon()
