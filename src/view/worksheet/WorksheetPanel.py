@@ -37,8 +37,6 @@ class CreateWorksheetTabPanel(wx.Panel):
         self.__DoLayout()
 
     def addTab(self, name='Start Page'):
-        
-        print 'adding tab'
         if name == 'Start Page':
             pass
         else:
@@ -55,6 +53,25 @@ class CreateWorksheetTabPanel(wx.Panel):
         
 
 #         sizer.Fit(self)
+class CreatingStartPanel(wx.Panel):
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent
+        
+        vBox = wx.BoxSizer(wx.VERTICAL)
+
+        ####################################################################
+        worksheetToolbar = self.constructWorksheetToolBar()
+        worksheetPanel = CreatingWorksheetPanel(self)
+        self.bindingEvent()
+        ####################################################################
+        vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
+#         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+#         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
+        sizer.Add(vBox, 1, wx.EXPAND , 0)
+        self.SetSizer(sizer)    
 class CreatingWorksheetWithToolbarPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -108,6 +125,11 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
     def executeSQL(self, event):
         print 'CreatingWorksheetWithToolbarPanel.executeSQL'
+        x=self.GetParent()
+        creatingEditorPanel=self.GetChildren()[1].splitter.Children[0]
+        resultPanel=self.GetChildren()[1].splitter.Children[1]
+        resultPanel.createDataViewCtrl()
+        print x
     
 class CreatingWorksheetPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -151,6 +173,7 @@ class CreatingWorksheetPanel(wx.Panel):
         self.splitter.SizeWindows()        
     
     def setResultData(self, data=None):  
+        print('setResultData')
         musicdata = {
         1 : ("Bad English", "The Price Of Love", "Rock"),
         2 : ("DNA featuring Suzanne Vega", "Tom's Diner", "Rock"),

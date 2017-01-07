@@ -35,7 +35,6 @@ class DatabaseMainFrame(wx.Frame):
         style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
-        print os.getcwd()
         
         print '1----------------------->', os.getcwd()
         imageLocation=os.path.join("..",  "images")
