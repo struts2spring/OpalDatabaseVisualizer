@@ -7,7 +7,7 @@ class SQLExecuter():
     '''
     '''
     def __init__(self, database=None):
-        print os.getcwd()
+        print(os.getcwd())
         self.conn = lite.connect('_opal.sqlite')
         
     def sqlite_insert(self, table, rows):
@@ -38,7 +38,7 @@ class SQLExecuter():
         with self.conn:    
             
             cur = self.conn.cursor() 
-            print 'before'   
+            print('before'   )
             cur.execute("SELECT * FROM " + table)
         
             rows = cur.fetchall()
@@ -47,7 +47,7 @@ class SQLExecuter():
                 returnRows.append(row)
         return returnRows
 if __name__ == "__main__":
-    print 'hi'
+    print('hi')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
     book_row = [
                 {'id':'2',
@@ -55,6 +55,6 @@ if __name__ == "__main__":
                 {'id':'3', 'book_name':'abc1'}
             ]
     sqlExecuter.sqlite_insert_or_update('book', book_row)
-    print sqlExecuter.sqlite_select('book')
+    print(sqlExecuter.sqlite_select('book'))
 
     pass
