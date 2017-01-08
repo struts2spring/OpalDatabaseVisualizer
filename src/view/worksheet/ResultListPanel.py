@@ -150,7 +150,7 @@ class ResultPanel(wx.Panel):
             self.model = ResultModel(data)
         else:
             self.model = model      
-    def createDataViewCtrl(self,data=None, headerList=["Artist","Title","Genre"]):
+    def createDataViewCtrl(self,data=None, headerList=None):
 
         # ...and associate it with the dataview control.  Models can
         # be shared between multiple DataViewCtrls, so this does not
@@ -214,12 +214,13 @@ class ResultPanel(wx.Panel):
         
     def OnAddRow(self, evt):
         # Add some bogus data to a new row in the model's data
-        id = len(self.model.data) + 1
-        value = [str(id),
-                 'new artist %d' % id,
-                 'new title %d' % id,
-                 'genre %d' % id]
-        self.model.AddRow(value)
+#         id = len(self.model.data) + 1
+#         value = [str(id),
+#                  'new artist %d' % id,
+#                  'new title %d' % id,
+#                  'genre %d' % id]
+#         self.model.AddRow(value)
+        pass
                 
 
     def OnEditingDone(self, evt):

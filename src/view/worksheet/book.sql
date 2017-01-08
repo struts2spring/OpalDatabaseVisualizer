@@ -1,5 +1,7 @@
 -- drop table book_folder;
 -- drop table book_info;
+prg
+
 DROP TABLE COMPANY;
 CREATE TABLE COMPANY(
    ID INT PRIMARY KEY     NOT NULL,

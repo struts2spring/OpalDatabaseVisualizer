@@ -1,7 +1,16 @@
 
 import sqlite3 as lite
 import os
+import subprocess
 
+class SqlExecuterProcess():
+    '''
+    '''
+    def __init__(self):
+#         subprocess.call(cmd, shell=True)
+        pass
+    
+    
 
 class SQLExecuter():
     '''
@@ -46,15 +55,40 @@ class SQLExecuter():
             for row in rows:
                 returnRows.append(row)
         return returnRows
+    
+    def executeText(self, text=None):
+        ''' This method takes input text to execute in database.
+        returns output as dict
+        '''
+        sqlOutput=dict()
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                print('before'   )
+                rows=cur.execute(text).fetchall()
+                print(cur.description) 
+#                 print(rows)
+                for idx,item in enumerate(rows):
+                    sqlOutput[idx]=item
+        except Exception as e:
+            print(e)
+            self.conn.rollback()
+            raise e
+#         print(sqlOutput)
+        return sqlOutput
+    
+    
 if __name__ == "__main__":
     print('hi')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
-    book_row = [
-                {'id':'2',
-                 'book_name':'abc0'},
-                {'id':'3', 'book_name':'abc1'}
-            ]
-    sqlExecuter.sqlite_insert_or_update('book', book_row)
-    print(sqlExecuter.sqlite_select('book'))
+#     book_row = [
+#                 {'id':'2',
+#                  'book_name':'abc0'},
+#                 {'id':'3', 'book_name':'abc1'}
+#             ]
+#     sqlExecuter.sqlite_insert_or_update('book', book_row)
+#     print(sqlExecuter.sqlite_select('book'))
+    text="select * from book;"
+    sqlExecuter.executeText(text)
 
     pass

@@ -128,12 +128,12 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
     def executeSQL(self, event):
         print('CreatingWorksheetWithToolbarPanel.executeSQL')
-        x=self.GetParent()
-        creatingEditorPanel=self.GetChildren()[1].splitter.Children[0]
-        resultPanel=self.GetChildren()[1].splitter.Children[1]
-        resultPanel.createDataViewCtrl(data=music,headerList=["Artist","Title","Genre"])
+#         x=self.GetParent()
+#         creatingEditorPanel=self.GetChildren()[1].splitter.Children[0]
+#         resultPanel=self.GetChildren()[1].splitter.Children[1]
+#         resultPanel.createDataViewCtrl(data=music,headerList=["Artist","Title","Genre"])
 #         resultPanel.setModel(music)
-        resultPanel.Layout()
+#         resultPanel.Layout()
     
 class CreatingWorksheetPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -178,8 +178,8 @@ class CreatingWorksheetPanel(wx.Panel):
     
     def setResultData(self, data=None):  
         print('setResultData')
-
-        self.data = music
+        self.data=data
+#         self.data = music
         self.resultPanel.Layout()
     def getData(self):
         # Get the data from the ListCtrl sample to play with, converting it
