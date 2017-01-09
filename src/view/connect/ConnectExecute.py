@@ -2,6 +2,7 @@
 import sqlite3 as lite
 import os
 import subprocess
+import shlex
 
 class SqlExecuterProcess():
     '''
@@ -10,7 +11,17 @@ class SqlExecuterProcess():
 #         subprocess.call(cmd, shell=True)
         pass
     
-    
+    def executeCmd(self, command):
+#         subprocess.call(cmd, shell=True)
+        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        rc = process.poll()
+        return rc
 
 class SQLExecuter():
     '''
@@ -81,6 +92,13 @@ class SQLExecuter():
 if __name__ == "__main__":
     print('hi')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
+    sqlExecuterProcess=SqlExecuterProcess()
+    command="""sqlite3 _opal.sqlite &
+    select * from book;
+    """
+    result=sqlExecuterProcess.executeCmd(command)
+    print(result)
+    
 #     book_row = [
 #                 {'id':'2',
 #                  'book_name':'abc0'},
@@ -88,7 +106,7 @@ if __name__ == "__main__":
 #             ]
 #     sqlExecuter.sqlite_insert_or_update('book', book_row)
 #     print(sqlExecuter.sqlite_select('book'))
-    text="select * from book;"
-    sqlExecuter.executeText(text)
+#     text="select * from book;"
+#     sqlExecuter.executeText(text)
 
     pass
