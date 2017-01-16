@@ -2,7 +2,7 @@
 import sqlite3 as lite
 import os
 import subprocess
-import shlex
+import io
 
 class SqlExecuterProcess():
     '''
@@ -13,15 +13,18 @@ class SqlExecuterProcess():
     
     def executeCmd(self, command):
 #         subprocess.call(cmd, shell=True)
-        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
-        while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                print(output.strip())
-        rc = process.poll()
-        return rc
+        process = subprocess.check_output(['echo $PWD','sqlite3','_opal.sqlite','.schema book'], stderr=subprocess.PIPE, shell=True)
+        print(process)
+#         while True:
+#             line = process.stdout.readline()
+#             if line != '':
+#                 #the real code does filtering here
+#                 print("test:", line.rstrip())
+#             else:
+#                 break
+#         pro=process.communicate(command)
+#         print(process.returncode)
+#         print(pro)
 
 class SQLExecuter():
     '''
@@ -58,7 +61,7 @@ class SQLExecuter():
         with self.conn:    
             
             cur = self.conn.cursor() 
-            print('before'   )
+            print('before')
             cur.execute("SELECT * FROM " + table)
         
             rows = cur.fetchall()
@@ -71,16 +74,16 @@ class SQLExecuter():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
-        sqlOutput=dict()
+        sqlOutput = dict()
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                print('before'   )
-                rows=cur.execute(text).fetchall()
+                print('before')
+                rows = cur.execute(text).fetchall()
                 print(cur.description) 
 #                 print(rows)
-                for idx,item in enumerate(rows):
-                    sqlOutput[idx]=item
+                for idx, item in enumerate(rows):
+                    sqlOutput[idx] = item
         except Exception as e:
             print(e)
             self.conn.rollback()
@@ -91,12 +94,10 @@ class SQLExecuter():
     
 if __name__ == "__main__":
     print('hi')
-    sqlExecuter = SQLExecuter(database='_opal.sqlite')
-    sqlExecuterProcess=SqlExecuterProcess()
-    command="""sqlite3 _opal.sqlite &
-    select * from book;
-    """
-    result=sqlExecuterProcess.executeCmd(command)
+#     sqlExecuter = SQLExecuter(database='_opal.sqlite')
+    sqlExecuterProcess = SqlExecuterProcess()
+    command = """.tables """
+    result = sqlExecuterProcess.executeCmd(command)
     print(result)
     
 #     book_row = [
