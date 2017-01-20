@@ -62,18 +62,9 @@ class CreatingTablePanel(wx.Panel):
         self.tableDict = dict()
         self.tableDict['tableName'] = 'Table 1'
         self.tableDict['columns'] = list()
-#         self.tableDict.columns.append({
-#                                   'id':1,
-#                                   'columnIcon':'key.png',
-#                                   'columnName':'column 1',
-#                                   'dataType':'INTEGER',
-#                                   'isPrimaryKey':'Y',
-#                                   "isNullable":'N',
-#                                   'isUnique':'N',
-#                                   "autoIncrement":'N',
-#                                   "description": 'No'
-#                                   
-#                                   })
+
+
+
 
         ####################################################################
         vBox1 = wx.BoxSizer(wx.VERTICAL)
@@ -85,7 +76,7 @@ class CreatingTablePanel(wx.Panel):
         vBox1.Add(hBox1)
         
         
-        tb = self.creatingToolbar()
+        self.tb = self.creatingToolbar()
         
         self.imageId = dict()
         self.imageList = ULC.PyImageList(16, 16)
@@ -114,7 +105,7 @@ class CreatingTablePanel(wx.Panel):
 
         
         vBox.Add(vBox1, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
-        vBox.Add(tb, 0, wx.EXPAND)
+        vBox.Add(self.tb, 0, wx.EXPAND)
         vBox.Add(self.list, 1, wx.EXPAND)
         ####################################################################
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -177,17 +168,17 @@ class CreatingTablePanel(wx.Panel):
     def addRow(self):
         
         if len(self.tableDict['columns']) == 0:
-            columnIcon='key.png'
-            dataType=dataTypeList[0]
-            isPrimaryKey=True
+            columnIcon = 'key.png'
+            dataType = dataTypeList[0]
+            isPrimaryKey = True
         else:
-            columnIcon='textfield.png'
-            dataType=dataTypeList[1]
-            isPrimaryKey=False
+            columnIcon = 'textfield.png'
+            dataType = dataTypeList[1]
+            isPrimaryKey = False
         column = {
-          'id':len(self.tableDict['columns'])+1,
+          'id':len(self.tableDict['columns']) + 1,
           'columnIcon':columnIcon,
-          'columnName':'column 1',
+          'columnName':'column '+str(len(self.tableDict['columns']) + 1),
           'dataType':dataType,
           'isPrimaryKey':isPrimaryKey,
           "isNullable":False,
@@ -208,7 +199,7 @@ class CreatingTablePanel(wx.Panel):
         self.list.SetStringItem(self._itemId , 8, column['description'], it_kind=0)
         
         
-        item=self.list.GetItem(self._itemId,4)
+        item = self.list.GetItem(self._itemId, 4)
         item.Check(isPrimaryKey)
         self.list.SetItem(item)
         
@@ -216,11 +207,13 @@ class CreatingTablePanel(wx.Panel):
         self.tableDict['columns'].append(column)
         print(self.tableDict)    
         self.display()
-    def removeRow(self):
+    def removeRow(self): 
         try:
-            
-            print(self.list._selStore)
-            self.list.DeleteItem()
+            if self.list.GetFocusedItem() != -1:
+                print(self.list.GetSelectedItemCount())
+                selectedItem = self.list.GetFocusedItem()
+#                 self.list.Select(selectedItem._itemId-1, True)
+                self.list.DeleteItem(self.list.GetFocusedItem())
         except KeyError:
             pass
 #         print(self.listctrldata)
@@ -228,50 +221,7 @@ class CreatingTablePanel(wx.Panel):
     def display(self):
         pass
         
-#         for column in self.tableDict.columns:
-#             self._itemId = self.list.InsertStringItem(column['id'], str(column['id']), 0)
-#             print(column.keys().index('columnIcon'))
-#             self.list.SetStringItem(self._itemId ,1, column['columnIcon'], 0)
-#             self.list.SetStringItem(self._itemId ,2, column['columnName'], 0)
-#             self.list.SetStringItem(self._itemId ,3, column['dataType'], 0)
-#             self.list.SetStringItem(self._itemId ,4, column['isPrimaryKey'], 0)
-#             self.list.SetStringItem(self._itemId ,5, column['isNullable'], 0)
-#             self.list.SetStringItem(self._itemId ,6, column['isUnique'], 0)
-#             self.list.SetStringItem(self._itemId ,7, column['autoIncrement'], 0)
-#             self.list.SetStringItem(self._itemId ,8, column['description'], 0)
-
-#         self.listctrldata[len(self.listctrldata)]="", "Column name"+str(len(self.listctrldata)), "", "", "", ""
-#         for key, data in self.listctrldata.items():
-#             print(key, data)
-#             for idx, dataItem in enumerate(data):
-#                 self.list.SetStringItem(self.index, idx, dataItem)
-
-#         for key, data in self.listctrldata.items():
-#             for idx, dataItem in enumerate(data):
-#                 
-#                 item = self.list.GetItem(key, idx)
-#                 print(key, idx)
-#                 window = None
-#                 if idx == 2:
-#                     window = wx.ComboBox(self.list, 500, dataTypeList[0], (90, 50),
-#                      (160, -1), dataTypeList,
-#                      wx.CB_DROPDOWN
-#                      # | wx.TE_PROCESS_ENTER
-#                      # | wx.CB_SORTdataTypeList
-#                      )
-#                 if idx == 1:
-#                     window = wx.StaticBitmap(self.list, -1, wx.Bitmap(os.path.abspath(os.path.join("..", "..", "images", "key.png"))))
-#                 if idx == 4:
-#                     window = wx.CheckBox(self.list, -1, "")
-#                 if idx == 5:
-#                     window = wx.CheckBox(self.list, -1, "")
-#                 if idx == 6:
-#                     window = wx.CheckBox(self.list, -1, "")
-#                 if window:
-#                     item.SetWindow(window)
-#                     self.list.SetItem(item)  
-                    
-#         self.list.SetItem(item)   
+   
     def ChangeStyle(self, checks):
 
         style = 0
@@ -312,6 +262,7 @@ class CreatingTablePanel(wx.Panel):
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=40)
 
         tb.AddSeparator()
+        tb.Realize()
         return tb
 
     def onAddColumnClick(self, event):
@@ -386,6 +337,7 @@ class CreatingTablePanel(wx.Panel):
 
 
     def OnItemSelected(self, event):
+        print(self.list._mainWin._selStore._itemsSel)
         self.currentItem = event.m_itemIndex
         print("OnItemSelected: %s, %s, %s, %s\n" % (self.currentItem,
                                                             self.list.GetItemText(self.currentItem),
@@ -446,7 +398,17 @@ class CreatingTablePanel(wx.Panel):
     def OnColEndDrag(self, event):
         print("OnColEndDrag\n")
 
-    def OnBeginDrag(self, event):        
+    def OnBeginDrag(self, event):   
+        print(event.GetIndex())
+        data=wx.PyTextDataObject()
+        index=event.GetIndex()
+        print(self.list.GetdragcursorData())
+        
+        
+        dropSource=wx.DropSource(self)
+        dropSource.SetData(index)
+        res=dropSource.DoDragDrop(flag=wx.Drag_DefaultMove)
+#         dragItem=self.list.
         print("OnBeginDrag\n")
                 
 
@@ -469,17 +431,17 @@ class CreatingTablePanel(wx.Panel):
             self.popupID5 = wx.NewId()
             self.popupID6 = wx.NewId()
 
-            self.Bind(wx.EVT_MENU, self.OnPopupOne, id=self.popupID1)
+            self.Bind(wx.EVT_MENU, self.onDeleteSelected, id=self.popupID1)
             self.Bind(wx.EVT_MENU, self.OnPopupTwo, id=self.popupID2)
             self.Bind(wx.EVT_MENU, self.OnPopupThree, id=self.popupID3)
-            self.Bind(wx.EVT_MENU, self.OnPopupFour, id=self.popupID4)
+            self.Bind(wx.EVT_MENU, self.onDeleteAllItems, id=self.popupID4)
             self.Bind(wx.EVT_MENU, self.OnPopupFive, id=self.popupID5)
             self.Bind(wx.EVT_MENU, self.OnPopupSix, id=self.popupID6)
 
         # make a menu
         menu = wx.Menu()
         # add some items
-        menu.Append(self.popupID1, "FindItem tests")
+        menu.Append(self.popupID1, "Delete Selected")
         menu.Append(self.popupID2, "Iterate Selected")
         menu.Append(self.popupID3, "ClearAll and repopulate")
         menu.Append(self.popupID4, "DeleteAllItems")
@@ -491,11 +453,43 @@ class CreatingTablePanel(wx.Panel):
         self.PopupMenu(menu)
         menu.Destroy()
 
+    def getAllSelectedItem(self):
+        countSel = 0
+        selectedIndexSet = set()
+        count = self.list._mainWin.GetItemCount()
+        for line in xrange(count):
+            if self.list._mainWin.GetLine(line).IsHighlighted():
+                countSel += 1
+                selectedIndexSet.add(line)
+        return countSel, selectedIndexSet
 
-    def OnPopupOne(self, event):
-        print("Popup one")
-        print("FindItem: %s" % self.list.FindItem(-1, "Roxette"))
-        print("FindItemData: %s\n" % self.list.FindItemData(-1, 11))
+    def onDeleteSelected(self, event):
+        countSel, selectedIndexSet1 = self.getAllSelectedItem()
+        index = self.list.GetFirstSelected()
+        selectedIndexSet = set()
+        while index != -1:
+            selectedIndexSet.add(self.list.GetItemText(index))
+            print("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
+#             self.list.DeleteItem(index)
+            index = self.list.GetNextSelected(index)
+            if index>-1:
+                selectedIndexSet.add(self.list.GetItemText(index))
+                
+        count = self.list._mainWin.GetItemCount()
+        for line in xrange(count):
+            if self.list._mainWin.GetItem(line):
+                countSel += 1
+                selectedIndexSet.add(line)
+        self.list._mainWin.GetItemCount()
+        
+        for idx in self.list:
+            if idx > -1:
+                try:
+                    self.list.DeleteItem(idx)
+                except Exception as e:
+                    print(idx, e)
+        print(selectedIndexSet)
+#                 print(idx, item)
 
     def OnPopupTwo(self, event):
         print("Selected items:")
@@ -503,6 +497,7 @@ class CreatingTablePanel(wx.Panel):
 
         while index != -1:
             print("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
+#             self.list.Dele
             index = self.list.GetNextSelected(index)
 
         print("\n")
@@ -513,7 +508,7 @@ class CreatingTablePanel(wx.Panel):
         wx.CallAfter(self.PopulateList)
         
 
-    def OnPopupFour(self, event):
+    def onDeleteAllItems(self, event):
         self.list.DeleteAllItems()
 
     def OnPopupFive(self, event):
