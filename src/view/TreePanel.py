@@ -98,7 +98,7 @@ class CreatingTreePanel(wx.Panel):
     #                 if SearchDemo(childItem, value):
                     self.searchItems[category].append(childItem)
         except Exception as e:
-            print e
+            print(e)
         wx.EndBusyCursor()
         self.RecreateTree()   
     #---------------------------------------------    
@@ -226,7 +226,7 @@ class CreatingTreePanel(wx.Panel):
                             if current and (childItem, category) == current:
                                 selectItem = columnsNode
                     except Exception as e:
-                        print e
+                        print(e)
                     
         self.tree.Expand(self.root)
         if firstChild:
@@ -265,7 +265,7 @@ class CreatingTreePanel(wx.Panel):
         event.Skip()
     #---------------------------------------------
     def OnSelChanged(self, event):
-        print 'OnSelChanged'
+        print('OnSelChanged')
     #---------------------------------------------
     def OnTreeRightDown(self, event):
         
@@ -278,7 +278,7 @@ class CreatingTreePanel(wx.Panel):
             print("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
             self.tree.SelectItem(item)
             if self.tree.GetItemText(self.tree.item) != 'Connections':
-                print 'parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item))
+                print('parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)))
 
     #---------------------------------------------
     def OnTreeRightUp(self, event):
@@ -288,7 +288,7 @@ class CreatingTreePanel(wx.Panel):
         if not item:
             event.Skip()
             return
-        print 'OnTreeRightUp'
+        print('OnTreeRightUp')
 #         if not self.tree.IsItemEnabled(item):
 #             event.Skip()
 #             return
@@ -364,11 +364,11 @@ class CreatingTreePanel(wx.Panel):
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             
         elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
-            print self.tree.GetItemText(item)   
+            print(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit table")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
         elif 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
-            print self.tree.GetItemText(item)   
+            print(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit column")
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
@@ -379,7 +379,7 @@ class CreatingTreePanel(wx.Panel):
         menu.Destroy() 
     
     def OnItemBackground(self):
-        print 'OnItemBackground'
+        print('OnItemBackground')
 class databaseNavigationTree(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in database page
@@ -414,7 +414,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print 'onkey'
+        print('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 
@@ -505,7 +505,7 @@ if __name__ == '__main__':
     treeImageLevel[(1, 1)] = (0, 'folder_view.png')
     treeImageLevel[(1, 2)] = (0, 'folder.png')
     
-    print treeImageLevel[(0, 0)]
+    print(treeImageLevel[(0, 0)])
     app = wx.App(False)
     frame = wx.Frame(None)
     panel = CreatingTreePanel(frame, preferenceName='asfd')
