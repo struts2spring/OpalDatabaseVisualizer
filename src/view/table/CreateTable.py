@@ -20,13 +20,7 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 dataTypeList = ['INTEGER', 'TEXT', 'NULL', 'REAL', 'BLOB', 'NUMERIC']
 
 headerList = ["S. No.", "icon", "Column name", "Data type", "Primary Key", "Allow Null", "Unique", "Auto Increment", "Default Value"]
-# listctrldata = {
-# 0 : ("", "Column name1", "", "", "", ""),
-# # 1 : ("", "Column name2", "", "", "", ""),
-# # 2 : ("", "Column name3", "", "", "", "")
-# }
 
-#---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 class CreatingTableFrame(wx.Frame):
 
@@ -40,6 +34,7 @@ class CreatingTableFrame(wx.Frame):
 #         self.creatingToolbar()
         self.Center()
         self.CreateStatusBar()
+        self.Show()
     
     def OnCloseFrame(self, event):
         self.Destroy()
@@ -63,7 +58,14 @@ class CreatingTablePanel(wx.Panel):
         self.tableDict['tableName'] = 'Table 1'
         self.tableDict['columns'] = list()
 
-
+        #---------------
+        # Variables
+        #---------------
+        self.IsInControl = True
+        self.startIndex = -1
+        self.dropIndex = -1
+        self.IsDrag = False
+        self.dragIndex = -1
 
 
         ####################################################################
@@ -80,10 +82,23 @@ class CreatingTablePanel(wx.Panel):
         
         self.imageId = dict()
         self.imageList = ULC.PyImageList(16, 16)
-        self.imageId["key.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "..", "images", "key.png"))))
-        self.imageId["textfield.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "..", "images", "textfield.png"))))
-        self.imageId["unique_constraint.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "..", "images", "unique_constraint.png"))))
-        self.imageId["unique_constraint.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "..", "images", "unique_constraint.png"))))
+        
+         
+        print('not===============', __file__) 
+#         print(os.path.realpath(__file__))
+#         print(os.path.dirname(os.path.abspath(__file__)))
+#         print(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))
+        path = os.path.abspath(__file__)
+        tail = None
+        while tail != 'src':
+            path = os.path.abspath(os.path.join(path, '..'))
+            head, tail = os.path.split(path)
+        print('while===============', os.path.abspath(os.path.join(path, "images", "key.png"))) 
+        print(path)
+        self.imageId["key.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "key.png"))))
+        self.imageId["textfield.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "textfield.png"))))
+        self.imageId["unique_constraint.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "unique_constraint.png"))))
+        self.imageId["unique_constraint.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "unique_constraint.png"))))
 
         self.list = TableListCtrl(self, -1,
                                          agwStyle=wx.LC_REPORT
@@ -135,7 +150,68 @@ class CreatingTablePanel(wx.Panel):
 
         # for wxGTK
         self.list.Bind(wx.EVT_RIGHT_UP, self.OnRightClick)
+        
+        self.Bind(wx.EVT_LEFT_UP, self._onMouseUp)
+        self.Bind(wx.EVT_LEFT_DOWN, self._onMouseDown)
+        self.Bind(wx.EVT_LIST_INSERT_ITEM, self._onInsert)
                
+    def _onMouseUp(self, event):
+        # Purpose: to generate a dropIndex.
+        # Process: check self.IsInControl, check self.IsDrag, HitTest, compare HitTest value
+        # The mouse can end up in 5 different places:
+        # Outside the Control
+        # On itself
+        # Above its starting point and on another item
+        # Below its starting point and on another item
+        # Below its starting point and not on another item
+
+        if self.IsInControl == False:  # 1. Outside the control : Do Nothing
+            self.IsDrag = False
+        else:  # In control but not a drag event : Do Nothing
+            if self.IsDrag == False:
+                pass
+            else:  # In control and is a drag event : Determine Location
+                self.hitIndex = self.list.HitTest(event.GetPosition())
+                self.dropIndex = self.list.hitIndex[0]
+                # -- Drop index indicates where the drop location is; what index number
+                #---------
+                # Determine dropIndex and its validity
+                #--------
+                if self.dropIndex == self.startIndex or self.dropIndex == -1:  # 2. On itself or below control : Do Nothing
+                    pass
+                else:
+                    #----------
+                    # Now that dropIndex has been established do 3 things
+                    # 1. gather item data
+                    # 2. delete item in list
+                    # 3. insert item & it's data into the list at the new index
+                    #----------
+                    dropList = []  # Drop List is the list of field values from the list control
+                    thisItem = self.list.GetItem(self.startIndex)
+                    for x in range(self.list.GetColumnCount()):
+                        dropList.append(self.list.GetItem(self.startIndex, x).GetText())
+                    thisItem.SetId(self.dropIndex)
+                    self.list.DeleteItem(self.startIndex)
+                    self.list.InsertItem(thisItem)
+                    for x in range(self.list.GetColumnCount()):
+                        self.list.SetStringItem(self.dropIndex, x, dropList[x])
+            #------------
+            # I don't know exactly why, but the mouse event MUST
+            # call the stripe procedure if the control is to be successfully
+            # striped. Every time it was only in the _onInsert, it failed on
+            # dragging index 3 to the index 1 spot.
+            #-------------
+            # Furthermore, in the load button on the wxFrame that this lives in,
+            # I had to call the _onStripe directly because it would occasionally fail
+            # to stripe without it. You'll notice that this is present in the example stub.
+            # Someone with more knowledge than I probably knows why...and how to fix it properly.
+            #-------------
+        self._onStripe()
+        self.IsDrag = False
+        event.Skip()
+    def _onMouseDown(self, event):
+        self.IsInControl = True
+        event.Skip()        
     def PopulateList(self):
 
         self.list.Freeze()
@@ -178,7 +254,7 @@ class CreatingTablePanel(wx.Panel):
         column = {
           'id':len(self.tableDict['columns']) + 1,
           'columnIcon':columnIcon,
-          'columnName':'column '+str(len(self.tableDict['columns']) + 1),
+          'columnName':'column ' + str(len(self.tableDict['columns']) + 1),
           'dataType':dataType,
           'isPrimaryKey':isPrimaryKey,
           "isNullable":False,
@@ -337,8 +413,8 @@ class CreatingTablePanel(wx.Panel):
 
 
     def OnItemSelected(self, event):
-        print(self.list._mainWin._selStore._itemsSel)
-        self.currentItem = event.m_itemIndex
+        self.startIndex = event.GetIndex()
+        self.currentItem = event.GetIndex()
         print("OnItemSelected: %s, %s, %s, %s\n" % (self.currentItem,
                                                             self.list.GetItemText(self.currentItem),
                                                             self.getColumnText(self.currentItem, 1),
@@ -372,10 +448,30 @@ class CreatingTablePanel(wx.Panel):
     def OnBeginEdit(self, event):
         print("OnBeginEdit\n")
         event.Allow()
-
+        
+    def _onInsert(self, event):
+        # Sequencing on a drop event is:
+        # wx.EVT_LIST_ITEM_SELECTED
+        # wx.EVT_LIST_BEGIN_DRAG
+        # wx.EVT_LEFT_UP
+        # wx.EVT_LIST_ITEM_SELECTED (at the new index)
+        # wx.EVT_LIST_INSERT_ITEM
+        #--------------------------------
+        # this call to onStripe catches any addition to the list; drag or not
+        self._onStripe()
+        self.dragIndex = -1
+        event.Skip()
     def OnItemDelete(self, event):
         print("OnItemDelete\n")
-
+        self._onStripe()
+        event.Skip()
+    def _onStripe(self):
+        if self.list.GetItemCount() > 0:
+            for x in range(self.list.GetItemCount()):
+                if x % 2 == 0:
+                    self.list.SetItemBackgroundColour(x, wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DLIGHT))
+                else:
+                    self.list.SetItemBackgroundColour(x, wx.WHITE)
     def OnColClick(self, event):
         print("OnColClick: %d\n" % event.GetColumn())
         event.Skip()
@@ -398,23 +494,76 @@ class CreatingTablePanel(wx.Panel):
     def OnColEndDrag(self, event):
         print("OnColEndDrag\n")
 
-    def OnBeginDrag(self, event):   
-        print(event.GetIndex())
-        data=wx.PyTextDataObject()
-        index=event.GetIndex()
-        print(self.list.GetdragcursorData())
+    def OnBeginDrag(self, event):
+        self.IsDrag = True
+        self.dragIndex = event.GetIndex()
+        print("OnBeginDrag\n", self.dragIndex)
+        event.Skip()
         
-        
-        dropSource=wx.DropSource(self)
-        dropSource.SetData(index)
-        res=dropSource.DoDragDrop(flag=wx.Drag_DefaultMove)
+           
+#         print(event.GetIndex())
+#         data=wx.PyTextDataObject()
+#         index=event.GetIndex()
+# #         print(self.list.GetdragcursorData())
+#         
+#         
+#         dropSource=wx.DropSource(self)
+#         dropSource.SetData(index)
+#         res=dropSource.DoDragDrop(flag=wx.Drag_DefaultMove)
 #         dragItem=self.list.
-        print("OnBeginDrag\n")
                 
 
-    def OnEndDrag(self, event):        
-        print("OnEndDrag\n")
-
+    def OnEndDrag(self, event):     
+        self.dropIndex = event.GetIndex()   
+        print("OnEndDrag\n", self.dropIndex)
+        
+        
+        #----------
+        # Now that dropIndex has been established do 3 things
+        # 1. gather item data
+        # 2. delete item in list
+        # 3. insert item & it's data into the list at the new index
+        #----------
+        dropList = []  # Drop List is the list of field values from the list control
+        thisItem = self.list.GetItem(self.startIndex)
+        thisItem_4 = self.list.GetItem(self.startIndex, 4)
+        thisItem_5 = self.list.GetItem(self.startIndex, 5)
+        thisItem_6 = self.list.GetItem(self.startIndex, 6)
+        thisItem_7 = self.list.GetItem(self.startIndex, 7)
+        
+        print('thisItem_4----------', thisItem_4)
+        
+        
+        for x in range(self.list.GetColumnCount()):
+            dropList.append(self.list.GetItem(self.startIndex, x).GetText())
+        
+        thisItem.SetId(self.dropIndex)
+        print('dropList------------>', dropList)
+        print('thisItem------------>', thisItem)
+#         thisItem.set
+        
+        self.list.DeleteItem(self.startIndex)
+        self.list.InsertItem(thisItem)
+        for dropItemColumn in range(self.list.GetColumnCount()):
+            self.list.SetStringItem(self.dropIndex, dropItemColumn, dropList[dropItemColumn])
+            
+        dropItem_4 = self.list.GetItem(self.dropIndex, 4)
+        dropItem_4.Check(thisItem_4.IsChecked())
+        self.list.SetItem(dropItem_4)
+        
+        dropItem_5 = self.list.GetItem(self.dropIndex, 5)
+        dropItem_5.Check(thisItem_5.IsChecked())
+        self.list.SetItem(dropItem_5)
+        
+        dropItem_6 = self.list.GetItem(self.dropIndex, 6)
+        dropItem_6.Check(thisItem_6.IsChecked())
+        self.list.SetItem(dropItem_6)
+        
+        dropItem_7 = self.list.GetItem(self.dropIndex, 7)
+        dropItem_7.Check(thisItem_7.IsChecked())
+        self.list.SetItem(dropItem_7)
+        
+        
     def OnDoubleClick(self, event):
         print("OnDoubleClick item %s\n" % self.list.GetItemText(self.currentItem))
         event.Skip()
@@ -472,7 +621,7 @@ class CreatingTablePanel(wx.Panel):
             print("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
 #             self.list.DeleteItem(index)
             index = self.list.GetNextSelected(index)
-            if index>-1:
+            if index > -1:
                 selectedIndexSet.add(self.list.GetItemText(index))
                 
         count = self.list._mainWin.GetItemCount()
@@ -490,6 +639,8 @@ class CreatingTablePanel(wx.Panel):
                     print(idx, e)
         print(selectedIndexSet)
 #                 print(idx, item)
+
+
 
     def OnPopupTwo(self, event):
         print("Selected items:")

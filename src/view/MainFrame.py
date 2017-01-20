@@ -248,28 +248,28 @@ class DatabaseMainFrame(wx.Frame):
         self.Close() 
         
     def onOpenConnection(self, event):
-        print 'onOpenConnection'
+        print('onOpenConnection')
     def onNewConnection(self, event):
-        print 'onNewConnection'
+        print('onNewConnection')
         newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
         
     def onNewWorksheet(self, event):
-        print 'onNewWorksheet'
+        print('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
-        print 'onPreferences'
+        print('onPreferences')
         frame1 = OpalPreference(None, "Opal preferences")
         
     def onSqlLog(self, event):
-        print 'onSqlLog'
+        print('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def onSqlExecution(self, event):
-        print 'onSqlExecution'
+        print('onSqlExecution')
         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
         self.GetTopLevelParent()._mgr.Update()
         

@@ -119,13 +119,13 @@ class OpalPreference(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title, size=(970, 720),
                           style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
+        self.Center()
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.allowAuiFloating = False
         self.SetMinSize((640, 480))
         icon = WXPdemo.GetIcon()
 #         icon=wx.EmptyImage(16, 16)
         self.SetIcon(icon)
-        
         
         self.statusBar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusBar.SetStatusWidths([-2, -1])
@@ -366,7 +366,6 @@ class OpalPreference(wx.Frame):
     #---------------------------------------------
     def UpdateNotebook(self, select=-1, preferenceName=None):
         print('UpdateNotebook ' + preferenceName)
-        print 'UpdateNotebook ' + preferenceName
         self.pnl.Freeze()
         self.nb.DeletePage(0)
         self.nb.InsertPage(0, self.getPreferencePanelObj(preferenceName), preferenceName, imageId=0)

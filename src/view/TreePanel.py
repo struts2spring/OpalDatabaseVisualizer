@@ -10,6 +10,7 @@ from src.view.images import catalog, images
 import os
 from src.connect.sqlite.Connect import ConnectSqlite
 from src.view.Constant import ID_newWorksheet, keyMap
+from src.view.table.CreateTable import CreatingTableFrame
 
 
 _demoPngs = ["database", "table", "view", "indexs", "moredialog", "core",
@@ -348,17 +349,17 @@ class CreatingTreePanel(wx.Panel):
             item1 = menu.Append(wx.ID_ANY, "Refresh \tF5")
         elif self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) == 'database':
             if 'table' in self.tree.GetItemText(item):
-                item1 = menu.Append(wx.ID_ANY, "Create new table")
+                newTableItem = menu.Append(wx.ID_ANY, "Create new table")
                 item2 = menu.Append(wx.ID_ANY, "Refresh  \tF5")
-                self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+                self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
             if 'view' in self.tree.GetItemText(item):
-                item1 = menu.Append(wx.ID_ANY, "Create new view")
+                newTableItem = menu.Append(wx.ID_ANY, "Create new view")
                 item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+                self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
             if 'index' in self.tree.GetItemText(item) :
-                item1 = menu.Append(wx.ID_ANY, "Create new index")
+                newTableItem = menu.Append(wx.ID_ANY, "Create new index")
                 item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+                self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
                 
         elif 'Columns' in self.tree.GetItemText(item) :
             item1 = menu.Append(wx.ID_ANY, "Create new column")
@@ -380,6 +381,10 @@ class CreatingTreePanel(wx.Panel):
     
     def OnItemBackground(self):
         print('OnItemBackground')
+    def onNewTable(self, event):
+        print('onNewTable')
+        tableFrame = CreatingTableFrame(None, 'Table creation')
+        
 class databaseNavigationTree(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in database page
