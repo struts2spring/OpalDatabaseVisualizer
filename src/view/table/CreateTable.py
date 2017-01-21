@@ -11,6 +11,9 @@ import datetime
 import os
 from collections import OrderedDict
 from src.view.images import images
+import wx.stc as stc
+from src.view.table import TableEditorPanel
+from src.view.table.TableEditorPanel import SqlStyleTextCtrl
 try:
     from agw import ultimatelistctrl as ULC
 except ImportError:  # if it's not there locally, try the wxPython lib.
@@ -30,11 +33,27 @@ class CreatingTableFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.allowAuiFloating = False 
         self.SetMinSize((640, 480))
-        CreatingTablePanel(self)
+        splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D)
+#         splitter2 = wx.SplitterWindow(splitter1, -1, style=wx.SP_3D)
+        self.creatingTable = CreatingTablePanel(splitter)
+        
+        self.sstc = SqlStyleTextCtrl(splitter, -1)
+#         self.sstc.SetText( open('book.sql').read())
+        self.sstc.EmptyUndoBuffer()
+        self.sstc.Colourise(0, -1)
+        self.sstc.SetBestFittingSize(wx.Size(400, 400))
+
+        # line numbers in the margin
+        self.sstc.SetMarginType(1, stc.STC_MARGIN_NUMBER)
+        self.sstc.SetMarginWidth(1, 25)
+        
+#         self.tableEditorPanel = TableEditorPanel(splitter)
+        splitter.SetMinimumPaneSize(20)
+        splitter.SplitHorizontally(self.creatingTable, self.sstc)
 #         self.creatingToolbar()
         self.Center()
         self.CreateStatusBar()
-        self.Show()
+        self.Show(True)
     
     def OnCloseFrame(self, event):
         self.Destroy()

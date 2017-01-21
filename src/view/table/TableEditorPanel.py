@@ -191,10 +191,17 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
     def registerAllImages(self):
         # register some images for use in the AutoComplete box.
-        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-            textImage = wx.Bitmap(os.path.join("..", "..", "images", "new.png"))
-        elif "view" == os.path.split(os.getcwd())[-1:][0]:
-            textImage = wx.Bitmap(os.path.join("..", "images", "new.png"))
+        path = os.path.abspath(__file__)
+        tail = None
+        while tail != 'src':
+            path = os.path.abspath(os.path.join(path, '..'))
+            head, tail = os.path.split(path)
+        textImage = wx.Bitmap(os.path.join(path, "images", "new.png"))
+        
+#         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+#             textImage = wx.Bitmap(os.path.join("..", "..", "images", "new.png"))
+#         elif "view" == os.path.split(os.getcwd())[-1:][0]:
+#             textImage = wx.Bitmap(os.path.join("..", "images", "new.png"))
         self.RegisterImage(1, textImage)
         self.RegisterImage(2,
             wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16, 16)))
@@ -614,7 +621,7 @@ class CreatingEditorPanel(wx.Panel):
 
         ####################################################################
         self.sstc = SqlStyleTextCtrl(self, -1)
-        self.sstc.SetText(demoText + open('book.sql').read())
+#         self.sstc.SetText(demoText + open('book.sql').read())
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
         self.sstc.SetBestFittingSize(wx.Size(400, 400))
