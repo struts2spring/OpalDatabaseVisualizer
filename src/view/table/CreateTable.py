@@ -74,8 +74,9 @@ class CreatingTablePanel(wx.Panel):
         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)
         self.tableDict = dict()
+        self.tableDict['schemaName'] = 'schema 1'
         self.tableDict['tableName'] = 'Table 1'
-        self.tableDict['columns'] = list()
+        self.tableDict['columns'] = dict()
 
         #---------------
         # Variables
@@ -89,12 +90,31 @@ class CreatingTablePanel(wx.Panel):
 
         ####################################################################
         vBox1 = wx.BoxSizer(wx.VERTICAL)
-        hBox1 = wx.BoxSizer(wx.HORIZONTAL)
+        import  wx.lib.rcsizer  as rcs
+        sizer = rcs.RowColSizer()
+
+        schemaNameLabel = wx.StaticText(self, -1, "Schema Name:")
+        self.schemaNameText = wx.TextCtrl(self, -1, self.tableDict['schemaName'], size=(250, -1))
+        
         tableNameLabel = wx.StaticText(self, -1, "Table Name:")
-        tableNameText = wx.TextCtrl(self, -1, "table1", size=(250, -1))
+        self.tableNameText = wx.TextCtrl(self, -1, self.tableDict['tableName'], size=(250, -1))
+        
+        sizer.Add(schemaNameLabel, flag=wx.EXPAND, row=1, col=1)
+        sizer.Add(self.schemaNameText, row=1, col=2)
+        
+        sizer.Add(tableNameLabel, flag=wx.EXPAND, row=2, col=1)
+        sizer.Add(self.tableNameText, row=2, col=2)
+        
+        hBox1 = wx.BoxSizer(wx.HORIZONTAL)
         hBox1.Add(tableNameLabel, 1, wx.RIGHT, 15)
-        hBox1.Add(tableNameText, 0, wx.CENTER, 15)
-        vBox1.Add(hBox1)
+        hBox1.Add(self.tableNameText, 0, wx.CENTER, 15)
+        
+        hBox2 = wx.BoxSizer(wx.HORIZONTAL)
+        hBox2.Add(schemaNameLabel, 1, wx.RIGHT, 15)
+        hBox2.Add(self.schemaNameText, 0, wx.CENTER, 15)
+        
+        vBox1.Add(sizer)
+#         vBox1.Add(hBox1)
         
         
         self.tb = self.creatingToolbar()
@@ -170,7 +190,7 @@ class CreatingTablePanel(wx.Panel):
         # for wxGTK
         self.list.Bind(wx.EVT_RIGHT_UP, self.OnRightClick)
         
-        self.Bind(wx.EVT_LEFT_UP, self._onMouseUp)
+#         self.Bind(wx.EVT_LEFT_UP, self._onMouseUp)
         self.Bind(wx.EVT_LEFT_DOWN, self._onMouseDown)
         self.Bind(wx.EVT_LIST_INSERT_ITEM, self._onInsert)
                
@@ -229,6 +249,7 @@ class CreatingTablePanel(wx.Panel):
         self.IsDrag = False
         event.Skip()
     def _onMouseDown(self, event):
+        print('_onMouseDown')
         self.IsInControl = True
         event.Skip()        
     def PopulateList(self):
@@ -278,16 +299,16 @@ class CreatingTablePanel(wx.Panel):
             dataType = dataTypeList[1]
             isPrimaryKey = False
             
-
+        columnId=len(self.tableDict['columns']) + 1
         column = {
           'id':len(self.tableDict['columns']) + 1,
           'columnIcon':self.setColumnIcon(isPrimaryKey, dataType),
           'columnName':'column ' + str(len(self.tableDict['columns']) + 1),
           'dataType':dataType,
           'isPrimaryKey':isPrimaryKey,
-          "isNullable":False,
+          "isNotNull":False,
           'isUnique':False,
-          "autoIncrement":False,
+          "isAutoIncrement":False,
           "description": 'No'
           
           }
@@ -297,9 +318,9 @@ class CreatingTablePanel(wx.Panel):
         self.list.SetStringItem(self._itemId , 2, column['columnName'], it_kind=0)
         self.list.SetStringItem(self._itemId , 3, column['dataType'], it_kind=0)
         self.list.SetStringItem(self._itemId , 4, '' if column['isPrimaryKey'] else '', it_kind=1)
-        self.list.SetStringItem(self._itemId , 5, '' if column['isNullable'] else '', it_kind=1)
+        self.list.SetStringItem(self._itemId , 5, '' if column['isNotNull'] else '', it_kind=1)
         self.list.SetStringItem(self._itemId , 6, '' if column['isUnique'] else '', it_kind=1)
-        self.list.SetStringItem(self._itemId , 7, '' if column['autoIncrement'] else '', it_kind=1)
+        self.list.SetStringItem(self._itemId , 7, '' if column['isAutoIncrement'] else '', it_kind=1)
         self.list.SetStringItem(self._itemId , 8, column['description'], it_kind=0)
         
         
@@ -308,8 +329,9 @@ class CreatingTablePanel(wx.Panel):
         self.list.SetItem(item)
         
         
-        self.tableDict['columns'].append(column)
-        print(self.tableDict)    
+        self.tableDict['columns'][columnId]=column
+        print(self.tableDict)  
+        self.updateTableEditorPanel()  
         
     def removeRow(self): 
         try:
@@ -317,7 +339,11 @@ class CreatingTablePanel(wx.Panel):
                 print(self.list.GetSelectedItemCount())
                 selectedItem = self.list.GetFocusedItem()
 #                 self.list.Select(selectedItem._itemId-1, True)
+                id=self.list.GetItemText(selectedItem)
                 self.list.DeleteItem(self.list.GetFocusedItem())
+                del self.tableDict['columns'][int(id)]
+                self.updateTableEditorPanel()
+                
         except KeyError:
             pass
 #         print(self.listctrldata)
@@ -376,6 +402,8 @@ class CreatingTablePanel(wx.Panel):
     def onRemoveColumnClick(self, event):
         print('onRemoveColumnClick clicked')
         self.removeRow()
+#         self.updateItemStatus(event.GetIndex(), event.GetItem())
+    
         
     def onMoveUpClick(self, event):
         print('onMoveUpClick clicked')
@@ -441,66 +469,112 @@ class CreatingTablePanel(wx.Panel):
 
 
     def OnItemSelected(self, event):
-        
+        print('OnItemSelected:')
         self.startIndex = event.GetIndex()
         self.currentItem = event.GetIndex()
         self.updateItemStatus(event.GetIndex(), event.GetItem())
-        print("OnItemSelected: %s, %s, %s, %s\n" % (self.currentItem,
-                                                            self.list.GetItemText(self.currentItem),
-                                                            self.getColumnText(self.currentItem, 1),
-                                                            self.getColumnText(self.currentItem, 2)))
+#         print("OnItemSelected: %s, %s, %s, %s\n" % (self.currentItem,
+#                                                             self.list.GetItemText(self.currentItem),
+#                                                             self.getColumnText(self.currentItem, 1),
+#                                                             self.getColumnText(self.currentItem, 2)))
+# 
+#         if self.list.GetPyData(self.currentItem):
+#             print("PYDATA = %s\n" % repr(self.list.GetPyData(self.currentItem)))
+# 
+#         if self.currentItem == 10:
+#             print("OnItemSelected: Veto'd selection\n")
+#             # event.Veto()  # doesn't work
+#             # this does
+#             self.list.SetItemState(10, 0, wx.LIST_STATE_SELECTED)
 
-        if self.list.GetPyData(self.currentItem):
-            print("PYDATA = %s\n" % repr(self.list.GetPyData(self.currentItem)))
-
-        if self.currentItem == 10:
-            print("OnItemSelected: Veto'd selection\n")
-            # event.Veto()  # doesn't work
-            # this does
-            self.list.SetItemState(10, 0, wx.LIST_STATE_SELECTED)
-
-        event.Skip()
+#         event.Skip()
 
 
-    def OnItemDeselected(self, evt):
-        item = evt.GetItem()
-        print("OnItemDeselected: %d\n" % evt.m_itemIndex)
-
+    def OnItemDeselected(self, event):
+        item = event.GetItem()
+        print("OnItemDeselected: %d\n" % event.m_itemIndex)
+#         self.updateItemStatus(event.GetIndex(), event.GetItem())
 # #        # Show how to reselect something we don't want deselected
 # #        if evt.m_itemIndex == 11:
 # #            wx.CallAfter(self.list.SetItemState, 11, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
-
+        event.Skip()
     def updateItemStatus(self, index, item):
         
-        self.list._mainWin
         print('getColumnText0:' + self.getColumnText(index, 0))
         for col in range(4, 8):
             itemCol = self.list.GetItem(index, col)
             print(col, item._itemId, index, itemCol.IsChecked())
-        for idx, column in enumerate(self.tableDict['columns']):
-            if str(column['id']) == self.getColumnText(index, 0):
-#                     column['columnName']='column ' + str(len(self.tableDict['columns']) + 1),
-#                     column['dataType']=dataType,
-                isPrimaryKey=self.list.GetItem(index, 4).IsChecked()
-                column['isPrimaryKey'] = isPrimaryKey
-                isNullable=self.list.GetItem(index, 5).IsChecked()
-                column["isNullable"] = isNullable
-                isUnique=self.list.GetItem(index, 6).IsChecked()
-                column['isUnique'] = isUnique,
-                autoIncrement=self.list.GetItem(index, 7).IsChecked()
-                column["autoIncrement"] = autoIncrement
-                column['columnIcon']=self.setColumnIcon(column['isPrimaryKey'], column['dataType']),
-                self.setColumnIcon(isPrimaryKey, column['dataType'])
-                self.list.SetStringItem(index , 1, '', imageIds=[self.imageId[ self.setColumnIcon(isPrimaryKey, column['dataType'])]] , it_kind=0)
+        column=self.tableDict['columns'][int(self.getColumnText(index, 0))]
+        print('before ----------------------------------------------->',self.list.GetItem(index, 4).IsChecked())
+        isPrimaryKey = self.list.GetItem(index, 4).IsChecked()
+        print('after ----------------------------------------------->',self.list.GetItem(index, 4).IsChecked())
+        column['isPrimaryKey'] = isPrimaryKey
+        isNotNull = self.list.GetItem(index, 5).IsChecked()
+        column["isNotNull"] = isNotNull
+        isUnique = self.list.GetItem(index, 6).IsChecked()
+        column['isUnique'] = isUnique
+        autoIncrement = self.list.GetItem(index, 7).IsChecked()
+        column["isAutoIncrement"] = autoIncrement
+        column['columnIcon'] = self.setColumnIcon(column['isPrimaryKey'], column['dataType'])
+        self.list.SetStringItem(index , 1, '', imageIds=[self.imageId[ self.setColumnIcon(isPrimaryKey, column['dataType'])]] , it_kind=0)
+        self.tableDict['columns'][int(self.getColumnText(index, 0))]=column
+#                 column=col
+#                 break
 #                     column["description"]= 'No'
         print(self.tableDict)
+        self.updateTableEditorPanel()
+        
+        
+    def updateTableEditorPanel(self):
+        self.GetTopLevelParent().sstc.SetText(self.createSql())
+        pass
+    
+    def createSql(self):    
+        sqlList = list()
+        sqlList.append("CREATE")
+        if 'temp' in self.tableDict.keys():
+            sqlList.append("TEMP")
+        sqlList.append('TABLE')
+        if 'ifNotExists' in  self.tableDict.keys():
+            sqlList.append('IF NOT EXISTS')
+        if 'schemaName' in self.tableDict.keys():
+            sqlList.append("'"+self.tableDict['schemaName'] + "'.'" + self.tableDict['tableName']+"'")
+        else:
+            sqlList.append("'"+self.tableDict['tableName']+"'")
+        sqlList.append('(')
+        print(self.tableDict['columns'])
+        for key, column in self.tableDict['columns'].items():
+            sqlList.append("'"+column['columnName']+"'")
+            sqlList.append(column['dataType'])
+            if column['isPrimaryKey']:
+                sqlList.append('PRIMARY KEY')
+                if column['isAutoIncrement']:
+                    sqlList.append('AUTOINCREMENT')
+            elif column['isNotNull']:
+                sqlList.append('NOT NULL')
+            elif column['isUnique']:
+                sqlList.append('UNIQUE')
+            elif column['isUnique']:
+                sqlList.append('UNIQUE')
+            elif 'check' in column.keys():
+                sqlList.append('CHECK ( ' + column['check'] + ' )')
+            elif 'default' in column.keys():
+                sqlList.append('DEFAULT ' + column['default'])
+            
+            sqlList.append(',')
+        sqlList.pop()
+        sqlList.append(')')  
+        sql = " ".join(sqlList)
+#         formatedSql=sqlparse.format(sql, encoding=None)
+        return sql    
+        
     def OnItemActivated(self, event):
         self.currentItem = event.m_itemIndex
         print("OnItemActivated: %s\nTopItem: %s\n" % (self.list.GetItemText(self.currentItem), self.list.GetTopItem()))
 
     def OnBeginEdit(self, event):
         print("OnBeginEdit\n")
-        event.Allow()
+#         event.Allow()
         
     def _onInsert(self, event):
         # Sequencing on a drop event is:
@@ -513,7 +587,7 @@ class CreatingTablePanel(wx.Panel):
         # this call to onStripe catches any addition to the list; drag or not
         self._onStripe()
         self.dragIndex = -1
-        event.Skip()
+#         event.Skip()
     def OnItemDelete(self, event):
         print("OnItemDelete\n")
         self._onStripe()
@@ -578,10 +652,10 @@ class CreatingTablePanel(wx.Panel):
         # 3. insert item & it's data into the list at the new index
         #----------
         dropList = []  # Drop List is the list of field values from the list control
-        columnDraged=None
-        for idx, column in enumerate(self.tableDict['columns']):
+        columnDraged = None
+        for idx, column in self.tableDict['columns'].items():
             if str(column['id']) == self.getColumnText(self.startIndex, 0):
-                columnDraged=column
+                columnDraged = column
         thisItem = self.list.GetItem(self.startIndex)
         thisItem_4 = self.list.GetItem(self.startIndex, 4)
         thisItem_5 = self.list.GetItem(self.startIndex, 5)
@@ -620,15 +694,16 @@ class CreatingTablePanel(wx.Panel):
         dropItem_7.Check(thisItem_7.IsChecked())
         self.list.SetItem(dropItem_7)
         
-        self.list.SetStringItem(self.dropIndex , 1, '', imageIds=[self.imageId[column['columnIcon']]] , it_kind=0)
+        self.list.SetStringItem(self.dropIndex , 1, '', imageIds=[self.imageId[self.setColumnIcon(column['isPrimaryKey'], column['dataType'])]] , it_kind=0)
 #         self.list.SetStringItem(self.dropIndex , 2, columnDraged['columnName'], it_kind=0)
 #         self.list.SetStringItem(self.dropIndex , 3, columnDraged['dataType'], it_kind=0)
         self.list.SetStringItem(self.dropIndex , 4, '' if columnDraged['isPrimaryKey'] else '', it_kind=1)
-        self.list.SetStringItem(self.dropIndex , 5, '' if columnDraged['isNullable'] else '', it_kind=1)
+        self.list.SetStringItem(self.dropIndex , 5, '' if columnDraged['isNotNull'] else '', it_kind=1)
         self.list.SetStringItem(self.dropIndex , 6, '' if columnDraged['isUnique'] else '', it_kind=1)
-        self.list.SetStringItem(self.dropIndex , 7, '' if columnDraged['autoIncrement'] else '', it_kind=1)
+        self.list.SetStringItem(self.dropIndex , 7, '' if columnDraged['isAutoIncrement'] else '', it_kind=1)
 #         self.list.SetStringItem(self.dropIndex , 8, column['description'], it_kind=0)        
         print(self.tableDict)
+        self.updateTableEditorPanel()
         
     def OnDoubleClick(self, event):
         print("OnDoubleClick item %s\n" % self.list.GetItemText(self.currentItem))
