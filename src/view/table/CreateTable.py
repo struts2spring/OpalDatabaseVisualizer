@@ -340,6 +340,9 @@ class CreatingTablePanel(wx.Panel):
         self.list.SetItem(item3)         
         self.list.SetColumnWidth(3,110)
         self.tableDict['columns'][columnId] = column
+        
+        if len(self.tableDict['columns'])>0:
+            self.list.Focus(len(self.tableDict['columns'])-1)
         print(self.tableDict)  
         self.updateTableEditorPanel()  
         
@@ -363,6 +366,8 @@ class CreatingTablePanel(wx.Panel):
                 self.list.DeleteItem(self.list.GetFocusedItem())
                 del self.tableDict['columns'][int(id)]
                 self.choiceId = self.choiceId - int(id)
+                if len(self.tableDict['columns'])>0:
+                    self.list.Focus(len(self.tableDict['columns'])-1)
                 self.updateTableEditorPanel()
                 
         except KeyError:
