@@ -1,6 +1,5 @@
 '''
 Created on 11-Jan-2017
-
 @author: vijay
 '''
 import wx
@@ -73,8 +72,8 @@ class CreatingTablePanel(wx.Panel):
         wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER)
         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)
-        
-        self.choices=['INTEGER','TEXT']
+        self.choiceId = 1000
+        self.choices = ['INTEGER', 'TEXT', 'NUMERIC', 'REAL', 'BLOB']
         self.tableDict = dict()
         self.tableDict['schemaName'] = 'schema 1'
         self.tableDict['tableName'] = 'Table 1'
@@ -294,7 +293,7 @@ class CreatingTablePanel(wx.Panel):
             dataType = dataTypeList[1]
             isPrimaryKey = False
             
-        columnId=len(self.tableDict['columns']) + 1
+        columnId = len(self.tableDict['columns']) + 1
         column = {
           'id':len(self.tableDict['columns']) + 1,
           'columnIcon':self.setColumnIcon(isPrimaryKey, dataType),
@@ -329,28 +328,41 @@ class CreatingTablePanel(wx.Panel):
         self.list.SetItem(item)
         
         item3 = self.list.GetItem(self._itemId, 3)
-        self.dataTypeChoice = wx.Choice(self.list, -1, (100, 50), choices = self.choices)
-        
+        self.choiceId = 1000 + int(column['id'])
+        print('=======================================>', self.choiceId)
+        dataTypeChoice = wx.Choice(self.list, self.choiceId, (100, 50), choices=self.choices)
+        dataTypeChoice.Bind(wx.EVT_CHOICE, self.OnChoice)
         for idx , choice in enumerate(self.choices):
-            if choice==column['dataType']:
-                self.dataTypeChoice.SetSelection(idx)
+            if choice == column['dataType']:
+                dataTypeChoice.SetSelection(idx)
                 
-        item3.SetWindow(self.dataTypeChoice)
+        item3.SetWindow(dataTypeChoice)
         self.list.SetItem(item3)         
         
-        self.tableDict['columns'][columnId]=column
+        self.tableDict['columns'][columnId] = column
         print(self.tableDict)  
         self.updateTableEditorPanel()  
         
+        
+    def OnChoice(self, event):
+#         self.label.SetLabel("selected "+ self.choice.GetString( self.choice.GetSelection() ) +" from Choice")
+        print(self.list)
+        print(event.GetClientObject().GetId())
+        print(event.GetString())
+        rowId = event.GetClientObject().GetId() - 1000
+#         self.updateItemStatus(index=index)
+        self.tableDict['columns'][rowId]['dataType'] = event.GetString()
+        self.updateTableEditorPanel()
     def removeRow(self): 
         try:
             if self.list.GetFocusedItem() != -1:
                 print(self.list.GetSelectedItemCount())
                 selectedItem = self.list.GetFocusedItem()
 #                 self.list.Select(selectedItem._itemId-1, True)
-                id=self.list.GetItemText(selectedItem)
+                id = self.list.GetItemText(selectedItem)
                 self.list.DeleteItem(self.list.GetFocusedItem())
                 del self.tableDict['columns'][int(id)]
+                self.choiceId = self.choiceId - int(id)
                 self.updateTableEditorPanel()
                 
         except KeyError:
@@ -507,16 +519,37 @@ class CreatingTablePanel(wx.Panel):
 # #        if evt.m_itemIndex == 11:
 # #            wx.CallAfter(self.list.SetItemState, 11, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
         event.Skip()
-    def updateItemStatus(self, index, item):
+    def updateItemStatus(self, index, item=None):
         
         print('getColumnText0:' + self.getColumnText(index, 0))
         for col in range(4, 8):
             itemCol = self.list.GetItem(index, col)
             print(col, item._itemId, index, itemCol.IsChecked())
-        column=self.tableDict['columns'][int(self.getColumnText(index, 0))]
-        print('before ----------------------------------------------->',self.list.GetItem(index, 4).IsChecked())
+        column = self.tableDict['columns'][int(self.getColumnText(index, 0))]
+        
+        
+        dataTypeItem = self.list.GetItem(index, 3)
+        dataTypeChoice = dataTypeItem.GetWindow()
+        idx = dataTypeChoice.GetSelection()
+        print(idx)
+        
+        
+#         item3 = self.list.GetItem(column['id'], 3)
+#         dataTypeChoice = wx.Choice(self.list, -1, (100, 50), choices = self.choices)
+#         
+#         for idx , choice in enumerate(self.choices):
+#             if choice==column['dataType']:
+#                 dataTypeChoice.SetSelection(dataTypeChoice.SetSelection()
+#                 
+#         item3.SetWindow(dataTypeChoice)
+#         self.list.SetItem(item3)  
+        
+        
+        
+        
+        print('before ----------------------------------------------->', self.list.GetItem(index, 4).IsChecked())
         isPrimaryKey = self.list.GetItem(index, 4).IsChecked()
-        print('after ----------------------------------------------->',self.list.GetItem(index, 4).IsChecked())
+        print('after ----------------------------------------------->', self.list.GetItem(index, 4).IsChecked())
         column['isPrimaryKey'] = isPrimaryKey
         isNotNull = self.list.GetItem(index, 5).IsChecked()
         column["isNotNull"] = isNotNull
@@ -526,7 +559,7 @@ class CreatingTablePanel(wx.Panel):
         column["isAutoIncrement"] = autoIncrement
         column['columnIcon'] = self.setColumnIcon(column['isPrimaryKey'], column['dataType'])
         self.list.SetStringItem(index , 1, '', imageIds=[self.imageId[ self.setColumnIcon(isPrimaryKey, column['dataType'])]] , it_kind=0)
-        self.tableDict['columns'][int(self.getColumnText(index, 0))]=column
+        self.tableDict['columns'][int(self.getColumnText(index, 0))] = column
 #                 column=col
 #                 break
 #                     column["description"]= 'No'
@@ -547,13 +580,13 @@ class CreatingTablePanel(wx.Panel):
         if 'ifNotExists' in  self.tableDict.keys():
             sqlList.append('IF NOT EXISTS')
         if 'schemaName' in self.tableDict.keys():
-            sqlList.append("'"+self.tableDict['schemaName'] + "'.'" + self.tableDict['tableName']+"'")
+            sqlList.append("'" + self.tableDict['schemaName'] + "'.'" + self.tableDict['tableName'] + "'")
         else:
-            sqlList.append("'"+self.tableDict['tableName']+"'")
+            sqlList.append("'" + self.tableDict['tableName'] + "'")
         sqlList.append('(')
         print(self.tableDict['columns'])
         for key, column in self.tableDict['columns'].items():
-            sqlList.append("'"+column['columnName']+"'")
+            sqlList.append("'" + column['columnName'] + "'")
             sqlList.append(column['dataType'])
             if column['isPrimaryKey']:
                 sqlList.append('PRIMARY KEY')
@@ -573,6 +606,7 @@ class CreatingTablePanel(wx.Panel):
             sqlList.append(',')
         sqlList.pop()
         sqlList.append(')')  
+        sqlList.append(';')  
         sql = " ".join(sqlList)
 #         formatedSql=sqlparse.format(sql, encoding=None)
         return sql    
@@ -665,13 +699,17 @@ class CreatingTablePanel(wx.Panel):
         for idx, column in self.tableDict['columns'].items():
             if str(column['id']) == self.getColumnText(self.startIndex, 0):
                 columnDraged = column
+        
         thisItem = self.list.GetItem(self.startIndex)
+        thisItem_3 = self.list.GetItem(self.startIndex, 3)
+        idx=thisItem_3.GetWindow().GetSelection()
+        
         thisItem_4 = self.list.GetItem(self.startIndex, 4)
         thisItem_5 = self.list.GetItem(self.startIndex, 5)
         thisItem_6 = self.list.GetItem(self.startIndex, 6)
         thisItem_7 = self.list.GetItem(self.startIndex, 7)
         
-        print('thisItem_4----------', thisItem_4)
+        print('thisItem_3.GetWindow()----------', thisItem_3.GetWindow())
         
         
         for x in range(self.list.GetColumnCount()):
@@ -705,11 +743,22 @@ class CreatingTablePanel(wx.Panel):
         
         self.list.SetStringItem(self.dropIndex , 1, '', imageIds=[self.imageId[self.setColumnIcon(column['isPrimaryKey'], column['dataType'])]] , it_kind=0)
 #         self.list.SetStringItem(self.dropIndex , 2, columnDraged['columnName'], it_kind=0)
-#         self.list.SetStringItem(self.dropIndex , 3, columnDraged['dataType'], it_kind=0)
+
+        item3 = self.list.GetItem(self.dropIndex, 3)
+        dataTypeChoice = wx.Choice(self.list, self.choiceId, (100, 50), choices=self.choices)
+        dataTypeChoice.SetSelection(idx)
+        dataTypeChoice.Bind(wx.EVT_CHOICE, self.OnChoice)
+        item3.SetWindow(dataTypeChoice)
+        self.list.SetItem(item3) 
+        
         self.list.SetStringItem(self.dropIndex , 4, '' if columnDraged['isPrimaryKey'] else '', it_kind=1)
         self.list.SetStringItem(self.dropIndex , 5, '' if columnDraged['isNotNull'] else '', it_kind=1)
         self.list.SetStringItem(self.dropIndex , 6, '' if columnDraged['isUnique'] else '', it_kind=1)
         self.list.SetStringItem(self.dropIndex , 7, '' if columnDraged['isAutoIncrement'] else '', it_kind=1)
+        
+
+        
+        
 #         self.list.SetStringItem(self.dropIndex , 8, column['description'], it_kind=0)        
         print(self.tableDict)
         self.updateTableEditorPanel()
