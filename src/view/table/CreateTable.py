@@ -73,6 +73,8 @@ class CreatingTablePanel(wx.Panel):
         wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER)
         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)
+        
+        self.choices=['INTEGER','TEXT']
         self.tableDict = dict()
         self.tableDict['schemaName'] = 'schema 1'
         self.tableDict['tableName'] = 'Table 1'
@@ -105,14 +107,7 @@ class CreatingTablePanel(wx.Panel):
         sizer.Add(tableNameLabel, flag=wx.EXPAND, row=2, col=1)
         sizer.Add(self.tableNameText, row=2, col=2)
         
-        hBox1 = wx.BoxSizer(wx.HORIZONTAL)
-        hBox1.Add(tableNameLabel, 1, wx.RIGHT, 15)
-        hBox1.Add(self.tableNameText, 0, wx.CENTER, 15)
-        
-        hBox2 = wx.BoxSizer(wx.HORIZONTAL)
-        hBox2.Add(schemaNameLabel, 1, wx.RIGHT, 15)
-        hBox2.Add(self.schemaNameText, 0, wx.CENTER, 15)
-        
+
         vBox1.Add(sizer)
 #         vBox1.Add(hBox1)
         
@@ -316,7 +311,12 @@ class CreatingTablePanel(wx.Panel):
         self._itemId = self.list.InsertStringItem(column['id'], str(column['id']), 0)
         self.list.SetStringItem(self._itemId , 1, '', imageIds=[self.imageId[column['columnIcon']]] , it_kind=0)
         self.list.SetStringItem(self._itemId , 2, column['columnName'], it_kind=0)
-        self.list.SetStringItem(self._itemId , 3, column['dataType'], it_kind=0)
+        
+        
+         
+#         self.list.SetStringItem(self._itemId , 3, column['dataType'], it_kind=0)
+        
+        
         self.list.SetStringItem(self._itemId , 4, '' if column['isPrimaryKey'] else '', it_kind=1)
         self.list.SetStringItem(self._itemId , 5, '' if column['isNotNull'] else '', it_kind=1)
         self.list.SetStringItem(self._itemId , 6, '' if column['isUnique'] else '', it_kind=1)
@@ -328,6 +328,15 @@ class CreatingTablePanel(wx.Panel):
         item.Check(isPrimaryKey)
         self.list.SetItem(item)
         
+        item3 = self.list.GetItem(self._itemId, 3)
+        self.dataTypeChoice = wx.Choice(self.list, -1, (100, 50), choices = self.choices)
+        
+        for idx , choice in enumerate(self.choices):
+            if choice==column['dataType']:
+                self.dataTypeChoice.SetSelection(idx)
+                
+        item3.SetWindow(self.dataTypeChoice)
+        self.list.SetItem(item3)         
         
         self.tableDict['columns'][columnId]=column
         print(self.tableDict)  
