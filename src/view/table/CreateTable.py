@@ -338,7 +338,7 @@ class CreatingTablePanel(wx.Panel):
                 
         item3.SetWindow(dataTypeChoice)
         self.list.SetItem(item3)         
-        
+        self.list.SetColumnWidth(3,110)
         self.tableDict['columns'][columnId] = column
         print(self.tableDict)  
         self.updateTableEditorPanel()  
