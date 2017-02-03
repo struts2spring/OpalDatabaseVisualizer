@@ -42,7 +42,7 @@ class CreateWorksheetTabPanel(wx.Panel):
             pass
         else:
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
-            
+            worksheetPanel.worksheetPanel.editorPanel
             self._nb.AddPage(worksheetPanel, name, imageId=0)
 
     def __DoLayout(self):
@@ -83,12 +83,12 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 
         ####################################################################
         worksheetToolbar = self.constructWorksheetToolBar()
-        worksheetPanel = CreatingWorksheetPanel(self)
-        worksheetPanel.setResultData()
+        self.worksheetPanel = CreatingWorksheetPanel(self)
+        self.worksheetPanel.setResultData()
         self.bindingEvent()
         ####################################################################
         vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
-        vBox.Add(worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(self.worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
@@ -151,9 +151,9 @@ class CreatingWorksheetPanel(wx.Panel):
 #         worksheetToolbar = self.constructWorksheetToolBar()
         splitter = MultiSplitterWindow(self, id=-1, style=wx.SP_LIVE_UPDATE)
         self.splitter = splitter
-        editorPanel = CreatingEditorPanel(splitter)
+        self.editorPanel = CreatingEditorPanel(splitter)
         self.resultPanel = ResultPanel(splitter, data=self.getData())
-        splitter.AppendWindow(editorPanel)
+        splitter.AppendWindow(self.editorPanel)
         splitter.AppendWindow(self.resultPanel)
         splitter.SetOrientation(wx.VERTICAL)
         splitter.SizeWindows()  
