@@ -12,7 +12,8 @@ import os
 from src.view.connect.ConnectExecute import SQLExecuter
 import string
 import new
-from src.format_sql.shortcuts import Beautify
+from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
+# from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
 
@@ -211,10 +212,11 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def formatCode(self, inputText=None):
         print("formatCode:", inputText)
 #         new = inputText + "1"
-        new=Beautify().format_sql(inputText)
+        formatted_sql=SqlBeautifierCommand().format_sql(inputText)
+#         new=Beautify().format_sql(inputText)
         s = self.GetText()
         print(s, '\n', inputText, '\n', new)
-        new_str = string.replace(s, inputText, new, maxreplace=1)
+        new_str = string.replace(s, inputText, formatted_sql, maxreplace=1)
         self.SetText(new_str)
  
     def Paste(self):
