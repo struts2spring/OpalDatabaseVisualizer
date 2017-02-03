@@ -37,7 +37,13 @@ class DatabaseMainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
         
         print('1----------------------->', os.getcwd())
-        imageLocation=os.path.join("..",  "images")
+        path = os.path.abspath(__file__)
+        tail = None
+        while tail != 'src':
+            path = os.path.abspath(os.path.join(path, '..'))
+            head, tail = os.path.split(path)
+            
+        imageLocation=os.path.join(path,  "images")
         image = wx.Image(os.path.join(imageLocation, "Opal_database.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         icon = wx.EmptyIcon()
         icon.CopyFromBitmap(image)
@@ -48,8 +54,10 @@ class DatabaseMainFrame(wx.Frame):
         self.createStatusBar()
 #         self.creatingTreeCtrl()
         
-        
-        self.createAuiManager()
+        try:
+            self.createAuiManager()
+        except Exception as ex:
+            ex.print_stack_trace()
 #         self.creatingToolbar()
         
 #         self.creatingTreeCtrl()
@@ -85,13 +93,25 @@ class DatabaseMainFrame(wx.Frame):
 
     
     def createAuiManager(self):
+        print('createAuiManager')
         # tell FrameManager to manage this frame
         self._mgr = aui.AuiManager()
         self._mgr.SetManagedWindow(self)
         # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
         self._notebook_theme = 0      
-        
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
         # code. For now, just hard code a frame minimum size
@@ -109,11 +129,11 @@ class DatabaseMainFrame(wx.Frame):
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "folder_database.png"))).
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "folder_database.png"))).
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
                           Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
     
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "script.png"))).
+        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
                           Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
@@ -127,7 +147,7 @@ class DatabaseMainFrame(wx.Frame):
 #                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
             
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "sql.png"))).
+        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
         
@@ -151,7 +171,8 @@ class DatabaseMainFrame(wx.Frame):
         historyPanel = HistoryPanel(self, data=musicdata)
         return historyPanel
     def constructSqlPane(self):
-        worksheet = CreateWorksheetTabPanel(self)        
+        worksheet = CreateWorksheetTabPanel(self)      
+          
         return worksheet
     def createStatusBar(self):
         print('creating status bar')
