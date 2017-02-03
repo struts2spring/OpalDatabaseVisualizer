@@ -75,7 +75,7 @@ class UserPanel(wx.Panel):
         self.pageSizeText.SetValue(str(event.GetPosition()))
     
     def EvtCheckBox(self, event):
-        print self.isPaginationCheckBox
+        print(self.isPaginationCheckBox)
         print ('EvtCheckBox: %d\n' % event.IsChecked())
         cb = event.GetEventObject()
         if cb.Is3State():
@@ -169,8 +169,8 @@ class SearchPanel(wx.Panel):
         self.pageSizeText.SetValue(str(event.GetPosition()))
     
     def EvtCheckBox(self, event):
-        print self.isPaginationCheckBox
-        print ('EvtCheckBox: %d\n' % event.IsChecked())
+        print(self.isPaginationCheckBox)
+        print('EvtCheckBox: %d\n' % event.IsChecked())
         cb = event.GetEventObject()
         if cb.Is3State():
             print ("\t3StateValue: %s\n" % cb.Get3StateValue())
