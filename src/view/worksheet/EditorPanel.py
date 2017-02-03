@@ -10,6 +10,10 @@ import keyword
 from src.view.images import images
 import os
 from src.view.connect.ConnectExecute import SQLExecuter
+import string
+import new
+from src.format_sql.shortcuts import Beautify
+# from src.format_sql.shortcuts import format_sql
 
 
 #----------------------------------------------------------------------
@@ -84,7 +88,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
         # init key short cut
-        self.initKeyShortCut()
+#         self.initKeyShortCut()
         self.SetLexer(stc.STC_LEX_SQL)
         self.SetKeyWords(0, " ".join(keyword.kwlist))
 
@@ -102,6 +106,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.SetViewEOL(False)
         self.SetEOLMode(stc.STC_EOL_CRLF)
         self.SetUseAntiAliasing(True)
+        
+        self.selection_column_mode = False
         
         self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
         self.SetEdgeColumn(78)
@@ -187,6 +193,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
+        self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
         
 
     def registerAllImages(self):
@@ -200,11 +207,67 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16, 16)))
         self.RegisterImage(3,
             wx.ArtProvider.GetBitmap(wx.ART_COPY, size=(16, 16)))
+        
+    def formatCode(self, inputText=None):
+        print("formatCode:", inputText)
+#         new = inputText + "1"
+        new=Beautify().format_sql(inputText)
+        s = self.GetText()
+        print(s, '\n', inputText, '\n', new)
+        new_str = string.replace(s, inputText, new, maxreplace=1)
+        self.SetText(new_str)
+ 
+    def Paste(self):
+        success = False
+        do = wx.TextDataObject()
+        if wx.TheClipboard.Open():
+            success = wx.TheClipboard.GetData(do)
+            wx.TheClipboard.Close()
+
+        if success:
+#             if not self.execplugin('on_paste', self, do.GetText()):
+            stc.StyledTextCtrl.Paste(self) 
+                
+    def copyClipboard(self, text=None):
+        """"""
+        if self.SelectionIsRectangle():
+            self.selection_column_mode = True
+        else:
+            self.selection_column_mode = False
+        stc.StyledTextCtrl.Copy(self)
+#         self.dataObj = wx.TextDataObject()
+#         self.dataObj.SetText(text)
+#         
+#         try:
+#             with wx.Clipboard.Get() as clipboard:
+#                 clipboard.SetData(self.dataObj)
+#         except TypeError:
+#             wx.MessageBox("Unable to open the clipboard", "Error")            
+    
+    def OnKeyUp(self, event):
+        if self.CallTipActive():
+            self.CallTipCancel()
+        key = event.GetKeyCode()
+        print('OnKeyUp------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+        if event.ControlDown() and  key == 67:
+            print('ctrl+c')
+            self.copyClipboard(text=self.GetSelectedText())    
+        if event.ControlDown() and  key == 86:
+            print('ctrl+v')
+            self.Paste()
     def OnKeyPressed(self, event):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
-#         print 'OnKeyPressed------->', key, event.ControlDown(), wx.WXK_RETURN
+        print(wx.WXK_CONTROL_C)
+        print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+        if event.ControlDown() and event.ShiftDown() and key == 70:
+            selectedText = self.GetSelectedText()
+            self.formatCode(inputText=selectedText)
+#         if event.ControlDown() and  key == 67:
+#             print('ctrl+c')
+#             self.copyClipboard(text=self.GetSelectedText())
+#             event.Skip()
         if key == wx.WXK_RETURN and event.ControlDown():
             self.executeSQL()
         if key == wx.WXK_SPACE and event.ControlDown():
@@ -376,18 +439,20 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
         return line
     def OnPopUp(self, event):
+        other_menus = []
         print('OnPopUp', self, event)
-#         if self.popmenu:
-#             self.popmenu.Destroy()
-#             self.popmenu = None
-#         fileMenu = wx.Menu()   
-#         imp = wx.Menu()
-#         imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
-#         fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
-#         self.popmenu.Append(fileMenu)
-#         self.PopupMenu(self.popmenu, event.GetPosition())
+        if self.popmenu:
+            self.popmenu.Destroy()
+            self.popmenu = None
+        fileMenu = wx.Menu()   
+        imp = wx.Menu()
+        imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
+        fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
+        self.popmenu.Append(fileMenu)
+        self.PopupMenu(self.popmenu, event.GetPosition())
         
-        
+
+                
     def initKeyShortCut(self):
         self.CmdKeyClearAll()
         self.keydefs = {}
@@ -409,7 +474,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             ('Del', stc.STC_CMD_CLEAR),
 #       wxSTC_CMD_COPY Copy the selection to the clipboard
            ('Ctrl+C', stc.STC_CMD_COPY),
-           ('Ctrl+Ins', stc.STC_CMD_COPY),
+#            ('Ctrl+Ins', stc.STC_CMD_COPY),
 #       wxSTC_CMD_CUT Cut the selection to the clipboard
            ('Ctrl+X', stc.STC_CMD_CUT),
            ('Shift+Del', stc.STC_CMD_CUT),
@@ -552,7 +617,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     
     def executeSQL(self):
         
-        print('executeSQL' ,self.GetSelectedText()  )
+        print('executeSQL' , self.GetSelectedText())
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
 #         book_row = [
 #                     {'id':'2',
@@ -561,14 +626,14 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #                 ]
 #         sqlExecuter.sqlite_insert_or_update('book', book_row)
 #         print(sqlExecuter.sqlite_select('book'))
-        sqlOutput=sqlExecuter.executeText(self.GetSelectedText())
+        sqlOutput = sqlExecuter.executeText(self.GetSelectedText())
         print(sqlOutput)
-        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-        window=sqlExecutionTab.window
-        creatingWorksheetPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
+        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        window = sqlExecutionTab.window
+        creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
-        resultListPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-        resultListPanel.createDataViewCtrl(data=sqlOutput,headerList=["Artist","Title","Genre"])
+        resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
+        resultListPanel.createDataViewCtrl(data=sqlOutput, headerList=["Artist", "Title", "Genre"])
 #         resultListPanel.setResultData()
         print(resultListPanel.Layout())
         
@@ -614,6 +679,7 @@ class CreatingEditorPanel(wx.Panel):
 
         ####################################################################
         self.sstc = SqlStyleTextCtrl(self, -1)
+        self.sstc.initKeyShortCut()
         self.sstc.SetText(demoText + open('book.sql').read())
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
