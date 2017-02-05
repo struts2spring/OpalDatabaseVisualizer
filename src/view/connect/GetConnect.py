@@ -85,7 +85,7 @@ class CreatingNewConnectionPanel(wx.Panel):
     #                 if SearchDemo(childItem, value):
                     self.searchItems[category].append(childItem)
         except Exception as e:
-            print e
+            e.print_stack_trace()
         wx.EndBusyCursor()
         self.RecreateTree()   
     #---------------------------------------------    
@@ -174,7 +174,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print 'onkey'
+        print('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 

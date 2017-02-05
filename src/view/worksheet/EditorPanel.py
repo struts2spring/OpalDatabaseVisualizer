@@ -274,10 +274,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if event.ControlDown() and event.ShiftDown() and key == 70:
             selectedText = self.GetSelectedText()
             self.formatCode(inputText=selectedText)
-#         if event.ControlDown() and  key == 67:
-#             print('ctrl+c')
+        if event.ControlDown() and  key == 70:
+            print('ctrl+F: for find and relpace')
 #             self.copyClipboard(text=self.GetSelectedText())
-#             event.Skip()
+            event.Skip()
         if key == wx.WXK_RETURN and event.ControlDown():
             self.executeSQL()
         if key == wx.WXK_SPACE and event.ControlDown():
