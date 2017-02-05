@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//src/SqlBeautifier/sqlparse2/engine/filter.py=utf-8
+encoding//src/SqlBeautifier/sqlparse2/engine/grouping.py=utf-8
+encoding//src/SqlBeautifier/sqlparse2/filters.py=utf-8
+encoding//src/SqlBeautifier/sqlparse2/lexer.py=utf-8
+encoding//src/SqlBeautifier/sqlparse2/sql.py=utf-8
+encoding//src/SqlBeautifier/sqlparse3/engine/filter.py=utf-8
+encoding//src/SqlBeautifier/sqlparse3/engine/grouping.py=utf-8
+encoding//src/SqlBeautifier/sqlparse3/filters.py=utf-8
+encoding//src/SqlBeautifier/sqlparse3/lexer.py=utf-8
+encoding//src/SqlBeautifier/sqlparse3/sql.py=utf-8
+encoding//src/view/MainFrame.py=utf-8
