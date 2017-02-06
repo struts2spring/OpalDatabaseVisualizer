@@ -21,8 +21,8 @@ import os
 #---------------------------------------------------------------------------
 
 musicdata = {
-1 : ("Zoom in", "Ctrl + mouse scroll up", "Edit image","zoom-in.png"),
-2 : ("Zoom out", "Ctrl + mouse scroll down", "Edit image","zoom-out.png"),
+1 : ("Zoom in", "Ctrl + mouse scroll up", "Edit image","zoom_in.png"),
+2 : ("Zoom out", "Ctrl + mouse scroll down", "Edit image","zoom_out.png"),
 3 : ("Quit Opal", "Ctrl + Q", "Rock","exit-16.png"),
 4 : ("Search", "Ctrl + F", "Rock","search.png"),
 5 : ("Help", "F1", "Rock","help.png"),
@@ -145,8 +145,15 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
             self.list.InsertColumnInfo(2, info)
 
         items = musicdata.items()
+        path = os.path.abspath(__file__)
+        tail = None
+        while tail != 'src':
+            path = os.path.abspath(os.path.join(path, '..'))
+            head, tail = os.path.split(path)
+            
+        imageLocation=os.path.join(path,  "images")
         for key, data in items:
-            image = wx.Image(os.path.join('..', "images", data[3]), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+            image = wx.Image(os.path.join(imageLocation, data[3]), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
             index = self.list.InsertImageStringItem(sys.maxint, data[0], self.il.Add(image))
             self.list.SetStringItem(index, 1, data[1])
             self.list.SetStringItem(index, 2, data[2])
