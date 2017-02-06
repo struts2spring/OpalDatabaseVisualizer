@@ -129,7 +129,7 @@ class CreatingNewConnectionPanel(wx.Panel):
             
         treeFont.SetWeight(wx.BOLD)
         catFont.SetWeight(wx.BOLD)
-        self.tree.SetItemFont(self.root, treeFont)
+#         self.tree.SetItemFont(self.root, treeFont)
         
         firstChild = None
         selectItem = None

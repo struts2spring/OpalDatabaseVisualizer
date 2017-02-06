@@ -191,6 +191,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
 #         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
         wx.EVT_RIGHT_DOWN(self, self.OnPopUp)
+        wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
@@ -257,6 +258,14 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if event.ControlDown() and  key == 86:
             print('ctrl+v')
             self.Paste()
+        if key in (314,315,316,317):
+            line = self.GetCurrentLine()
+            lineText, column=self.GetCurLine()
+            print('left right up down',lineText, line, column)
+#             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
+            print(self.GetTopLevelParent())
+            self.GetTopLevelParent().statusbar.SetStatusText("Line "+str(line)+" , Column "+str(column), 0)
+            
     def OnKeyPressed(self, event):
         if self.CallTipActive():
             self.CallTipCancel()
@@ -440,6 +449,15 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 line = line + 1
 
         return line
+    
+    def onLeftMouseUp(self, event):
+        line = self.GetCurrentLine()
+        lineText, column=self.GetCurLine()
+        print('left right up down',lineText, line, column)
+#             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
+        print(self.GetTopLevelParent())
+        self.GetTopLevelParent().statusbar.SetStatusText("Line "+str(line)+" , Column "+str(column), 0)
+        event.Skip()
     def OnPopUp(self, event):
         other_menus = []
         print('OnPopUp', self, event)

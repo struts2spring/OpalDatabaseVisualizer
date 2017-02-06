@@ -6,7 +6,9 @@ Created on 11-Dec-2016
 
 
 import wx
-# import wx.aui
+
+import wx.aui
+import wx.wizard
 import os
 from src.view.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
@@ -17,8 +19,10 @@ from src.view.Constant import ID_newConnection, ID_openConnection,\
     ID_newWorksheet, ID_UPDATE_CHECK, ID_SQL_LOG, ID_SQL_EXECUTION
 from wx import ID_PREFERENCES
 from src.view.preference.OpalPreferences import OpalPreference
-from src.view.connect.GetConnect import CreatingNewConnectionPanel,\
-    CreatingNewConnectionFrame
+from src.view.connection.GetConnect import CreatingNewConnectionPanel
+from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
+    TitledPage
+
 
 # ID_UPDATE_CHECK = wx.NewId()
 # ID_newConnection = wx.NewId()
@@ -174,11 +178,17 @@ class DatabaseMainFrame(wx.Frame):
         worksheet = CreateWorksheetTabPanel(self)      
           
         return worksheet
+    
+    def getCurrentCursorPosition(self):
+        lineNo=1
+        column=1
+        return "Line "+str(lineNo)+" , Column "+str(column)
+        
     def createStatusBar(self):
         print('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
-        self.statusbar.SetStatusText("Ready", 0)
+        self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
         
     def createMenuBar(self):
@@ -272,7 +282,25 @@ class DatabaseMainFrame(wx.Frame):
         print('onOpenConnection')
     def onNewConnection(self, event):
         print('onNewConnection')
-        newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
+        wizard = wx.wizard.Wizard(self, -1, "Simple Wizard")
+        page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
+        page2 = TitledPage(wizard, "Connection settings")
+        page3 = TitledPage(wizard, "Page 3")
+        page4 = TitledPage(wizard, "Page 4")
+        page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
+        page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
+        wx.wizard.WizardPageSimple_Chain(page1, page2)
+        wx.wizard.WizardPageSimple_Chain(page2, page3)
+        wx.wizard.WizardPageSimple_Chain(page3, page4)
+        wizard.FitToPage(page1)
+    
+        if wizard.RunWizard(page1):
+            print("Success")
+    
+        wizard.Destroy()        
+        self.Show()
+#         newConnectionFrame=CreatingNewConnectionPanel(self)
+#         newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
         
     def onNewWorksheet(self, event):
         print('onNewWorksheet')
