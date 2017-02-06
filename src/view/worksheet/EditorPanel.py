@@ -13,7 +13,6 @@ from src.view.connect.ConnectExecute import SQLExecuter
 import string
 import new
 from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
-from src.view import SqliteKeywords
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -92,14 +91,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         # init key short cut
 #         self.initKeyShortCut()
         self.SetLexer(stc.STC_LEX_SQL)
-#         self.SetKeyWords(0, " ".join(keyword.kwlist))
-        lowerKeyword = [element.lower() for element in SqliteKeywords.keyword]
-        upperKeyword=[element.upper() for element in SqliteKeywords.keyword]
-        keywords=list()
-        keywords.extend(lowerKeyword)
-        keywords.extend(upperKeyword)
-        print(keywords)
-        self.SetKeyWords(0, " ".join(keywords))
+        self.SetKeyWords(0, " ".join(keyword.kwlist))
 
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")

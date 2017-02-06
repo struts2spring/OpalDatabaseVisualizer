@@ -3,11 +3,11 @@ Created on 13-Dec-2016
 
 @author: vijay
 '''
+import wx
+import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
-import wx
 from src.view.images import catalog, images
-import os
 from src.connect.sqlite.Connect import ConnectSqlite
 from src.view.Constant import ID_newWorksheet, keyMap
 from src.view.table.CreateTable import CreatingTableFrame
@@ -504,15 +504,18 @@ class MainPanel(wx.Panel):
             return super(MainPanel, self).Thaw()
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
-    treeImageLevel = dict()
-    treeImageLevel[(0, 0)] = (0, 'database.png')
-    treeImageLevel[(1, 0)] = (0, 'database_category.png')
-    treeImageLevel[(1, 1)] = (0, 'folder_view.png')
-    treeImageLevel[(1, 2)] = (0, 'folder.png')
-    
-    print(treeImageLevel[(0, 0)])
+#     treeImageLevel = dict()
+#     treeImageLevel[(0, 0)] = (0, 'database.png')
+#     treeImageLevel[(1, 0)] = (0, 'database_category.png')
+#     treeImageLevel[(1, 1)] = (0, 'folder_view.png')
+#     treeImageLevel[(1, 2)] = (0, 'folder.png')
+#     
+#     print(treeImageLevel[(0, 0)])
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = CreatingTreePanel(frame, preferenceName='asfd')
+    try: 
+        panel = CreatingTreePanel(frame, preferenceName='asfd')
+    except:
+        pass
     frame.Show()
     app.MainLoop()
