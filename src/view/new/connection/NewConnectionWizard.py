@@ -6,7 +6,7 @@ Created on 04-Feb-2017
 
 import wx
 import wx.wizard
-from src.view.new.connection.DatabaseNavigation import DatabaseNavigationTree
+from src.view.connection.DatabaseNavigation import DatabaseNavigationTree
 
 class TitledPage(wx.wizard.WizardPageSimple):
     def __init__(self, parent, title):
@@ -110,7 +110,7 @@ class SelectDatabaseNamePage(wx.wizard.WizardPageSimple):
             
         treeFont.SetWeight(wx.BOLD)
         catFont.SetWeight(wx.BOLD)
-        self.tree.SetItemFont(self.root, treeFont)
+#         self.tree.SetItemFont(self.root, treeFont)
         
         firstChild = None
         selectItem = None
@@ -120,52 +120,24 @@ class SelectDatabaseNamePage(wx.wizard.WizardPageSimple):
 
         databaseLeaf = self.tree.AppendItem(self.root, 'SQLite', image=16)
 
-class CreatingNewConnectionPanel():
-    def __init__(self):
-#         wx.Panel.__init__(self, parent, id=-1)
-#         self.parent = parent
-#         
-#         vBox = wx.BoxSizer(wx.VERTICAL)
-        ####################################################################
-        app = wx.App()
-        wizard = wx.wizard.Wizard(None, -1, "Simple Wizard")
-        page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
-        page2 = TitledPage(wizard, "Connection settings")
-        page3 = TitledPage(wizard, "Page 3")
-        page4 = TitledPage(wizard, "Page 4")
-        page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
-        page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
-        wx.wizard.WizardPageSimple_Chain(page1, page2)
-        wx.wizard.WizardPageSimple_Chain(page2, page3)
-        wx.wizard.WizardPageSimple_Chain(page3, page4)
-        wizard.FitToPage(page1)
-    
-        if wizard.RunWizard(page1):
-            print("Success")
-    
-        wizard.Destroy()        
-        
-        ####################################################################        
-#         
-#         sizer = wx.BoxSizer(wx.VERTICAL)
-#         sizer.Add(vBox, 1, wx.EXPAND , 0)
-#         self.SetSizer(sizer)         
+     
 if __name__ == "__main__":
-    
-    CreatingNewConnectionPanel()
-#     wizard = wx.wizard.Wizard(None, -1, "Simple Wizard")
-#     page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
-#     page2 = TitledPage(wizard, "Page 2")
-#     page3 = TitledPage(wizard, "Page 3")
-#     page4 = TitledPage(wizard, "Page 4")
-#     page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
-#     page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
-#     wx.wizard.WizardPageSimple_Chain(page1, page2)
-#     wx.wizard.WizardPageSimple_Chain(page2, page3)
-#     wx.wizard.WizardPageSimple_Chain(page3, page4)
-#     wizard.FitToPage(page1)
-# 
-#     if wizard.RunWizard(page1):
-#         print("Success")
-# 
-#     wizard.Destroy()
+
+
+    app = wx.App()
+    wizard = wx.wizard.Wizard(None, -1, "Simple Wizard")
+    page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
+    page2 = TitledPage(wizard, "Page 2")
+    page3 = TitledPage(wizard, "Page 3")
+    page4 = TitledPage(wizard, "Page 4")
+    page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
+    page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
+    wx.wizard.WizardPageSimple_Chain(page1, page2)
+    wx.wizard.WizardPageSimple_Chain(page2, page3)
+    wx.wizard.WizardPageSimple_Chain(page3, page4)
+    wizard.FitToPage(page1)
+  
+    if wizard.RunWizard(page1):
+        print("Success")
+  
+    wizard.Destroy()
