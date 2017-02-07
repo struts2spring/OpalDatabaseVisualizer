@@ -14,6 +14,7 @@ import string
 import new
 from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
+from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -87,6 +88,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                  style=0):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
         self.popmenu = None
+        self.frame=None
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
         # init key short cut
@@ -94,8 +96,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.SetLexer(stc.STC_LEX_SQL)
 #         self.SetKeyWords(0, " ".join(keyword.kwlist))
         lowerKeyword = [element.lower() for element in SqliteKeywords.keyword]
-        upperKeyword=[element.upper() for element in SqliteKeywords.keyword]
-        keywords=list()
+        upperKeyword = [element.upper() for element in SqliteKeywords.keyword]
+        keywords = list()
         keywords.extend(lowerKeyword)
         keywords.extend(upperKeyword)
         print(keywords)
@@ -117,8 +119,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         self.selection_column_mode = False
         
-        self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
-        self.SetEdgeColumn(78)
+#         self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
+#         self.SetEdgeColumn(78)
         # set backspace to unindent
         self.SetBackSpaceUnIndents(True)
         # set scroll bar range
@@ -197,7 +199,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         
 #         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
-        wx.EVT_RIGHT_DOWN(self, self.OnPopUp)
+        wx.EVT_RIGHT_DOWN(self, self.onRightMouseDown)
         wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
@@ -220,13 +222,18 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def formatCode(self, inputText=None):
         print("formatCode:", inputText)
 #         new = inputText + "1"
-        formatted_sql=SqlBeautifierCommand().format_sql(inputText)
+        formatted_sql = SqlBeautifierCommand().format_sql(inputText)
 #         new=Beautify().format_sql(inputText)
         s = self.GetText()
         print(s, '\n', inputText, '\n', new)
         new_str = string.replace(s, inputText, formatted_sql, maxreplace=1)
         self.SetText(new_str)
  
+    def Undo(self, *args, **kwargs):
+        return stc.StyledTextCtrl.Undo(self, *args, **kwargs)
+    
+    def Redo(self, *args, **kwargs):
+        return stc.StyledTextCtrl.Redo(self, *args, **kwargs)
     def Paste(self):
         success = False
         do = wx.TextDataObject()
@@ -260,33 +267,82 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         key = event.GetKeyCode()
         print('OnKeyUp------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
         if event.ControlDown() and  key == 67:
-            print('ctrl+c')
+            print('ctrl+c', self.GetSelectedText())
             self.copyClipboard(text=self.GetSelectedText())    
         if event.ControlDown() and  key == 86:
             print('ctrl+v')
             self.Paste()
-        if key in (314,315,316,317):
+        if event.ControlDown() and  key == 70:
+            print('ctrl+F: for find and relpace')
+            if self.frame == None:
+                self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
+#             self.copyClipboard(text=self.GetSelectedText())
+            event.Skip()
+        if event.ControlDown() and  key == 90:
+            print('Ctrl+Z: Undo')
+            self.Undo()
+            event.Skip()
+        if event.ControlDown() and  key == 88:
+            print('ctrl+X: for cut')
+            self.Cut()
+            event.Skip()
+        if event.ControlDown() and  key == 89:
+            print('Ctrl+Y: Redo')
+            self.Redo()
+            event.Skip()
+        if key in (314, 315, 316, 317):
             line = self.GetCurrentLine()
-            lineText, column=self.GetCurLine()
-            print('left right up down',lineText, line, column)
+            lineText, column = self.GetCurLine()
+            print('left right up down', lineText, line, column)
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
             print(self.GetTopLevelParent())
-            self.GetTopLevelParent().statusbar.SetStatusText("Line "+str(line)+" , Column "+str(column), 0)
+            self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
+    
+#     def duplicateLine(self, lineText, lineNo):
+#         print('duplicateLine', lineText)       
+#         s = self.GetText()
+# #         lineText=lineText.strip('\n')
+#         lines=s.split('\n')
+#         self.AddText(lineText)
+# #         lines.insert(lineNo, lineText)
+# #         newString="\n".join(lines)
+# #         self.SetText(newString)
+# #         for idx, line in enumerate(lines):
+# #             print(idx," : ",line)
+# #             newString=
             
+         
     def OnKeyPressed(self, event):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
         print(wx.WXK_CONTROL_C)
         print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+        if event.ControlDown() and event.AltDown() and key == 317:
+            print('ctrl+Alt+Down: duplicate line of code')
+            lineNo = self.GetCurrentLine()
+            lineText, column = self.GetCurLine()
+            self.AddText(lineText)
+            
         if event.ControlDown() and event.ShiftDown() and key == 70:
+            print('ctrl+Shtft+F: format code')
             selectedText = self.GetSelectedText()
             self.formatCode(inputText=selectedText)
-        if event.ControlDown() and  key == 70:
-            print('ctrl+F: for find and relpace')
-#             self.copyClipboard(text=self.GetSelectedText())
+            
+
+            
+        if event.AltDown() and key == 317:
+            print('Alt+Down: MoveSelectedLinesDown')
+            self.MoveSelectedLinesDown()
             event.Skip()
+        if event.AltDown() and key == 316:
+            print('Alt+up: MoveSelectedLinesUp')
+            self.MoveSelectedLinesUp()
+            event.Skip()
+            
+
         if key == wx.WXK_RETURN and event.ControlDown():
+            print('ctrl+Enter: execute sql')
             self.executeSQL()
         if key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
@@ -459,13 +515,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     
     def onLeftMouseUp(self, event):
         line = self.GetCurrentLine()
-        lineText, column=self.GetCurLine()
-        print('left right up down',lineText, line, column)
+        lineText, column = self.GetCurLine()
+        print('left right up down', lineText, line, column)
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         print(self.GetTopLevelParent())
-        self.GetTopLevelParent().statusbar.SetStatusText("Line "+str(line)+" , Column "+str(column), 0)
+        self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
         event.Skip()
-    def OnPopUp(self, event):
+    def onRightMouseDown(self, event):
         other_menus = []
         print('OnPopUp', self, event)
         if self.popmenu:
