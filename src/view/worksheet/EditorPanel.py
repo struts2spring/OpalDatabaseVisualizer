@@ -15,6 +15,7 @@ import new
 from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
+from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -88,7 +89,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                  style=0):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
         self.popmenu = None
-        self.frame=None
+        self.frame = None
+        self.SetHighlightGuide(1)
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
         # init key short cut
@@ -269,15 +271,36 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if event.ControlDown() and  key == 67:
             print('ctrl+c', self.GetSelectedText())
             self.copyClipboard(text=self.GetSelectedText())    
-        if event.ControlDown() and  key == 86:
-            print('ctrl+v')
-            self.Paste()
         if event.ControlDown() and  key == 70:
             print('ctrl+F: for find and relpace')
             if self.frame == None:
                 self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
 #             self.copyClipboard(text=self.GetSelectedText())
             event.Skip()
+        if event.ControlDown() and  key == 76:
+            print('ctrl+L', self.GetSelectedText())
+            dlg = CreatingGoToLinePanel(self, -1, "Go to Line", size=(350, 200),
+                 style=wx.DEFAULT_DIALOG_STYLE,
+                 )
+            dlg.CenterOnScreen()
+            
+            # this does not return until the dialog is closed.
+            val = dlg.ShowModal()
+            
+            if val == wx.ID_OK:
+                lineNumber=dlg.lineNumberText.GetValue()
+                print("You pressed OK\n", lineNumber)
+                if lineNumber != '':
+                    self.GotoLine(int(lineNumber))
+                
+            else:
+                print("You pressed Cancel\n")
+            
+            dlg.Destroy()
+#             app.MainLoop()
+        if event.ControlDown() and  key == 86:
+            print('ctrl+v')
+            self.Paste()
         if event.ControlDown() and  key == 90:
             print('Ctrl+Z: Undo')
             self.Undo()
@@ -320,9 +343,12 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
         if event.ControlDown() and event.AltDown() and key == 317:
             print('ctrl+Alt+Down: duplicate line of code')
+            selectedText = self.GetSelectedText()
+            print(selectedText)
             lineNo = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
-            self.AddText(lineText)
+            if selectedText != None:
+                self.AddText(lineText)
             
         if event.ControlDown() and event.ShiftDown() and key == 70:
             print('ctrl+Shtft+F: format code')
@@ -517,9 +543,11 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         line = self.GetCurrentLine()
         lineText, column = self.GetCurLine()
         print('left right up down', lineText, line, column)
+        print('GetHighlightGuide: ', self.GetHighlightGuide())
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         print(self.GetTopLevelParent())
         self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
+        
         event.Skip()
     def onRightMouseDown(self, event):
         other_menus = []
