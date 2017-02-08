@@ -149,14 +149,17 @@ class CreatingWorksheetPanel(wx.Panel):
         ####################################################################
         self.data = dict()
 #         worksheetToolbar = self.constructWorksheetToolBar()
-        splitter = MultiSplitterWindow(self, id=-1, style=wx.SP_LIVE_UPDATE)
+        splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D)
+#         splitter = MultiSplitterWindow(self, id=-1, style=wx.SP_LIVE_UPDATE)
         self.splitter = splitter
         self.editorPanel = CreatingEditorPanel(splitter)
         self.resultPanel = ResultPanel(splitter, data=self.getData())
-        splitter.AppendWindow(self.editorPanel)
-        splitter.AppendWindow(self.resultPanel)
-        splitter.SetOrientation(wx.VERTICAL)
-        splitter.SizeWindows()  
+        splitter.SetMinimumPaneSize(20)
+        splitter.SplitHorizontally(self.editorPanel, self.resultPanel)
+#         splitter.AppendWindow(self.editorPanel)
+#         splitter.AppendWindow(self.resultPanel)
+#         splitter.SetOrientation(wx.VERTICAL)
+#         splitter.SizeWindows()  
         
 #         editorPanel = CreatingEditorPanel(self)
         ####################################################################
