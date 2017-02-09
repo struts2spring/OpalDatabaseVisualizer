@@ -754,7 +754,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
         resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-        resultListPanel.createDataViewCtrl(data=sqlOutput, headerList=["Artist", "Title", "Genre"])
+        resultListPanel.resultPanel.createDataViewCtrl(data=sqlOutput, headerList=["Artist", "Title", "Genre"])
 #         resultListPanel.setResultData()
         print(resultListPanel.Layout())
         
