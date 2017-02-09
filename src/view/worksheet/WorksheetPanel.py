@@ -5,7 +5,8 @@ Created on 15-Dec-2016
 '''
 import wx
 from src.view.worksheet.EditorPanel import CreatingEditorPanel
-from src.view.worksheet.ResultListPanel import ResultPanel
+from src.view.worksheet.ResultListPanel import ResultPanel,\
+    CreatingResultWithToolbarPanel
 import os
 
 import wx.aui as aui
@@ -218,7 +219,8 @@ class CreatingWorksheetPanel(wx.Panel):
 #         splitter = MultiSplitterWindow(self, id=-1, style=wx.SP_LIVE_UPDATE)
         self.splitter = splitter
         self.editorPanel = CreatingEditorPanel(splitter)
-        self.resultPanel = ResultPanel(splitter, data=self.getData())
+#         self.resultPanel = ResultPanel(splitter, data=self.getData())
+        self.resultPanel = CreatingResultWithToolbarPanel(splitter)
         splitter.SetMinimumPaneSize(20)
         splitter.SplitHorizontally(self.editorPanel, self.resultPanel)
 #         splitter.AppendWindow(self.editorPanel)
