@@ -26,7 +26,7 @@ class ConnectSqlite():
             
             data = cur.fetchone()
             
-            print "SQLite version: %s" % data   
+            print("SQLite version: %s" % data)   
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
@@ -36,13 +36,13 @@ class ConnectSqlite():
 #                 print t[0], type(t)
                 tObjectArrayList = list()
                 query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
-                print query
+                print(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
-                        print tableColumnsOrIndexesSql
+                        print(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
 #                         print objChildList
                         tableColumnsOrIndexes = list()
@@ -52,7 +52,7 @@ class ConnectSqlite():
                         tableColumnList.append([tObj[0], tableColumnsOrIndexes])
                     if t[0] == 'view':
                         tableColumnList.append([tObj[0], []])
-                        print 'view'
+                        print('view')
                         
 #                     if t[0] == 'index':
 #                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
@@ -69,7 +69,7 @@ class ConnectSqlite():
 #                 tObjectArrayList.append(tableColumnList)
 #                 print tObjectArrayList
                 dbObjects.append((t[0], tableColumnList))
-            print dbObjects
+            print(dbObjects)
 #                 dbObjects.append(tObjectArrayList)
 #             print dbObjects
 #             print cur.fetchallDict()
@@ -79,9 +79,8 @@ class ConnectSqlite():
 #             data = cur.fetchone()
             
             
-        except sqlite3.Error, e:
-            
-            print "Error %s:" % e.args[0]
+        except sqlite3.Error as e:
+            print("Error %s:" % e.args[0])
             sys.exit(1)
             
         finally:
@@ -97,9 +96,9 @@ class ConnectSqlite():
             self.connection = sqlite3.connect('_opal.sqlite')
             cur = self.connection.cursor() 
 #             cur.execute('CREATE TABLE {tn} ({fn} {ft} PRIMARY KEY)'.format(tn=table_name, fn=id_field, ft=field_type))
-        except sqlite3.Error, e:
+        except sqlite3.Error as e:
             
-            print "Error %s:" % e.args[0]
+            print("Error %s:" % e.args[0])
             sys.exit(1)
             
         finally:
