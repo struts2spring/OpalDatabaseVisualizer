@@ -280,13 +280,13 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        topResultToolbar = self.constructTopResultToolBar()
-        resultPanel = ResultPanel(self, data=self.getData())
+        self.topResultToolbar = self.constructTopResultToolBar()
+        self.resultPanel = ResultPanel(self, data=self.getData())
 #         bottomResultToolbar = self.constructBottomResultToolBar()
         
         ####################################################################
-        vBox.Add(topResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
-        vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(self.topResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
