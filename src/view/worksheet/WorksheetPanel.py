@@ -7,11 +7,9 @@ import wx
 from src.view.worksheet.EditorPanel import CreatingEditorPanel
 from src.view.worksheet.ResultListPanel import ResultPanel
 import os
-from wx.lib.splitter import MultiSplitterWindow
 
 import wx.aui as aui
-from src.view.Constant import ID_RUN, music
-from src.view.worksheet.popup.TabRightPopup import DateControlPop
+from src.view.Constant import ID_RUN
 
 ID_executeScript = wx.NewId()
 
@@ -43,10 +41,16 @@ class CreateWorksheetTabPanel(wx.Panel):
             pass
         else:
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
-            worksheetPanel.worksheetPanel.editorPanel
+#             worksheetPanel.worksheetPanel.editorPanel
+            name='Worksheet '+str(len(self.GetPages(type(worksheetPanel))))
             self._nb.AddPage(worksheetPanel, name, imageId=0)
             self.Bind(aui.EVT__AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
+            self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)
 
+    def onBgDoubleClick(self, event):
+        print('onBgDoubleClick')
+        name='Worksheet '
+        self.addTab(name)
     def __DoLayout(self):
         """Layout the panel"""
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -92,7 +96,7 @@ class CreateWorksheetTabPanel(wx.Panel):
 
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
-        for text in "one two three four five".split():
+        for text in "Close,Close Others,Close Other tabs to the left,Close &All".split(','):
             item = self.popupmenu.Append(-1, text)
         print(self.GetCurrentPage())
         self.PopupMenu(self.popupmenu, pos)
