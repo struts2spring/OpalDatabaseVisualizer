@@ -11,6 +11,7 @@ from wx.lib.splitter import MultiSplitterWindow
 
 import wx.aui as aui
 from src.view.Constant import ID_RUN, music
+from src.view.worksheet.popup.TabRightPopup import DateControlPop
 
 ID_executeScript = wx.NewId()
 
@@ -44,6 +45,7 @@ class CreateWorksheetTabPanel(wx.Panel):
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
             worksheetPanel.worksheetPanel.editorPanel
             self._nb.AddPage(worksheetPanel, name, imageId=0)
+            self.Bind(aui.EVT__AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
 
     def __DoLayout(self):
         """Layout the panel"""
@@ -53,6 +55,65 @@ class CreateWorksheetTabPanel(wx.Panel):
         self.SetSizer(sizer)
         self.Layout()
         
+    def SetCurrentPage(self, page):
+        """
+        Set the current page to the page given
+        """
+        n = self._nb.GetPageIndex(page)
+        if n!=-1:
+            self._nb.SetSelection(n)
+            return True
+        return False    
+    
+    def GetCurrentPage(self):
+        """
+        Get the current active Page page
+        """
+        num  = self._nb.GetSelection()
+        if num==-1:
+            page = None
+        else:
+            page = self._nb.GetPage(num)
+        return page
+
+    def GetPages(self, page_type):
+        """
+        Get all the Page pages of a particular type
+        """
+        npages = self._nb.GetPageCount()
+        res = []
+        for n in range(0,npages):
+            page = self._nb.GetPage(n)
+            if isinstance(page, page_type):
+                res.append(page)
+        return res        
+    def onTabRightDown(self, event):
+        print('rightdown PopUp')
+
+        pos = self.ScreenToClient(wx.GetMousePosition())
+        self.popupmenu = wx.Menu()
+        for text in "one two three four five".split():
+            item = self.popupmenu.Append(-1, text)
+        print(self.GetCurrentPage())
+        self.PopupMenu(self.popupmenu, pos)
+#         tab = event.GetEventObject()
+#         num = tab.GetActivePage()
+#         conpage = tab.GetWindowFromIdx(num)
+#         menu = conpage.GetPageMenu()
+#         date = DateControlPop(self, -1, pos = (30,30))
+#         self.PopupMenu(menu)
+#         menu.Destroy()
+        
+#         self.popmenu=None
+#         if self.popmenu:
+#             self.popmenu.Destroy()
+#             self.popmenu = None
+#         fileMenu = wx.Menu()   
+#         imp = wx.Menu()
+#         imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
+#         fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
+#         self.popmenu.Append(fileMenu)
+#         self.PopupMenu(self.popmenu, event.GetPosition())
 
 #         sizer.Fit(self)
 class CreatingStartPanel(wx.Panel):
