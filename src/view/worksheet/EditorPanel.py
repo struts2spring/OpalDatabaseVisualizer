@@ -28,6 +28,7 @@ keylist = {
     'RIGHT' :stc.STC_KEY_RIGHT,
     'HOME'  :stc.STC_KEY_HOME,
     'END'   :stc.STC_KEY_END,
+    
     'PGUP'  :stc.STC_KEY_PRIOR,
     'PGDN'  :stc.STC_KEY_NEXT,
     'DEL'   :stc.STC_KEY_DELETE,
@@ -47,13 +48,20 @@ demoText = """select * from book;
 print(wx.Platform) 
 
 if wx.Platform == '__WXMSW__':
-    faces = { 'times': 'Times New Roman',
-              'mono' : 'Courier New',
-              'helv' : 'Arial',
+    faces = { 'times': 'Consolas',
+              'mono' : 'Consolas',
+              'helv' : 'Consolas',
               'other': 'Comic Sans MS',
               'size' : 10,
               'size2': 8,
              }
+#     faces = { 'times': 'Times New Roman',
+#               'mono' : 'Courier New',
+#               'helv' : 'Arial',
+#               'other': 'Comic Sans MS',
+#               'size' : 10,
+#               'size2': 8,
+#              }
 elif wx.Platform == '__WXMAC__':
     faces = { 'times': 'Times New Roman',
               'mono' : 'Monaco',
@@ -271,13 +279,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if event.ControlDown() and  key == 67:
             print('ctrl+c', self.GetSelectedText())
             self.copyClipboard(text=self.GetSelectedText())    
-        if event.ControlDown() and  key == 70:
-            print('ctrl+F: for find and relpace')
-            if self.frame == None:
-                self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
-#             self.copyClipboard(text=self.GetSelectedText())
-            event.Skip()
-        if event.ControlDown() and  key == 76:
+
+        elif event.ControlDown() and  key == 76:
             print('ctrl+L', self.GetSelectedText())
             dlg = CreatingGoToLinePanel(self, -1, "Go to Line", size=(350, 200),
                  style=wx.DEFAULT_DIALOG_STYLE,
@@ -298,22 +301,22 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             
             dlg.Destroy()
 #             app.MainLoop()
-        if event.ControlDown() and  key == 86:
+        elif event.ControlDown() and  key == 86:
             print('ctrl+v')
             self.Paste()
-        if event.ControlDown() and  key == 90:
+        elif event.ControlDown() and  key == 90:
             print('Ctrl+Z: Undo')
             self.Undo()
             event.Skip()
-        if event.ControlDown() and  key == 88:
+        elif event.ControlDown() and  key == 88:
             print('ctrl+X: for cut')
             self.Cut()
             event.Skip()
-        if event.ControlDown() and  key == 89:
+        elif event.ControlDown() and  key == 89:
             print('Ctrl+Y: Redo')
             self.Redo()
             event.Skip()
-        if key in (314, 315, 316, 317):
+        elif key in (314, 315, 316, 317):
             line = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
             print('left right up down', lineText, line, column)
@@ -350,31 +353,35 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             if selectedText != None:
                 self.AddText(lineText)
             
-        if event.ControlDown() and event.ShiftDown() and key == 70:
+        elif event.ControlDown() and event.ShiftDown() and key == 70:
             print('ctrl+Shtft+F: format code')
             selectedText = self.GetSelectedText()
             self.formatCode(inputText=selectedText)
             
-
-            
-        if event.AltDown() and key == 317:
+            event.Skip()
+        elif event.ControlDown() and  key == 70:
+            print('ctrl+F: for find and relpace')
+            if self.frame == None:
+                self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
+#             self.copyClipboard(text=self.GetSelectedText())
+            event.Skip()            
+        elif not event.ControlDown() and event.AltDown() and key == 317:
             print('Alt+Down: MoveSelectedLinesDown')
             self.MoveSelectedLinesDown()
             event.Skip()
-        if event.AltDown() and key == 316:
+        elif event.AltDown() and key == 316:
             print('Alt+up: MoveSelectedLinesUp')
             self.MoveSelectedLinesUp()
             event.Skip()
-            
 
-        if key == wx.WXK_RETURN and event.ControlDown():
+        elif key == wx.WXK_RETURN and event.ControlDown():
             print('ctrl+Enter: execute sql')
             self.executeSQL()
-        if key == wx.WXK_SPACE and event.ControlDown():
+        elif key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
             print(self.GetSelectedText())
 #             self.AddText('viajy')
-            self.AddSelection('viajy')
+#             self.AddSelection('viajy')
             
             
                 
@@ -395,22 +402,25 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 # print len(st)
                 # self.AutoCompShow(0, st)
 
-                kw = keyword.kwlist[:]
-                kw.append("zzzzzz?2")
-                kw.append("aaaaa?2")
-                kw.append("__init__?3")
+#                 kw = keyword.kwlist[:]
+#                 self.AutoCompSetSeparator('|')
+                
+                kw=[]
+                kw.append(("select * from | create table"))
+                kw.append("desc")
+                kw.append("create table")
                 kw.append("zzaaaaa?2")
                 kw.append("zzbaaaa?2")
                 kw.append("this_is_a_longer_value")
                 # kw.append("this_is_a_much_much_much_much_much_much_much_longer_value")
 
-                kw.sort()  # Python sorts are case sensitive
-                self.AutoCompSetIgnoreCase(False)  # so this needs to match
+#                 kw.sort()  # Python sorts are case sensitive
+                self.AutoCompSetIgnoreCase(True)  # so this needs to match
 
                 # Images are specified with a appended "?type"
-                for i in range(len(kw)):
-                    if kw[i] in keyword.kwlist:
-                        kw[i] = kw[i] + "?1"
+#                 for i in range(len(kw)):
+#                     if kw[i] in keyword.kwlist:
+#                         kw[i] = kw[i] + "?1"
 
                 self.AutoCompShow(0, " ".join(kw))
         else:
