@@ -1,6 +1,7 @@
 
 import wx
 import wx.dataview as dv
+import wx.aui as aui
 import os
 from src.view.Constant import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
@@ -321,6 +322,42 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         self.data=music
         return self.data
 #---------------------------------------------------------------------------
+class CreateResultSheetTabPanel(wx.Panel):
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent
+        
+        # Attributes
+        self._nb = aui.AuiNotebook(self)
+        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+            imageLocation = os.path.join("..", "..", "images")
+        #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
+        elif "view" == os.path.split(os.getcwd())[-1:][0]:
+            imageLocation = os.path.join("..", "images")
+        imgList = wx.ImageList(16, 16)
+        imgList.Add(wx.Bitmap(os.path.join(imageLocation, "sql_script.png")))
+        
+        self._nb.AssignImageList(imgList) 
+        
+        self.addTab()
+        #         self._nb.AddPage(worksheetPanel, "2", imageId=0)
+        # Layout
+        
+        self.__DoLayout()
+    def addTab(self, name='Start Page'):
+        resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+#             worksheetPanel.worksheetPanel.editorPanel
+        name='ResultSheet '
+        self._nb.AddPage(resultSheetPanel, name, imageId=0)        
+    def __DoLayout(self):
+        """Layout the panel"""
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self._nb, 1, wx.EXPAND)
+        self.SetAutoLayout(True)
+        self.SetSizer(sizer)
+        self.Layout()
+
+#---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
@@ -328,7 +365,8 @@ if __name__ == '__main__':
     
 
 #     panel = ResultPanel(frame, data=musicdata)
-    panel = CreatingResultWithToolbarPanel(frame)
+    panel = CreateResultSheetTabPanel(frame)
+#     panel = CreatingResultWithToolbarPanel(frame)
     frame.Show()
     app.MainLoop()
 
