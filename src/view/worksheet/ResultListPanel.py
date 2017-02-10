@@ -344,11 +344,16 @@ class CreateResultSheetTabPanel(wx.Panel):
         # Layout
         
         self.__DoLayout()
+        
     def addTab(self, name='Start Page'):
         resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
 #             worksheetPanel.worksheetPanel.editorPanel
         name='ResultSheet '
-        self._nb.AddPage(resultSheetPanel, name, imageId=0)        
+        self._nb.AddPage(resultSheetPanel, name, imageId=0)      
+        self.Bind(aui.EVT__AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
+        self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
+        self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)  
+        
     def __DoLayout(self):
         """Layout the panel"""
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -356,6 +361,47 @@ class CreateResultSheetTabPanel(wx.Panel):
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
         self.Layout()
+    def SetCurrentPage(self, page):
+        """
+        Set the current page to the page given
+        """
+        n = self._nb.GetPageIndex(page)
+        if n!=-1:
+            self._nb.SetSelection(n)
+            return True
+        return False    
+    
+    def GetCurrentPage(self):
+        """
+        Get the current active Page page
+        """
+        num  = self._nb.GetSelection()
+        if num==-1:
+            page = None
+        else:
+            page = self._nb.GetPage(num)
+        return page
+
+    def GetPages(self, page_type):
+        """
+        Get all the Page pages of a particular type
+        """
+        npages = self._nb.GetPageCount()
+        res = []
+        for n in range(0,npages):
+            page = self._nb.GetPage(n)
+            if isinstance(page, page_type):
+                res.append(page)
+        return res                
+    def onTabRightDown(self,event):
+        print('onTabRightDown')
+        
+    def onBgDoubleClick(self,event):
+        print('onBgDoubleClick')
+        
+    def onCloseClick(self,event):
+        print('onCloseClick')
+        self.GetCurrentPage()
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
