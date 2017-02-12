@@ -176,7 +176,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
 #         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
-        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png")))
+        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "triangle_green.png")))
         tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_script_exec.png")))
         tb1.AddSeparator()
         tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "abc.png")))

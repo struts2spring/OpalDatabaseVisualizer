@@ -307,7 +307,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 
         elif "view" == os.path.split(os.getcwd())[-1:][0]:
             imageLocation = os.path.join("..", "images")
-        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png")))
+        tb1.AddLabelTool(id=ID_RUN, label="Pin", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "pin2_green.png")))
         tb1.AddLabelTool(id=ID_EXECUTE_SCRIPT, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_script_exec.png")))
         tb1.AddSeparator()
 
