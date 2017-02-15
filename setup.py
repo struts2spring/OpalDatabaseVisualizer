@@ -11,8 +11,8 @@ setup(
     author_email='',
     description='Database tool for developers, DBAs and analysts..',
     long_description=__doc__,
-    packages=['src','src.view','src.connect','src.view.history','src.view.worksheet'],
-    py_modules=['src','src.view','src.connect','src.view.history','src.view.worksheet'],
+    packages=['src','src.view','src.connect','src.view.connection','src.view.history','src.view.worksheet'],
+    py_modules=['src'],
     zip_safe=False,
     platforms='any',
     install_requires=[
@@ -32,3 +32,4 @@ setup(
     package_data={'src.images':['*.png']},
     include_package_data=True
     )
+#!/usr/bin/python

@@ -123,6 +123,7 @@ ID_RESULT_FIRST = wx.NewId()
 ID_RESULT_LAST = wx.NewId()
 ID_SQL_LOG = wx.NewId()
 ID_SQL_EXECUTION = wx.NewId()
+ID_COPY_COLUMN_HEADER= wx.NewId()
 
 
 _treeList = [

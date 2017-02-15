@@ -8,6 +8,7 @@ Created on 17-Dec-2016
 import wx
 import wx.dataview as dv
 from wx import ListCtrl
+from src.view.Constant import ID_COPY_COLUMN_HEADER
 
 #----------------------------------------------------------------------
 
@@ -186,6 +187,36 @@ class HistoryPanel(wx.Panel):
         # Bind some events so we can see what the DVC sends us
         self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
         self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
+        self.Bind(dv.EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK, self.onHeaderRightClick, self.dvc)
+        self.Bind(dv.EVT_DATAVIEW_COLUMN_HEADER_CLICK, self.onHeaderClick, self.dvc)
+        self.Bind(dv.EVT_DATAVIEW_COLUMN_SORTED, self.onColumnSort, self.dvc)
+        
+
+
+    def onColumnSort(self, event):
+        print('onColumnSort')
+    def onHeaderClick(self, event):
+        print('onHeaderClick')
+    def onHeaderRightClick(self, event):
+        menu = wx.Menu()
+        id1 = wx.NewId()
+        groupID = wx.NewId()
+        xo, yo = event.GetPosition()
+
+        col = event.Column
+        menu.Append(ID_COPY_COLUMN_HEADER, "Copy column header name")
+        menu.Append(groupID, "Group By Column")
+
+        def groupBy(event, self=self, col=col):
+            self.parent.Group(col)
+        def copyHeaderName(event, self=self, col=col):
+            print(event.Column)
+
+        self.Bind(wx.EVT_MENU, groupBy, id=groupID)
+        self.Bind(wx.EVT_MENU, copyHeaderName, id=ID_COPY_COLUMN_HEADER)
+        self.PopupMenu(menu)
+        menu.Destroy()
+        return
 
 
     def OnNewView(self, evt):
