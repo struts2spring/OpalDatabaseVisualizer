@@ -15,7 +15,7 @@ from src.view.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
 
 from src.view.worksheet.WorksheetPanel import   CreateWorksheetTabPanel
-from src.view.history.HistoryListPanel import HistoryPanel
+# from src.view.history.HistoryListPanel import HistoryPanel
 from src.view.Constant import ID_newConnection, ID_openConnection,\
     ID_newWorksheet, ID_UPDATE_CHECK, ID_SQL_LOG, ID_SQL_EXECUTION
 from wx import ID_PREFERENCES
@@ -23,6 +23,7 @@ from src.view.preference.OpalPreferences import OpalPreference
 from src.view.connection.GetConnect import CreatingNewConnectionPanel
 from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
     TitledPage
+from src.view.history.HistoryListPanel import HistoryGrid
 
 
 # ID_UPDATE_CHECK = wx.NewId()
@@ -165,16 +166,8 @@ class DatabaseMainFrame(wx.Frame):
         self._mgr.Update()        
 
     def constructHistoryPane(self):
-        musicdata = {
-            1 : ('SELECT * FROM T_MDUR_MDL_RSV;', 'Local_App_Owner' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
-            2 : ('select * from author;', 'Local_App_Owner_' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
-            
-        }
-        musicdata = musicdata.items()
-        musicdata.sort()
-        musicdata = [[str(k)] + list(v) for k, v in musicdata]
-        historyPanel = HistoryPanel(self, data=musicdata)
-        return historyPanel
+        historyGrid = HistoryGrid(self)
+        return historyGrid
     def constructSqlPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
           

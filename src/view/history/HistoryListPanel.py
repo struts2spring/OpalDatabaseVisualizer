@@ -9,248 +9,226 @@ import wx
 import wx.dataview as dv
 from wx import ListCtrl
 from src.view.Constant import ID_COPY_COLUMN_HEADER
+import string
+import  wx.grid as gridlib
 
-#----------------------------------------------------------------------
-
-# This model class provides the data to the view when it is asked for.
-# Since it is a list-only model (no hierachical data) then it is able
-# to be referenced by row rather than by item object, so in this way
-# it is easier to comprehend and use than other model types.  In this
-# example we also provide a Compare function to assist with sorting of
-# items in our model.  Notice that the data items in the data model
-# object don't ever change position due to a sort or column
-# reordering.  The view manages all of that and maps view rows and
-# columns to the model's rows and columns as needed.
-#
-# For this example our data is stored in a simple list of lists.  In
-# real life you can use whatever you want or need to hold your data.
-
-class HistoryModel(dv.PyDataViewIndexListModel):
-    def __init__(self, data):
-        dv.PyDataViewIndexListModel.__init__(self, len(data))
-        self.data = data
-
-    # All of our columns are strings.  If the model or the renderers
-    # in the view are other types then that should be reflected here.
-    def GetColumnType(self, col):
-        return "string"
-
-    # This method is called to provide the data object for a
-    # particular row,col
-    def GetValueByRow(self, row, col):
-        return self.data[row][col]
-
-    # This method is called when the user edits a data item in the view.
-    def SetValueByRow(self, value, row, col):
-        print("SetValue: (%d,%d) %s\n" % (row, col, value))
-        self.data[row][col] = value
-
-    # Report how many columns this model provides data for.
-    def GetColumnCount(self):
-        return len(self.data[0])
-
-    # Report the number of rows in the model
-    def GetCount(self):
-        # print('GetCount')
-        return len(self.data)
-    
-    # Called to check if non-standard attributes should be used in the
-    # cell at (row, col)
-    def GetAttrByRow(self, row, col, attr):
-        # #print('GetAttrByRow: (%d, %d)' % (row, col))
-        if col == 3:
-            attr.SetColour('blue')
-            attr.SetBold(True)
-            return True
-        return False
+#---------------------------------------------------------------------------
+class MyCellEditor(gridlib.PyGridCellEditor):
+    """
+    This is a sample GridCellEditor that shows you how to make your own custom
+    grid editors.  All the methods that can be overridden are shown here.  The
+    ones that must be overridden are marked with "*Must Override*" in the
+    docstring.
+    """
+    def __init__(self):
+        print("MyCellEditor ctor\n")
+        gridlib.PyGridCellEditor.__init__(self)
 
 
-    # This is called to assist with sorting the data in the view.  The
-    # first two args are instances of the DataViewItem class, so we
-    # need to convert them to row numbers with the GetRow method.
-    # Then it's just a matter of fetching the right values from our
-    # data set and comparing them.  The return value is -1, 0, or 1,
-    # just like Python's cmp() function.
-    def Compare(self, item1, item2, col, ascending):
-        if not ascending:  # swap sort order?
-            item2, item1 = item1, item2
-        row1 = self.GetRow(item1)
-        row2 = self.GetRow(item2)
-        if col == 0:
-            return cmp(int(self.data[row1][col]), int(self.data[row2][col]))
+    def Create(self, parent, id, evtHandler):
+        """
+        Called to create the control, which must derive from wx.Control.
+        *Must Override*
+        """
+        print("MyCellEditor: Create\n")
+        self._tc = wx.TextCtrl(parent, id, "")
+        self._tc.SetInsertionPoint(0)
+        self.SetControl(self._tc)
+
+        if evtHandler:
+            self._tc.PushEventHandler(evtHandler)
+
+
+    def SetSize(self, rect):
+        """
+        Called to position/size the edit control within the cell rectangle.
+        If you don't fill the cell (the rect) then be sure to override
+        PaintBackground and do something meaningful there.
+        """
+        print("MyCellEditor: SetSize %s\n" % rect)
+        self._tc.SetDimensions(rect.x, rect.y, rect.width + 2, rect.height + 2,
+                               wx.SIZE_ALLOW_MINUS_ONE)
+
+
+    def Show(self, show, attr):
+        """
+        Show or hide the edit control.  You can use the attr (if not None)
+        to set colours or fonts for the control.
+        """
+        print("MyCellEditor: Show(self, %s, %s)\n" % (show, attr))
+        super(MyCellEditor, self).Show(show, attr)
+
+
+    def PaintBackground(self, rect, attr):
+        """
+        Draws the part of the cell not occupied by the edit control.  The
+        base  class version just fills it with background colour from the
+        attribute.  In this class the edit control fills the whole cell so
+        don't do anything at all in order to reduce flicker.
+        """
+        print("MyCellEditor: PaintBackground\n")
+
+
+    def BeginEdit(self, row, col, grid):
+        """
+        Fetch the value from the table and prepare the edit control
+        to begin editing.  Set the focus to the edit control.
+        *Must Override*
+        """
+        print("MyCellEditor: BeginEdit (%d,%d)\n" % (row, col))
+        self.startValue = grid.GetTable().GetValue(row, col)
+        self._tc.SetValue(self.startValue)
+        self._tc.SetInsertionPointEnd()
+        self._tc.SetFocus()
+
+        # For this example, select the text
+        self._tc.SetSelection(0, self._tc.GetLastPosition())
+
+
+    def EndEdit(self, row, col, grid, oldVal):
+        """
+        End editing the cell.  This function must check if the current
+        value of the editing control is valid and different from the
+        original value (available as oldval in its string form.)  If
+        it has not changed then simply return None, otherwise return
+        the value in its string form.
+        *Must Override*
+        """
+        print("MyCellEditor: EndEdit (%s)\n" % oldVal)
+        val = self._tc.GetValue()
+        if val != oldVal:  # self.startValue:
+            return val
         else:
-            return cmp(self.data[row1][col], self.data[row2][col])
+            return None
+        
 
-        
-    def DeleteRows(self, rows):
-        # make a copy since we'll be sorting(mutating) the list
-        rows = list(rows)
-        # use reverse order so the indexes don't change as we remove items
-        rows.sort(reverse=True)
-        
-        for row in rows:
-            # remove it from our data structure
-            del self.data[row]
-            # notify the view(s) using this model that it has been removed
-            self.RowDeleted(row)
-            
-            
-    def AddRow(self, value):
-        # update data structure
-        self.data.append(value)
-        # notify views
-        self.RowAppended()
+    def ApplyEdit(self, row, col, grid):
+        """
+        This function should save the value of the control into the
+        grid or grid table. It is called only after EndEdit() returns
+        a non-None value.
+        *Must Override*
+        """
+        print("MyCellEditor: ApplyEdit (%d,%d)\n" % (row, col))
+        val = self._tc.GetValue()
+        grid.GetTable().SetValue(row, col, val)  # update the table
 
+        self.startValue = ''
+        self._tc.SetValue('')
+        
+
+    def Reset(self):
+        """
+        Reset the value in the control back to its starting value.
+        *Must Override*
+        """
+        print("MyCellEditor: Reset\n")
+        self._tc.SetValue(self.startValue)
+        self._tc.SetInsertionPointEnd()
+
+
+    def IsAcceptedKey(self, evt):
+        """
+        Return True to allow the given key to start editing: the base class
+        version only checks that the event has no modifiers.  F2 is special
+        and will always start the editor.
+        """
+        print("MyCellEditor: IsAcceptedKey: %d\n" % (evt.GetKeyCode()))
+
+        # # We can ask the base class to do it
+        # return super(MyCellEditor, self).IsAcceptedKey(evt)
+
+        # or do it ourselves
+        return (not (evt.ControlDown() or evt.AltDown()) and
+                evt.GetKeyCode() != wx.WXK_SHIFT)
+
+
+    def StartingKey(self, evt):
+        """
+        If the editor is enabled by pressing keys on the grid, this will be
+        called to let the editor do something about that first key if desired.
+        """
+        print("MyCellEditor: StartingKey %d\n" % evt.GetKeyCode())
+        key = evt.GetKeyCode()
+        ch = None
+        if key in [ wx.WXK_NUMPAD0, wx.WXK_NUMPAD1, wx.WXK_NUMPAD2, wx.WXK_NUMPAD3,
+                    wx.WXK_NUMPAD4, wx.WXK_NUMPAD5, wx.WXK_NUMPAD6, wx.WXK_NUMPAD7,
+                    wx.WXK_NUMPAD8, wx.WXK_NUMPAD9
+                    ]:
+
+            ch = ch = chr(ord('0') + key - wx.WXK_NUMPAD0)
+
+        elif key < 256 and key >= 0 and chr(key) in string.printable:
+            ch = chr(key)
+
+        if ch is not None:
+            # For this example, replace the text.  Normally we would append it.
+            # self._tc.AppendText(ch)
+            self._tc.SetValue(ch)
+            self._tc.SetInsertionPointEnd()
+        else:
+            evt.Skip()
+
+
+    def StartingClick(self):
+        """
+        If the editor is enabled by clicking on the cell, this method will be
+        called to allow the editor to simulate the click on the control if
+        needed.
+        """
+        print("MyCellEditor: StartingClick\n")
+
+
+    def Destroy(self):
+        """final cleanup"""
+        print("MyCellEditor: Destroy\n")
+        super(MyCellEditor, self).Destroy()
+
+
+    def Clone(self):
+        """
+        Create a new object which is the copy of this one
+        *Must Override*
+        """
+        print("MyCellEditor: Clone\n")
+        return MyCellEditor()
         
             
-class HistoryPanel(wx.Panel):
+class HistoryGrid(gridlib.Grid):
     def __init__(self, parent, model=None, data=None):
-        wx.Panel.__init__(self, parent, -1)
+        gridlib.Grid.__init__(self, parent, -1)
 
-        # Create a dataview control
-        self.dvc = dv.DataViewCtrl(self,
-                                   style=wx.BORDER_THEME
-                                   | dv.DV_ROW_LINES  # nice alternating bg colors
-                                   | dv.DV_HORIZ_RULES
-                                   | dv.DV_VERT_RULES
-                                   | dv.DV_MULTIPLE
-                                   )
-        
-        # Create an instance of our simple model...
-        if model is None:
-            self.model = HistoryModel(data)
-        else:
-            self.model = model            
+        self.CreateGrid(10, 3)
 
-        # ...and associate it with the dataview control.  Models can
-        # be shared between multiple DataViewCtrls, so this does not
-        # assign ownership like many things in wx do.  There is some
-        # internal reference counting happening so you don't really
-        # need to hold a reference to it either, but we do for this
-        # example so we can fiddle with the model from the widget
-        # inspector or whatever.
-        self.dvc.AssociateModel(self.model)
+        # Somebody changed the grid so the type registry takes precedence
+        # over the default attribute set for editors and renderers, so we
+        # have to set null handlers for the type registry before the
+        # default editor will get used otherwise...
+        # self.RegisterDataType(wxGRID_VALUE_STRING, None, None)
+        # self.SetDefaultEditor(MyCellEditor())
 
-        # Now we create some columns.  The second parameter is the
-        # column number within the model that the DataViewColumn will
-        # fetch the data from.  This means that you can have views
-        # using the same model that show different columns of data, or
-        # that they can be in a different order than in the model.
-        self.dvc.AppendTextColumn("SQL", 1, width=370, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Connection", 2, width=100, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Time Stamp", 3, width=60, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Type", 4, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Executed", 5, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
-        self.dvc.AppendTextColumn("Duration (seconds)", 6, width=50, mode=dv.DATAVIEW_CELL_EDITABLE)
+        # Or we could just do it like this:
+        # self.RegisterDataType(wx.GRID_VALUE_STRING,
+        #                      wx.GridCellStringRenderer(),
+        #                      MyCellEditor())
+        #                       )
 
-        # There are Prepend methods too, and also convenience methods
-        # for other data types but we are only using strings in this
-        # example.  You can also create a DataViewColumn object
-        # yourself and then just use AppendColumn or PrependColumn.
-        c0 = self.dvc.PrependTextColumn("Id", 0, width=40)
+        # but for this example, we'll just set the custom editor on one cell
+        self.SetCellEditor(1, 0, MyCellEditor())
+        self.SetCellValue(1, 0, "Try to edit this box")
 
-        # The DataViewColumn object is returned from the Append and
-        # Prepend methods, and we can modify some of it's properties
-        # like this.
-        c0.Alignment = wx.ALIGN_RIGHT
-        c0.Renderer.Alignment = wx.ALIGN_RIGHT
-        c0.MinWidth = 40
+        # and on a column
+        attr = gridlib.GridCellAttr()
+        attr.SetEditor(MyCellEditor())
+        self.SetColAttr(2, attr)
+        self.SetCellValue(1, 2, "or any in this column")
 
-        # Through the magic of Python we can also access the columns
-        # as a list via the Columns property.  Here we'll mark them
-        # all as sortable and reorderable.
-        for c in self.dvc.Columns:
-            c.Sortable = True
-            c.Reorderable = True
-
-        # Let's change our minds and not let the first col be moved.
-        c0.Reorderable = False
-
-        # set the Sizer property (same as SetSizer)
-        self.Sizer = wx.BoxSizer(wx.VERTICAL) 
-        self.Sizer.Add(self.dvc, 1, wx.EXPAND)
-        
-        # Add some buttons to help out with the tests
-        b1 = wx.Button(self, label="Clear Log", name="newView")
-        self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
-        b2 = wx.Button(self, label="Add Row")
-        self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
-        b3 = wx.Button(self, label="Clear Log(s)")
-        self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
-
-        btnbox = wx.BoxSizer(wx.HORIZONTAL)
-        btnbox.Add(b1, 0, wx.LEFT | wx.RIGHT, 5)
-        btnbox.Add(b2, 0, wx.LEFT | wx.RIGHT, 5)
-        btnbox.Add(b3, 0, wx.LEFT | wx.RIGHT, 5)
-        self.Sizer.Add(btnbox, 0, wx.TOP | wx.BOTTOM, 5)
-
-        # Bind some events so we can see what the DVC sends us
-        self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
-        self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
-        self.Bind(dv.EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK, self.onHeaderRightClick, self.dvc)
-        self.Bind(dv.EVT_DATAVIEW_COLUMN_HEADER_CLICK, self.onHeaderClick, self.dvc)
-        self.Bind(dv.EVT_DATAVIEW_COLUMN_SORTED, self.onColumnSort, self.dvc)
+        self.SetColSize(0, 150)
+        self.SetColSize(1, 150)
+        self.SetColSize(2, 150)
         
 
 
-    def onColumnSort(self, event):
-        print('onColumnSort')
-    def onHeaderClick(self, event):
-        print('onHeaderClick')
-    def onHeaderRightClick(self, event):
-        menu = wx.Menu()
-        id1 = wx.NewId()
-        groupID = wx.NewId()
-        xo, yo = event.GetPosition()
-
-        col = event.Column
-        menu.Append(ID_COPY_COLUMN_HEADER, "Copy column header name")
-        menu.Append(groupID, "Group By Column")
-
-        def groupBy(event, self=self, col=col):
-            self.parent.Group(col)
-        def copyHeaderName(event, self=self, col=col):
-            print(event.Column)
-
-        self.Bind(wx.EVT_MENU, groupBy, id=groupID)
-        self.Bind(wx.EVT_MENU, copyHeaderName, id=ID_COPY_COLUMN_HEADER)
-        self.PopupMenu(menu)
-        menu.Destroy()
-        return
-
-
-    def OnNewView(self, evt):
-        f = wx.Frame(None, title="New view, shared model", size=(600, 400))
-        HistoryPanel(f, self.log, self.model)
-        b = f.FindWindowByName("newView")
-        b.Disable()
-        f.Show()
-
-
-    def OnDeleteRows(self, evt):
-        # Remove the selected row(s) from the model. The model will take care
-        # of notifying the view (and any other observers) that the change has
-        # happened.
-        items = self.dvc.GetSelections()
-        rows = [self.model.GetRow(item) for item in items]
-        self.model.DeleteRows(rows)
-
-        
-    def OnAddRow(self, evt):
-        # Add some bogus data to a new row in the model's data
-        id = len(self.model.data) + 1
-        value = [str(id),
-                 'new artist %d' % id,
-                 'new title %d' % id,
-                 'genre %d' % id]
-        self.model.AddRow(value)
-                
-
-    def OnEditingDone(self, evt):
-        print("OnEditingDone\n")
-
-    def OnValueChanged(self, evt):
-        print("OnValueChanged\n")
 
         
 #----------------------------------------------------------------------
@@ -268,25 +246,16 @@ class HistoryPanel(wx.Panel):
 #     return win
 
 
-
+class TestFrame(wx.Frame):
+    def __init__(self, parent):
+        wx.Frame.__init__(self, parent, -1, "Custom Grid Cell Editor Test", size=(640, 480))
+        grid = HistoryGrid(self)
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
-    frame = wx.Frame(None)
-    
-    
-    # Get the data from the ListCtrl sample to play with, converting it
-    # from a dictionary to a list of lists, including the dictionary key
-    # as the first element of each sublist.
-    musicdata = {
-    1 : ('SELECT * FROM T_MDUR_MDL_RSV;', 'Local_App_Owner' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
-    2 : ('select * from author;', 'Local_App_Owner_' , '1482325584593'  , 'SQL'   , '1', ' 0.225'),
+#     frame = wx.Frame(None)
 
-    }
-    musicdata = musicdata.items()
-    musicdata.sort()
-    musicdata = [[str(k)] + list(v) for k, v in musicdata]
-    panel = HistoryPanel(frame, data=musicdata)
+    frame = TestFrame(None)
     frame.Show()
     app.MainLoop()
