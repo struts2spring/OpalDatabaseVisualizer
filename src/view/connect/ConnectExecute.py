@@ -13,7 +13,9 @@ class SqlExecuterProcess():
     
     def executeCmd(self, command):
 #         subprocess.call(cmd, shell=True)
-        process = subprocess.check_output(['echo $PWD','sqlite3','_opal.sqlite','.schema book'], stderr=subprocess.PIPE, shell=True)
+#         process = subprocess.check_output(['echo $PWD','sqlite3','_opal.sqlite','.schema book'], stderr=subprocess.PIPE, shell=True)
+        args = ["sqlite3", "db.sqlite", "CREATE TABLE my_table(my_column TEXT)"]
+        process = subprocess.call(args)
         print(process)
 #         while True:
 #             line = process.stdout.readline()

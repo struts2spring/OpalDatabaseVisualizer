@@ -6,6 +6,7 @@ import os
 from src.view.Constant import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
     ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST, music
+from src.view.worksheet.ResultGrid import ResultDataGrid
 
 #----------------------------------------------------------------------
 
@@ -282,7 +283,8 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
-        self.resultPanel = ResultPanel(self, data=self.getData())
+#         self.resultPanel = ResultPanel(self, data=self.getData())
+        self.resultPanel = ResultDataGrid(self, data=self.getData())
 #         bottomResultToolbar = self.constructBottomResultToolBar()
         
         ####################################################################
