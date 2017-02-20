@@ -28,7 +28,7 @@ class SqlExecuterProcess():
 #         print(process.returncode)
 #         print(pro)
 
-class SQLExecuter():
+class SQLExecuter1():
     '''
     '''
     def __init__(self, database=None):

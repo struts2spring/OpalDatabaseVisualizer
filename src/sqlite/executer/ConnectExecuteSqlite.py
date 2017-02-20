@@ -12,7 +12,7 @@ class SQLExecuter():
     '''
     def __init__(self, database=None):
         print(os.getcwd())
-        self.conn = sqlite3.connect('C:\sampleDatabase\chinook.db')
+        self.conn = sqlite3.connect(database)
         
     def sqlite_insert(self, table, rows):
         for row in rows:
@@ -79,14 +79,14 @@ class SQLExecuter():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                print('before')
+#                 print('before')
                 rows = cur.execute(text).fetchall()
                 print(rows)
                 print(cur.description) 
 #                 print(rows)
                 headerList=list()
                 for idx,desc in enumerate(cur.description):
-                    print(idx, desc)
+#                     print(idx, desc)
                     headerList.append(desc[0])
                 sqlOutput[0]=tuple(headerList)
                 for idx, item in enumerate(rows):

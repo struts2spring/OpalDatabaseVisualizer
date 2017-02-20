@@ -9,7 +9,7 @@ import wx.stc as stc
 import keyword
 from src.view.images import images
 import os
-from src.view.connect.ConnectExecute import SQLExecuter
+from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
 
 
 #----------------------------------------------------------------------

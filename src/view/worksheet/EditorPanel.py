@@ -9,13 +9,13 @@ import wx.stc as stc
 import keyword
 from src.view.images import images
 import os
-from src.view.connect.ConnectExecute import SQLExecuter
 import string
 import new
 from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
+from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -757,7 +757,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #         resultListPanel.resultPanel.createDataViewCtrl(data=sqlOutput, headerList=["Artist", "Title", "Genre"])
         resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
 #         resultListPanel.setResultData()
-        print(resultListPanel.Layout())
+#         print(resultListPanel.Layout())
         
             
     def sqlStyle(self):

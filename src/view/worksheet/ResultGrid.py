@@ -228,17 +228,17 @@ class ResultDataGrid(gridlib.Grid):
 
     def addData(self, data=None):
         
-        self.AppendRows(numRows=len(data), updateLabels=True)   
+        self.AppendRows(numRows=len(data)-1, updateLabels=True)   
         if len(data) > 0 :
             self.AppendCols(numCols=len(data[0]), updateLabels=True)  
         for dataKey, dataValue in data.items():
             print(dataKey, dataValue)
             for idx, colValue in enumerate(dataValue):
-                print(idx, dataValue)
+#                 print(idx, dataValue)
                 if dataKey == 0:
                     self.SetColLabelValue(idx, str(colValue))
                 else:
-                    self.SetCellValue(dataKey, idx, str(colValue))
+                    self.SetCellValue(dataKey-1, idx, str(colValue))
 #         self.SetColSize(0, 150)
 #         self.SetColSize(1, 150)
 #         self.SetColSize(2, 150)
