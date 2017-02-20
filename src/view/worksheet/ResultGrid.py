@@ -227,10 +227,36 @@ class ResultDataGrid(gridlib.Grid):
 #         self.addData()
 
     def addData(self, data=None):
+#         print(self.GetRowSizes())
+#         print(self.GetColSizes())
+        self.ClearGrid()
+        print('rows:', self.GetNumberRows())
+        print('cols:', self.GetNumberCols())
+#         self.DeleteRows()
+        currentRows,currentCols = (self.GetNumberRows(), self.GetNumberCols())
+        newRows = len(data) - 1
+        newCols = len(data[0])
+#         self.AppendRows(numRows=len(data)-1, updateLabels=True)   
+#         if len(data) > 0 :
+#             self.AppendCols(numCols=len(data[0]), updateLabels=True)  
+        if newRows < currentRows:
+            # - Delete rows:
+            self.DeleteRows(0, currentRows - newRows, True)
+
+        if newRows > currentRows:
+            # - append currentRows:
+            self.AppendRows(newRows - currentRows)
+            
+            
+        if newCols < currentCols:
+            # - Delete rows:
+            self.DeleteCols(pos=0, numCols=currentCols - newCols, updateLabels=True)
+
+        if newCols > currentCols:
+            # - append currentRows:
+            self.AppendCols(newCols - currentCols)
         
-        self.AppendRows(numRows=len(data)-1, updateLabels=True)   
-        if len(data) > 0 :
-            self.AppendCols(numCols=len(data[0]), updateLabels=True)  
+
         for dataKey, dataValue in data.items():
             print(dataKey, dataValue)
             for idx, colValue in enumerate(dataValue):
@@ -238,7 +264,8 @@ class ResultDataGrid(gridlib.Grid):
                 if dataKey == 0:
                     self.SetColLabelValue(idx, str(colValue))
                 else:
-                    self.SetCellValue(dataKey-1, idx, str(colValue))
+                    self.SetCellValue(dataKey - 1, idx, str(colValue))
+        self.Refresh()
 #         self.SetColSize(0, 150)
 #         self.SetColSize(1, 150)
 #         self.SetColSize(2, 150)
