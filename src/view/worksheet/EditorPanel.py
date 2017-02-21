@@ -276,9 +276,12 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CallTipCancel()
         key = event.GetKeyCode()
         print('OnKeyUp------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+        
         if event.ControlDown() and  key == 67:
-            print('ctrl+c', self.GetSelectedText())
+            print('ctrl+C', self.GetSelectedText())
             self.copyClipboard(text=self.GetSelectedText())    
+            if key == 86:
+                self.Paste()
 
         elif event.ControlDown() and  key == 76:
             print('ctrl+L', self.GetSelectedText())
@@ -291,7 +294,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             val = dlg.ShowModal()
             
             if val == wx.ID_OK:
-                lineNumber=dlg.lineNumberText.GetValue()
+                lineNumber = dlg.lineNumberText.GetValue()
                 print("You pressed OK\n", lineNumber)
                 if lineNumber != '':
                     self.GotoLine(int(lineNumber))
@@ -302,7 +305,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             dlg.Destroy()
 #             app.MainLoop()
         elif event.ControlDown() and  key == 86:
-            print('ctrl+v')
+            print('ctrl+V : paste')
             self.Paste()
         elif event.ControlDown() and  key == 90:
             print('Ctrl+Z: Undo')
@@ -377,6 +380,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         elif key == wx.WXK_RETURN and event.ControlDown():
             print('ctrl+Enter: execute sql')
             self.executeSQL()
+            
         elif key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
             print(self.GetSelectedText())
@@ -405,7 +409,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #                 kw = keyword.kwlist[:]
 #                 self.AutoCompSetSeparator('|')
                 
-                kw=[]
+                kw = []
                 kw.append(("select * from | create table"))
                 kw.append("desc")
                 kw.append("create table")
@@ -737,8 +741,11 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CmdKeyExecute(cmd)
     
     def executeSQL(self):
+        sqlText = self.GetSelectedText()
+        if self.GetSelectedText() == '' or self.GetSelectedText() == None:
+            sqlText, column = self.GetCurLine()
         
-        print('executeSQL' , self.GetSelectedText())
+        print('executeSQL' , sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
 #         book_row = [
 #                     {'id':'2',
@@ -747,10 +754,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #                 ]
 #         sqlExecuter.sqlite_insert_or_update('book', book_row)
 #         print(sqlExecuter.sqlite_select('book'))
-        sqlOutput = sqlExecuter.executeText(self.GetSelectedText())
+        sqlOutput = sqlExecuter.executeText(sqlText)
         print(sqlOutput)
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-        window = sqlExecutionTab.window
+#         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
         resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
