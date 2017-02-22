@@ -9,7 +9,8 @@ import wx.stc as stc
 import keyword
 from src.view.images import images
 import os
-from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+# from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
 
 
 #----------------------------------------------------------------------
@@ -561,17 +562,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         print('executeSQL' ,self.GetSelectedText()  )
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
-#         book_row = [
-#                     {'id':'2',
-#                      'book_name':'abc0'},
-#                     {'id':'3', 'book_name':'abc1'}
-#                 ]
-#         sqlExecuter.sqlite_insert_or_update('book', book_row)
-#         print(sqlExecuter.sqlite_select('book'))
         sqlOutput=sqlExecuter.executeText(self.GetSelectedText())
-        print(sqlOutput)
-        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-        window=sqlExecutionTab.window
         creatingWorksheetPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
         resultListPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]

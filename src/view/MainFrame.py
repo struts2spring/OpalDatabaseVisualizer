@@ -34,6 +34,7 @@ from src.view.history.HistoryListPanel import HistoryGrid
 #---------------------------------------------------------------------------
 
 
+
 class DatabaseMainFrame(wx.Frame):
 
     def __init__(self, parent):
@@ -79,17 +80,28 @@ class DatabaseMainFrame(wx.Frame):
 
          
     def constructToolBar(self):
-        
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
-        tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Database Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "connect.png")))
+        tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Database Connection", bitmap=wx.Bitmap(os.path.join(path, "connect.png")))
         tb1.AddSeparator()
         
-        tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Database Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "database_connect.png")))
-        tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join("..", "images", "script.png")))
-        tb1.AddLabelTool(id=wx.ID_PREFERENCES, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join("..", "images", "preference.png")))
+        tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Database Connection", bitmap=wx.Bitmap(os.path.join(path, "database_connect.png")))
+        tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join(path, "script.png")))
+        tb1.AddLabelTool(id=wx.ID_PREFERENCES, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join(path, "preference.png")))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
@@ -138,17 +150,18 @@ class DatabaseMainFrame(wx.Frame):
         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "folder_database.png"))).
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
                           Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
-    
+     
         self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
                           Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
+        
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
 
   
-#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join("..", "images", "sql.png"))).
+#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
 #                           Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
 #                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
@@ -186,6 +199,19 @@ class DatabaseMainFrame(wx.Frame):
         self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
         
     def createMenuBar(self):
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
+        
         print('creating menu bar')
                 # create menu
         mb = wx.MenuBar()
@@ -225,7 +251,7 @@ class DatabaseMainFrame(wx.Frame):
         window_menu = wx.Menu()
                 
         preferenceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Preferences")
-        preferenceBmp.SetBitmap(wx.Bitmap(os.path.join("..", "images", "preference.png")))
+        preferenceBmp.SetBitmap(wx.Bitmap(os.path.join(path, "preference.png")))
                 
         window_menu.AppendSeparator()
         childViewMenu = wx.Menu()
@@ -239,7 +265,7 @@ class DatabaseMainFrame(wx.Frame):
         aboutBmp = wx.MenuItem(help_menu, wx.ID_HELP, "&About Opal Database Visualizer")
         aboutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_HELP, wx.ART_TOOLBAR, (16,16)))
         updateCheckBmp = wx.MenuItem(help_menu, ID_UPDATE_CHECK, "Check for &Updates")
-        updateCheckBmp.SetBitmap(wx.Bitmap(os.path.join("..", "images", "object_refresh.png")))
+        updateCheckBmp.SetBitmap(wx.Bitmap(os.path.join(path, "object_refresh.png")))
                 
         
         help_menu.AppendItem(updateCheckBmp)

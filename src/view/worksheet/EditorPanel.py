@@ -1,3 +1,4 @@
+
 '''
 Created on 15-Dec-2016
 
@@ -15,7 +16,7 @@ from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
-from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -218,11 +219,23 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
 
     def registerAllImages(self):
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
         # register some images for use in the AutoComplete box.
-        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-            textImage = wx.Bitmap(os.path.join("..", "..", "images", "new.png"))
-        elif "view" == os.path.split(os.getcwd())[-1:][0]:
-            textImage = wx.Bitmap(os.path.join("..", "images", "new.png"))
+#         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+#             textImage = wx.Bitmap(os.path.join("..", "..", "images", "new.png"))
+#         elif "view" == os.path.split(os.getcwd())[-1:][0]:
+        textImage = wx.Bitmap(os.path.join(path, "new.png"))
         self.RegisterImage(1, textImage)
         self.RegisterImage(2,
             wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16, 16)))
@@ -808,7 +821,7 @@ class CreatingEditorPanel(wx.Panel):
         ####################################################################
         self.sstc = SqlStyleTextCtrl(self, -1)
         self.sstc.initKeyShortCut()
-        self.sstc.SetText(demoText + open('book.sql').read())
+        self.sstc.SetText(demoText )
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
         self.sstc.SetBestFittingSize(wx.Size(400, 400))

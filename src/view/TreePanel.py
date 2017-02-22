@@ -284,7 +284,19 @@ class CreatingTreePanel(wx.Panel):
 
     #---------------------------------------------
     def OnTreeRightUp(self, event):
-
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
+        
         item = self.tree.item     
         
         if not item:
@@ -328,20 +340,20 @@ class CreatingTreePanel(wx.Panel):
             item2 = menu.Append(wx.ID_ANY, "Connect")
             
             sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor")
-            sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "script.png"))))
+            sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "script.png"))))
             item3 = menu.AppendItem(sqlEditorBmp)
             
             item4 = menu.Append(wx.ID_ANY, "Properties")
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
-            refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database_refresh.png"))))
+            refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
             item5 = menu.AppendItem(refreshBmp)
             
             
             item6 = menu.Append(wx.ID_ANY, "Edit Connection")
             menu.AppendSeparator()
             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
-            item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "index.png"))))
+            item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
             menu.AppendItem(item7)
             
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
@@ -451,27 +463,39 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
 
         event.Skip()            
     def BuildTreeImageList(self):
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
         imgList = wx.ImageList(16, 16)
 
         # add the image for modified demos.
 
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database_category.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "folder_view.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "folder.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "table.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "view.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "index.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "column.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "string.png"))))  # 8
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "key.png"))))  # 9
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "foreign_key_column.png"))))  # 10
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "columns.png"))))  # 11
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "unique_constraint.png"))))  # 12
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "reference.png"))))  # 13
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "datetime.png"))))  # 14
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "columns.png"))))  # 15
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "sqlite.png"))))  # 16
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database_category.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "folder_view.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "folder.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "table.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "view.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "column.png"))))
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "string.png"))))  # 8
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "key.png"))))  # 9
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "foreign_key_column.png"))))  # 10
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "columns.png"))))  # 11
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "unique_constraint.png"))))  # 12
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "reference.png"))))  # 13
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "datetime.png"))))  # 14
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "columns.png"))))  # 15
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "sqlite.png"))))  # 16
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())

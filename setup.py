@@ -3,7 +3,7 @@ __author__ = 'vijay'
 from setuptools import setup
 
 setup(
-    name='OpalDatabaseVisualizer',
+    name='opaldatabasevisualizer',
     version='0.1',
     url='https://github.com/struts2spring/OpalDatabaseVisualizer',
     license='BSD',
@@ -11,7 +11,9 @@ setup(
     author_email='',
     description='Database tool for developers, DBAs and analysts..',
     long_description=__doc__,
-    packages=['src','src.view','src.connect','src.view.connection','src.view.history','src.view.worksheet'],
+    packages=['src','src.view','src.connect','src.view.connection','src.view.history','src.view.worksheet','src.connect.sqlite',
+              'src.view.table','src.sqlite_executer','src.SqlBeautifier','src.SqlBeautifier.sqlparse2','src.SqlBeautifier.sqlparse2.engine',
+              'src.view.findAndReplace','src.view.preference','src.images'],
     py_modules=['src'],
     zip_safe=False,
     platforms='any',

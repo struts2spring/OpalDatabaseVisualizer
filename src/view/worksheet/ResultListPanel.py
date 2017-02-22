@@ -298,19 +298,30 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         self.SetSizer(sizer)    
         
     def constructTopResultToolBar(self):
-        
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))        
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
-        playImage = None
-        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-            imageLocation = os.path.join("..", "..", "images")
-
-        elif "view" == os.path.split(os.getcwd())[-1:][0]:
-            imageLocation = os.path.join("..", "images")
-        tb1.AddLabelTool(id=ID_RUN, label="Pin", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(imageLocation, "pin2_green.png")))
-        tb1.AddLabelTool(id=ID_EXECUTE_SCRIPT, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(imageLocation, "sql_script_exec.png")))
+#         playImage = None
+#         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+#             imageLocation = os.path.join("..", "..", "images")
+# 
+#         elif "view" == os.path.split(os.getcwd())[-1:][0]:
+#             imageLocation = os.path.join("..", "images")
+        tb1.AddLabelTool(id=ID_RUN, label="Pin", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(path, "pin2_green.png")))
+        tb1.AddLabelTool(id=ID_EXECUTE_SCRIPT, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
         tb1.AddSeparator()
 
         tb1.Realize()
@@ -328,16 +339,28 @@ class CreateResultSheetTabPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        
+        path = os.path.abspath(__file__)
+        tail = None
+#         head, tail = os.path.split(path)
+#         print('createAuiManager',head, tail )
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            e.print_stack_trace()
+        print('------------------------------------------------------------------------->',path)
+        path = os.path.abspath(os.path.join(path, "images"))
+                
         # Attributes
         self._nb = aui.AuiNotebook(self)
-        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-            imageLocation = os.path.join("..", "..", "images")
-        #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
-        elif "view" == os.path.split(os.getcwd())[-1:][0]:
-            imageLocation = os.path.join("..", "images")
+#         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
+#             imageLocation = os.path.join("..", "..", "images")
+#         #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
+#         elif "view" == os.path.split(os.getcwd())[-1:][0]:
+#         imageLocation = os.path.join(path)
         imgList = wx.ImageList(16, 16)
-        imgList.Add(wx.Bitmap(os.path.join(imageLocation, "sql_script.png")))
+        imgList.Add(wx.Bitmap(os.path.join(path, "sql_script.png")))
         
         self._nb.AssignImageList(imgList) 
         
