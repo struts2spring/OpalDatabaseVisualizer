@@ -11,6 +11,7 @@ from wx import ListCtrl
 from src.view.Constant import ID_COPY_COLUMN_HEADER
 import string
 import  wx.grid as gridlib
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 
 #---------------------------------------------------------------------------
 class MyCellEditor(gridlib.PyGridCellEditor):
@@ -198,7 +199,7 @@ class HistoryGrid(gridlib.Grid):
     def __init__(self, parent, model=None, data=None):
         gridlib.Grid.__init__(self, parent, -1)
 
-        self.CreateGrid(10, 3)
+        self.CreateGrid(0, 0)
 
         # Somebody changed the grid so the type registry takes precedence
         # over the default attribute set for editors and renderers, so we
@@ -214,23 +215,79 @@ class HistoryGrid(gridlib.Grid):
         #                       )
 
         # but for this example, we'll just set the custom editor on one cell
-        self.SetCellEditor(1, 0, MyCellEditor())
-        self.SetCellValue(1, 0, "Try to edit this box")
+#         self.SetCellEditor(1, 0, MyCellEditor())
+#         self.SetCellValue(1, 0, "Try to edit this box")
+# 
+#         # and on a column
+#         attr = gridlib.GridCellAttr()
+#         attr.SetEditor(MyCellEditor())
+#         self.SetColAttr(2, attr)
+#         self.SetCellValue(1, 2, "or any in this column")
+# 
+#         self.SetColSize(0, 150)
+#         self.SetColSize(1, 150)
+#         self.SetColSize(2, 150)
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        sqlText='select * from sql_log;'
+        sqlOutput = sqlExecuter.executeText(sqlText)
+        self.addData(data=sqlOutput)
 
-        # and on a column
-        attr = gridlib.GridCellAttr()
-        attr.SetEditor(MyCellEditor())
-        self.SetColAttr(2, attr)
-        self.SetCellValue(1, 2, "or any in this column")
 
-        self.SetColSize(0, 150)
-        self.SetColSize(1, 150)
-        self.SetColSize(2, 150)
+
+
+    def addData(self, data=None):
+#         print(self.GetRowSizes())
+#         print(self.GetColSizes())
+        self.ClearGrid()
+        print('rows:', self.GetNumberRows())
+        print('cols:', self.GetNumberCols())
+#         self.DeleteRows()
+        currentRows,currentCols = (self.GetNumberRows(), self.GetNumberCols())
+        newRows = len(data) - 1
+        newCols = len(data[0])
+#         self.AppendRows(numRows=len(data)-1, updateLabels=True)   
+#         if len(data) > 0 :
+#             self.AppendCols(numCols=len(data[0]), updateLabels=True)  
+        if newRows < currentRows:
+            # - Delete rows:
+            self.DeleteRows(0, currentRows - newRows, True)
+
+        if newRows > currentRows:
+            # - append currentRows:
+            self.AppendRows(newRows - currentRows)
+            
+            
+        if newCols < currentCols:
+            # - Delete rows:
+            self.DeleteCols(pos=0, numCols=currentCols - newCols, updateLabels=True)
+
+        if newCols > currentCols:
+            # - append currentRows:
+            self.AppendCols(newCols - currentCols)
         
 
-
-
-        
+        for dataKey, dataValue in data.items():
+            print(dataKey, dataValue)
+            for idx, colValue in enumerate(dataValue):
+#                 print(idx, dataValue)
+                if dataKey == 0:
+                    self.SetColLabelValue(idx, str(colValue))
+                    str(colValue)
+                    if str(colValue)== 'id':
+                        self.SetColSize(idx,25)
+                    elif str(colValue)=='sql':
+                        self.SetColSize(idx,250)
+                    elif str(colValue)=='connection_name':
+                        self.SetColSize(idx,120)
+                    elif str(colValue)=='creation_time':
+                        self.SetColSize(idx,100)
+                    elif str(colValue)=='executed':
+                        self.SetColSize(idx,100)
+                    elif str(colValue)=='duration':
+                        self.SetColSize(idx,100)
+                else:
+                    self.SetCellValue(dataKey - 1, idx, str(colValue))
+        self.Refresh()        
 #----------------------------------------------------------------------
 
 # def runTest(frame, nb, log):

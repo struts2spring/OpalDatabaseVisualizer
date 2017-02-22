@@ -17,6 +17,8 @@ from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+from datetime import date, datetime
+import time
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -229,7 +231,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 head, tail = os.path.split(path)
         except Exception as e:
             e.print_stack_trace()
-        print('------------------------------------------------------------------------->',path)
+        print('------------------------------------------------------------------------->', path)
         path = os.path.abspath(os.path.join(path, "images"))
         # register some images for use in the AutoComplete box.
 #         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
@@ -393,6 +395,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         elif key == wx.WXK_RETURN and event.ControlDown():
             print('ctrl+Enter: execute sql')
             self.executeSQL()
+            self.refreshSqlLogUi()
             
         elif key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
@@ -759,26 +762,42 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             sqlText, column = self.GetCurLine()
         
         print('executeSQL' , sqlText)
-        sqlExecuter = SQLExecuter(database='_opal.sqlite')
-#         book_row = [
-#                     {'id':'2',
-#                      'book_name':'abc0'},
-#                     {'id':'3', 'book_name':'abc1'}
-#                 ]
-#         sqlExecuter.sqlite_insert_or_update('book', book_row)
-#         print(sqlExecuter.sqlite_select('book'))
-        sqlOutput = sqlExecuter.executeText(sqlText)
-        print(sqlOutput)
-#         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        sqlOutput=None
+        startTime=time.time()
+        try:
+            sqlExecuter = SQLExecuter(database='_opal.sqlite')
+            sqlOutput = sqlExecuter.executeText(sqlText)
+            print(sqlOutput)
+        except:
+            pass
+        endTime=time.time()
+        print('duration',startTime-endTime)
+        duration=startTime-endTime
+        self.updateSqlLog(sqlText, duration)
+
         creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
         resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-#         resultListPanel.resultPanel.createDataViewCtrl(data=sqlOutput, headerList=["Artist", "Title", "Genre"])
-        resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
-#         resultListPanel.setResultData()
-#         print(resultListPanel.Layout())
+        if sqlOutput:
+            resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+        # TODO Update update sql log history grid
         
-            
+    def updateSqlLog(self, sqlText, duration):
+        print('updating sql log', sqlText)
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        table = 'sql_log'
+        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':'connection name', 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
+        sqlExecuter.sqlite_insert(table, rows)
+        
+    def refreshSqlLogUi(self):
+        print('refreshSqlLogUi')
+        historyGrid=self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
+        sqlText='select * from sql_log;'
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        sqlOutput = sqlExecuter.executeText(sqlText)
+        historyGrid.addData(data=sqlOutput)
+        
+              
     def sqlStyle(self):
         # Sql styles
         # Default 
@@ -821,7 +840,7 @@ class CreatingEditorPanel(wx.Panel):
         ####################################################################
         self.sstc = SqlStyleTextCtrl(self, -1)
         self.sstc.initKeyShortCut()
-        self.sstc.SetText(demoText )
+        self.sstc.SetText(demoText)
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
         self.sstc.SetBestFittingSize(wx.Size(400, 400))

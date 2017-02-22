@@ -9,9 +9,10 @@ import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.images import catalog, images
-from src.connect.sqlite.Connect import ConnectSqlite
+# from src.connect.sqlite.Connect import ConnectSqlite
 from src.view.Constant import ID_newWorksheet, keyMap
 from src.view.table.CreateTable import CreatingTableFrame
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 
 
 _demoPngs = ["database", "table", "view", "indexs", "moredialog", "core",
@@ -56,8 +57,8 @@ class CreatingTreePanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        connectSqlite = ConnectSqlite()
-        self._treeList = connectSqlite.getObject()
+        sqlExecuter = SQLExecuter()
+        self._treeList = sqlExecuter.getObject()
 #         self._treeList=_treeList
         self.treeMap = {}
         self.searchItems = {}
