@@ -6,13 +6,15 @@ Created on Feb 19, 2017
 import sqlite3
 import os
 import re
+from os.path import expanduser
 
 class SQLExecuter():
     '''
     '''
     def __init__(self, database=None):
-        print(os.getcwd())
-        self.conn = sqlite3.connect(database)
+        home = expanduser("~")
+        databasePath = os.path.join(home, database)
+        self.conn = sqlite3.connect(databasePath)
         
     def sqlite_insert(self, table, rows):
         for row in rows:
@@ -21,6 +23,7 @@ class SQLExecuter():
             sql = 'INSERT INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
             self.conn.cursor().execute(sql, row)
         self.conn.commit()
+        
     def sqlite_insert_or_update(self, table, rows):
         try:
             for row in rows:
@@ -34,7 +37,6 @@ class SQLExecuter():
             # Roll back any change if something goes wrong
             self.conn.rollback()
             raise e
-    
     
     def sqlite_select(self, table):
         
@@ -55,11 +57,11 @@ class SQLExecuter():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                sql="SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '"+tableName+"';"
+                sql = "SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '" + tableName + "';"
                 rows = cur.execute(sql).fetchall()
-                tableCreateStmt=rows[0][1]
-                match=re.findall(r'[^[]*\[([^]]*)\]',tableCreateStmt)
-                columns=set(match)
+                tableCreateStmt = rows[0][1]
+                match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)
+                columns = set(match)
                 if columns:
                     print(columns)
 #                 tableCreateStmt.replace(/^[^\(]+\(([^\)]+)\)/g, '$1').split(',')
@@ -84,13 +86,14 @@ class SQLExecuter():
                 print(rows)
                 print(cur.description) 
 #                 print(rows)
-                headerList=list()
-                for idx,desc in enumerate(cur.description):
-#                     print(idx, desc)
-                    headerList.append(desc[0])
-                sqlOutput[0]=tuple(headerList)
-                for idx, item in enumerate(rows):
-                    sqlOutput[idx+1] = item
+                if cur.description:
+                    headerList = list()
+                    for idx, desc in enumerate(cur.description):
+    #                     print(idx, desc)
+                        headerList.append(desc[0])
+                    sqlOutput[0] = tuple(headerList)
+                    for idx, item in enumerate(rows):
+                        sqlOutput[idx + 1] = item
         except Exception as e:
             print(e)
             self.conn.rollback()
@@ -99,12 +102,53 @@ class SQLExecuter():
         return sqlOutput
     
     
+    def createOpalTables(self):
+        '''
+        '''
+        sqlScript='''
+        CREATE TABLE  if not exists connections
+          (
+            id INTEGER PRIMARY KEY,
+            connection_name TEXT,
+            path TEXT,
+            jdbc_driver TEXT,
+            user_name TEXT,
+            password TEXT,
+            host TEXT,
+            port INTEGER,
+            sid TEXT,
+            service_name TEXT,
+            created_time REAL DEFAULT (datetime('now', 'localtime'))
+          );
+        CREATE TABLE if not exists sql_log
+          (
+            id INTEGER PRIMARY KEY,
+            sql TEXT,
+            connection_name TEXT,
+            created_time REAL DEFAULT (datetime('now', 'localtime')),
+            executed INTEGER,
+            duration INTEGER
+          );
+        '''
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+#                 print('before')
+                rows = cur.executescript(sqlScript).fetchall()
+                print(cur.description) 
+
+        except Exception as e:
+            print(e)
+            self.conn.rollback()
+            raise e
+
 if __name__ == "__main__":
     print('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
-    sqlExecuter = SQLExecuter()
-    tableName='albums'
-    sqlExecuter.getColumn(tableName)
-    sql="SELECT * FROM albums "
-    result = sqlExecuter.executeText(text=sql)
-    print(result)
+    sqlExecuter = SQLExecuter(database='_opal.sqlite')
+#     tableName = 'albums'
+#     sqlExecuter.getColumn(tableName)
+#     sql = "SELECT * FROM albums "
+#     result = sqlExecuter.executeText(text=sql)
+#     print(result)
+    sqlExecuter.createOpalTables()
