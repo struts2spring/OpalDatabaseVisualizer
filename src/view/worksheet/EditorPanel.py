@@ -771,8 +771,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         except:
             pass
         endTime=time.time()
-        print('duration',startTime-endTime)
-        duration=startTime-endTime
+        print('duration',endTime-startTime)
+        duration=endTime-startTime
         self.updateSqlLog(sqlText, duration)
 
         creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
@@ -792,7 +792,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def refreshSqlLogUi(self):
         print('refreshSqlLogUi')
         historyGrid=self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
-        sqlText='select * from sql_log;'
+        sqlText='select * from sql_log order by created_time desc;'
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         sqlOutput = sqlExecuter.executeText(sqlText)
         historyGrid.addData(data=sqlOutput)

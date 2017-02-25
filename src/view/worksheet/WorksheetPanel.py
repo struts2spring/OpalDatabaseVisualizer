@@ -10,6 +10,7 @@ import os
 
 import wx.aui as aui
 from src.view.Constant import ID_RUN
+from wx import ID_SPELL_CHECK
 
 ID_executeScript = wx.NewId()
 
@@ -198,10 +199,10 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
 #         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
-        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="run single line ", bitmap=wx.Bitmap(os.path.join(path, "triangle_green.png")))
-        tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
+        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="Run single line  F5", bitmap=wx.Bitmap(os.path.join(path, "triangle_green.png")))
+        tb1.AddLabelTool(id=ID_executeScript, label="Run Script  F9", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
         tb1.AddSeparator()
-        tb1.AddLabelTool(id=ID_executeScript, label="Run Script", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(path, "abc.png")))
+        tb1.AddLabelTool(id=ID_SPELL_CHECK, label="Spelling check", shortHelp="Check spelling", bitmap=wx.Bitmap(os.path.join(path, "abc.png")))
         
 #         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
 #         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
