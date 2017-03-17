@@ -24,6 +24,7 @@ from src.view.connection.GetConnect import CreatingNewConnectionPanel
 from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
     TitledPage
 from src.view.history.HistoryListPanel import HistoryGrid
+from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
 
 # ID_UPDATE_CHECK = wx.NewId()
@@ -155,7 +156,10 @@ class DatabaseMainFrame(wx.Frame):
                           Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
-#         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().
+        self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
+                          Name("schemaViewer").Caption("Schema Viewer").LeftDockable(True).
+                          Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))      
+#         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
@@ -181,6 +185,11 @@ class DatabaseMainFrame(wx.Frame):
     def constructHistoryPane(self):
         historyGrid = HistoryGrid(self)
         return historyGrid
+    
+    def constructSchemaViewerPane(self):
+        svgViewer = SVGViewerPanel(self)
+        return svgViewer
+    
     def constructSqlPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
           
