@@ -1,9 +1,12 @@
 
 class TreeNode(object):
-    
-    def __init__(self, key, val, left=None, right=None, parent=None):
+    '''
+    standard node class.
+    '''
+    def __init__(self, key, val, label=None, left=None, right=None, parent=None):
         self.key = key
         self.payload = val
+        self.label = label
         self.leftChild = left
         self.rightChild = right
         self.parent = parent
@@ -41,6 +44,27 @@ class TreeNode(object):
             self.leftChild.parent = self
         if self.hasRightChild():
             self.rightChild.parent = self
+
+class TreeNodeUtil():            
+    def minDepth(self, root):
+        # Corner Case.Should never be hit unless the code is 
+        # called on root = NULL
+        if root is None:
+            return 0
+         
+        # Base Case : Leaf node.This acoounts for height = 1
+        if root.leftChild is None and root.rightChild is None:
+            return 1
+         
+        # If left subtree is Null, recur for right subtree
+        if root.leftChild is None:
+            return self.minDepth(root.rightChild) + 1
+         
+        # If right subtree is Null , recur for left subtree
+        if root.rightChild is None:
+            return self.minDepth(root.leftChild) + 1
+         
+        return min(self.minDepth(root.leftChild), self.minDepth(root.rightChild)) + 1
                     
 class BinarySearchTree:
 
@@ -208,3 +232,11 @@ if __name__=='__main__':
     print('main')
     binarySearchTree= BinarySearchTree()
     print(binarySearchTree.length())
+    root = TreeNode(0, 'root', label='connections')
+    root.leftChild = TreeNode(1,'child-0', label='con1', parent=root)
+    root.leftChild.rightChild = TreeNode(2, 'child-2', label='con2', parent=root.leftChild)
+#     n3 = TreeNode(3, 'child-3', label='con3', parent=n2)
+#     n3 = TreeNode(3, 'child-3', label='con3', parent=n3)
+    
+    print(TreeNodeUtil().minDepth(root))
+#     print(root.to_dict())

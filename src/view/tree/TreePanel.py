@@ -109,23 +109,11 @@ class CreatingTreePanel(wx.Panel):
         # Catch the search type (name or content)
 #         searchMenu = self.filter.GetMenu().GetMenuItems()
 #         fullSearch = searchMenu[1].IsChecked()
-        fullSearch = False
-            
-        if evt:
-            if fullSearch:
-                # Do not`scan all the demo files for every char
-                # the user input, use wx.EVT_TEXT_ENTER instead
-                return
 
-        expansionState = self.tree.GetExpansionState()
 
-        current = None
-        item = self.tree.GetSelection()
-        if item:
-            prnt = self.tree.GetItemParent(item)
-            if prnt:
-                current = (self.tree.GetItemText(item),
-                           self.tree.GetItemText(prnt))
+
+
+
                     
         self.tree.Freeze()
         self.tree.DeleteAllItems()
@@ -147,11 +135,28 @@ class CreatingTreePanel(wx.Panel):
         catFont.SetWeight(wx.BOLD)
         self.tree.SetItemFont(self.root, treeFont)
         
+#         self.buildChildNode()
+        
+        self.tree.Thaw()
+        self.searchItems = {}
+
+    #---------------------------------------------
+    def buildChildNode(self):
+        fullSearch = False
+            
+
         firstChild = None
         selectItem = None
         filter = self.filter.GetValue()
         count = 0
-        
+        current = None
+        expansionState = self.tree.GetExpansionState()
+        item = self.tree.GetSelection()
+        if item:
+            prnt = self.tree.GetItemParent(item)
+            if prnt:
+                current = (self.tree.GetItemText(item),
+                           self.tree.GetItemText(prnt))        
 
         databaseLeaf = self.tree.AppendItem(self.root, 'database', image=16)
         for category, items in self._treeList[1]:
@@ -175,7 +180,6 @@ class CreatingTreePanel(wx.Panel):
             if items:
 #                 print "2: ", category, count
                 child = self.tree.AppendItem(databaseLeaf, category + ' (' + str(len(items)) + ')', image=count)
-                self.tree.SetItemFont(child, catFont)
                 self.tree.SetItemPyData(child, count)
                 if not firstChild: firstChild = child
                 for childItem in items:
@@ -241,11 +245,8 @@ class CreatingTreePanel(wx.Panel):
         if selectItem:
             self.skipLoad = True
             self.tree.SelectItem(selectItem)
-            self.skipLoad = False
-        
-        self.tree.Thaw()
-        self.searchItems = {}
-
+            self.skipLoad = False        
+    #---------------------------------------------
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
