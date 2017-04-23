@@ -16,7 +16,7 @@ class SQLExecuter():
         home = expanduser("~")
         databasePath = os.path.join(home, database)
         self.conn = sqlite3.connect(databasePath)
-        self.createOpalTables()
+#         self.createOpalTables()
         
     def sqlite_insert(self, table, rows):
         '''
@@ -51,7 +51,7 @@ class SQLExecuter():
         with self.conn:    
             
             cur = self.conn.cursor() 
-            print('before')
+#             print('before')
             cur.execute("SELECT * FROM " + table)
         
             rows = cur.fetchall()
@@ -112,21 +112,36 @@ class SQLExecuter():
     def createOpalTables(self):
         '''
         '''
-        sqlScript='''
+        err = 'success'
+        sqlScript = '''
+        drop table if exists dbms;
+        drop table if exists conns;
         CREATE TABLE  if not exists conns
           (
             id INTEGER PRIMARY KEY,
-            connection_name TEXT,
-            path TEXT,
-            jdbc_driver TEXT,
+            connection_name TEXT UNIQUE,
+            db_file_path TEXT,
+            dbms_id integer not null,
             user_name TEXT,
             password TEXT,
             host TEXT,
             port INTEGER,
             sid TEXT,
             service_name TEXT,
-            created_time REAL DEFAULT (datetime('now', 'localtime'))
+            created_time REAL DEFAULT (datetime('now', 'localtime')),
+            foreign key (dbms_id) references dbms(id)
           );
+          
+        create table if not exists dbms
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            dbms_name text UNIQUE,
+            vendor text,
+            jdbc_driver TEXT,
+            driver_path TEXT,
+            created_time REAL DEFAULT (datetime('now', 'localtime'))
+            
+        );
         CREATE TABLE if not exists sql_log
           (
             id INTEGER PRIMARY KEY AUTOINCREMENT ,
@@ -136,6 +151,19 @@ class SQLExecuter():
             executed INTEGER,
             duration INTEGER
           );
+          
+
+          
+        insert into dbms (dbms_name, vendor) values (  'SQLite','SQLite');
+        insert into dbms (dbms_name, vendor) values (  'Oracle','Oracle');
+        insert into dbms (dbms_name, vendor, jdbc_driver,driver_path) values (  'H2','H2','org.h2.Driver','/lib');
+        insert into dbms (dbms_name, vendor, jdbc_driver,driver_path) values (  'HSQLDB','HSQLDB','org.hsqldb.jdbc.JDBCDriver','/lib');
+        
+        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_1','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_1.sqlite', 1);
+        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_2.sqlite', 1);
+        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_3','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_3.sqlite', 1);
+        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_H2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_4.sqlite', 3);
+        
         '''
         try:
             with self.conn:    
@@ -146,8 +174,10 @@ class SQLExecuter():
 
         except Exception as e:
             print(e)
+            err = e
             self.conn.rollback()
-            raise e
+#             raise e
+        return err
 
     def getObject(self):
     
@@ -223,6 +253,87 @@ class SQLExecuter():
         databaseList.append('database')
         databaseList.append(dbObjects)
         return databaseList
+    
+    def getListDatabase(self):
+        '''
+        This method will return list of database available to connect.
+        assumption , conns and sql_log table will available.
+        
+        '''
+        self.createOpalTables()
+        dbList = self.sqlite_select("conns")
+        return dbList
+
+    def getContectedObject(self, connectionName, databaseAbsolutePath):
+        dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject()
+        return dbObjects
+    
+class ManageSqliteDatabase():
+    def __init__(self, connectionName=None, databaseAbsolutePath=None):
+        '''
+        @param param: connection_name
+        @param param: databaseAbsolutePath
+        '''
+        self.conn = sqlite3.connect(databaseAbsolutePath)
+        self.connectionName = connectionName
+ 
+    def getObject(self):
+        '''
+        Method returns all database object [ table, view, index] from the given sqlite database path
+        '''
+    
+        con = None
+        
+        try:
+#             self.connection = sqlite3.connect('_opal.sqlite')
+            
+            cur = self.conn.cursor()    
+            cur.execute('SELECT SQLITE_VERSION()')
+            
+            data = cur.fetchone()
+            
+            print("SQLite version: %s" % data)   
+            cur.execute("select tbl_name from sqlite_master where type='table';")
+            types = cur.execute("select distinct type from sqlite_master;").fetchall()
+            databaseList = list()
+            dbObjects = list()
+#             print types
+            for t in types:
+#                 print t[0], type(t)
+                tObjectArrayList = list()
+                query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
+                print(query)
+                tObjectList = cur.execute(query).fetchall()
+                tableColumnList = list()
+                for tObj in tObjectList:
+                    if t[0] == 'table' or t[0] == 'index':
+                        tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
+                        print(tableColumnsOrIndexesSql)
+                        tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
+#                         print objChildList
+                        tableColumnsOrIndexes = list()
+                        for objChild in tableColumnsOrIndexesList:
+                            tableColumnsOrIndexes.append(objChild)
+#                             print objChild
+                        tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
+                    if t[0] == 'view':
+                        tableColumnList.append({tObj[0]: []})
+                        print('view')
+
+                dbObjects.append({t[0]: tableColumnList})
+#             print(dbObjects)
+
+        except sqlite3.Error as e:
+            print("Error %s:" % e.args[0])
+            sys.exit(1)
+            
+        finally:
+            
+            if self.conn:
+                self.conn.close()
+        databaseList.append(self.connectionName)
+        databaseList.append(dbObjects)
+        return databaseList        
 if __name__ == "__main__":
     print('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
@@ -232,4 +343,12 @@ if __name__ == "__main__":
 #     sql = "SELECT * FROM albums "
 #     result = sqlExecuter.executeText(text=sql)
 #     print(result)
-    sqlExecuter.createOpalTables()
+    dbList = sqlExecuter.getListDatabase()
+    for db in dbList:
+#         print(db)
+        if db[3] == 1:
+#             print('dbms_id:', db[3], 'sqlite')
+            dbObjects = ManageSqliteDatabase(connectionName=db[1] ,databaseAbsolutePath=db[2]).getObject()
+            print(dbObjects)
+            
+#     print(dbList)

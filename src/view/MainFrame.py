@@ -11,7 +11,7 @@ import wx
 import wx.aui
 import wx.wizard
 import os
-from src.view.TreePanel import CreatingTreePanel
+from src.view.tree.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
 
 from src.view.worksheet.WorksheetPanel import   CreateWorksheetTabPanel
@@ -24,6 +24,9 @@ from src.view.connection.GetConnect import CreatingNewConnectionPanel
 from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
     TitledPage
 from src.view.history.HistoryListPanel import HistoryGrid
+from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
+    TextCtrlAutoComplete
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
 
@@ -65,10 +68,7 @@ class DatabaseMainFrame(wx.Frame):
         try:
             self.createAuiManager()
         except Exception as ex:
-            ex.print_stack_trace()
-#         self.creatingToolbar()
-        
-#         self.creatingTreeCtrl()
+            print(ex)
         self.bindingEvent()
         self._mgr.Update()  
     def creatingTreeCtrl(self):
@@ -94,8 +94,7 @@ class DatabaseMainFrame(wx.Frame):
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
+        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
         tb1.AddLabelTool(id=ID_newConnection, label="New Connection", shortHelp="New Database Connection", bitmap=wx.Bitmap(os.path.join(path, "connect.png")))
         tb1.AddSeparator()
@@ -103,14 +102,81 @@ class DatabaseMainFrame(wx.Frame):
         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Database Connection", bitmap=wx.Bitmap(os.path.join(path, "database_connect.png")))
         tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join(path, "script.png")))
         tb1.AddLabelTool(id=wx.ID_PREFERENCES, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join(path, "preference.png")))
+        
+        
+#         self.combo = wx.ComboBox( tb1, 555, value = "Times", choices = ["Arial","Times","Courier"])  
+#         self.ch = wx.Choice(tb1, -1, (100, 50), choices = ['zero', 'one', 'two'])
+#         textCtrlAutoComplete=wx.TextCtrl(tb1)
+        ###################################################################################################
+        args = {}
+        if True:
+            args["colNames"] = ("col1", "col2")
+            args["multiChoices"] = [ ("Zoey","WOW"), ("Alpha", "wxPython"),
+                                    ("Ceda","Is"), ("Beta", "fantastic"),
+                                    ("zoebob", "!!")]
+            args["colFetch"] = 1
+        else:
+            args["choices"] = ["123", "cs", "cds", "Bob","Marley","Alpha"]
+        args["selectCallback"] = self.selectCallback   
+        self.dynamic_choices = list()
+        sqlExecuter=SQLExecuter()
+        dbList = sqlExecuter.getListDatabase()  
+        for db in dbList:
+            self.dynamic_choices.append(db[1])
+           
+#         self.dynamic_choices = [
+#                 'aardvark', 'abandon', 'acorn', 'acute', 'adore',
+#                 'aegis', 'ascertain', 'asteroid',
+#                 'beautiful', 'bold', 'classic',
+#                 'daring', 'dazzling', 'debonair', 'definitive',
+#                 'effective', 'elegant',
+#                 'http://python.org', 'http://www.google.com',
+#                 'fabulous', 'fantastic', 'friendly', 'forgiving', 'feature',
+#                 'sage', 'scarlet', 'scenic', 'seaside', 'showpiece', 'spiffy',
+#                 'www.wxPython.org', 'www.osafoundation.org'
+#                 ]
+        self._ctrl = TextCtrlAutoComplete(tb1, **args)
+        print('size------------->',self._ctrl.GetSize())
+        self._ctrl.SetSize((200, 30))
+        print('size------------->',self._ctrl.GetSize())
+        self._ctrl.SetChoices(self.dynamic_choices)
+        self._ctrl.SetEntryCallback(self.setDynamicChoices)
+        self._ctrl.SetMatchFunction(self.match)
+        tb1.AddControl(self._ctrl) 
+        ###################################################################################################
+#         tb1.AddControl( self.choice ) 
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
+#         tb1.AddLabelTool(103, "Test"t1 = wx.TextCtrl(self, -1, "Test it out and see", size=(125, -1)), wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         tb1.Realize()
         
         return tb1
 
-    
+    def selectCallback(self, values):
+        """ Simply function that receive the row values when the
+            user select an item
+        """
+        print "Select Callback called...:",  values
+        
+    def setDynamicChoices(self):
+        ctrl = self._ctrl
+        text = ctrl.GetValue().lower()
+        current_choices = ctrl.GetChoices()
+        choices = [choice for choice in self.dynamic_choices if self.match(text, choice)]
+        if choices != current_choices:
+            ctrl.SetChoices(choices)
+    def match(self, text, choice):
+        '''
+        Demonstrate "smart" matching feature, by ignoring http:// and www. when doing
+        matches.
+        '''
+        t = text.lower()
+        c = choice.lower()
+        if c.startswith(t): return True
+        if c.startswith(r'http://'): c = c[7:]
+        if c.startswith(t): return True
+        if c.startswith('www.'): c = c[4:]
+        return c.startswith(t)    
     def createAuiManager(self):
         print('createAuiManager')
         # tell FrameManager to manage this frame

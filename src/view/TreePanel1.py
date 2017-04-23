@@ -13,6 +13,7 @@ from src.view.images import catalog, images
 from src.view.Constant import ID_newWorksheet, keyMap
 from src.view.table.CreateTable import CreatingTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+import json
 
 
 _demoPngs = ["database", "table", "view", "indexs", "moredialog", "core",
@@ -59,6 +60,8 @@ class CreatingTreePanel(wx.Panel):
         ####################################################################
         sqlExecuter = SQLExecuter()
         self._treeList = sqlExecuter.getObject()
+        from pprint import pprint
+        pprint(self._treeList)
 #         self._treeList=_treeList
         self.treeMap = {}
         self.searchItems = {}
@@ -117,6 +120,21 @@ class CreatingTreePanel(wx.Panel):
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
 
+
+                    
+        self.createNodes()
+                    
+        self.tree.Expand(self.root)
+
+        
+        self.tree.Thaw()
+        self.searchItems = {}
+
+    
+    #---------------------------------------------
+    def createNodes(self):
+        print("TreePanel.createNodes")
+        fullSearch = False
         expansionState = self.tree.GetExpansionState()
 
         current = None
@@ -126,7 +144,6 @@ class CreatingTreePanel(wx.Panel):
             if prnt:
                 current = (self.tree.GetItemText(item),
                            self.tree.GetItemText(prnt))
-                    
         self.tree.Freeze()
         self.tree.DeleteAllItems()
         self.root = self.tree.AddRoot("Connections")
@@ -229,9 +246,8 @@ class CreatingTreePanel(wx.Panel):
                             if current and (childItem, category) == current:
                                 selectItem = columnsNode
                     except Exception as e:
-                        print(e)
-                    
-        self.tree.Expand(self.root)
+                        print(e)    
+
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:
@@ -241,11 +257,7 @@ class CreatingTreePanel(wx.Panel):
         if selectItem:
             self.skipLoad = True
             self.tree.SelectItem(selectItem)
-            self.skipLoad = False
-        
-        self.tree.Thaw()
-        self.searchItems = {}
-
+            self.skipLoad = False    
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
@@ -393,8 +405,11 @@ class CreatingTreePanel(wx.Panel):
         self.PopupMenu(menu)
         menu.Destroy() 
     
-    def OnItemBackground(self):
+    def OnItemBackground(self, event):
         print('OnItemBackground')
+        pt = event.GetPosition();
+        item, flags = self.tree.HitTest(pt)
+        self.tree.EditLabel(item)
     def onNewTable(self, event):
         print('onNewTable')
         tableFrame = CreatingTableFrame(None, 'Table creation')
