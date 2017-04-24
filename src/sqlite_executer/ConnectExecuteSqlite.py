@@ -84,27 +84,32 @@ class SQLExecuter():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
+        error='success'
         sqlOutput = dict()
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
 #                 print('before')
-                rows = cur.execute(text).fetchall()
-                print(rows)
-                print(cur.description) 
-#                 print(rows)
-                if cur.description:
-                    headerList = list()
-                    for idx, desc in enumerate(cur.description):
-    #                     print(idx, desc)
-                        headerList.append(desc[0])
-                    sqlOutput[0] = tuple(headerList)
-                    for idx, item in enumerate(rows):
-                        sqlOutput[idx + 1] = item
+                if text.strip().lower().startswith('update'):
+                    cur.execute(text)
+                else:
+                    rows = cur.execute(text).fetchall()
+                    print(rows)
+                    print(cur.description) 
+    #                 print(rows)
+                    if cur.description:
+                        headerList = list()
+                        for idx, desc in enumerate(cur.description):
+        #                     print(idx, desc)
+                            headerList.append(desc[0])
+                        sqlOutput[0] = tuple(headerList)
+                        for idx, item in enumerate(rows):
+                            sqlOutput[idx + 1] = item
         except Exception as e:
             print(e)
+            error=e
             self.conn.rollback()
-            raise e
+#             raise e
 #         print(sqlOutput)
         return sqlOutput
     
@@ -268,12 +273,19 @@ class SQLExecuter():
         dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject()
         return dbObjects
     
+    def getDbFilePath(self, connectionName=None):
+        sqlScript="select db_file_path from conns where connection_name= '"+connectionName+"'"
+        cur = self.conn.cursor()   
+        rows = cur.executescript(sqlScript).fetchall()
+        return rows
+    
 class ManageSqliteDatabase():
     def __init__(self, connectionName=None, databaseAbsolutePath=None):
         '''
         @param param: connection_name
         @param param: databaseAbsolutePath
         '''
+#         databaseAbsolutePath=os.path.abspath(databaseAbsolutePath)
         self.conn = sqlite3.connect(databaseAbsolutePath)
         self.connectionName = connectionName
  
@@ -334,6 +346,102 @@ class ManageSqliteDatabase():
         databaseList.append(self.connectionName)
         databaseList.append(dbObjects)
         return databaseList        
+
+    def executeText(self, text=None):
+        ''' This method takes input text to execute in database.
+        returns output as dict
+        '''
+        error='success'
+        sqlOutput = dict()
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+#                 print('before')
+                if text.strip().lower().startswith('update'):
+                    cur.execute(text)
+                else:
+                    rows = cur.execute(text).fetchall()
+                    print(rows)
+                    print(cur.description) 
+    #                 print(rows)
+                    if cur.description:
+                        headerList = list()
+                        for idx, desc in enumerate(cur.description):
+        #                     print(idx, desc)
+                            headerList.append(desc[0])
+                        sqlOutput[0] = tuple(headerList)
+                        for idx, item in enumerate(rows):
+                            sqlOutput[idx + 1] = item
+        except Exception as e:
+            print(e)
+            error=e
+            self.conn.rollback()
+#             raise e
+#         print(sqlOutput)
+        return sqlOutput
+    
+    def sqlite_insert(self, table, rows):
+        '''
+        @param table: table name 
+        @param rows: list of row dictionary of column values
+        '''
+        for row in rows:
+            cols = ', '.join('"{}"'.format(col) for col in row.keys())
+            vals = ', '.join(':{}'.format(col) for col in row.keys())
+            sql = 'INSERT INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
+            
+            self.conn.cursor().execute(sql, row)
+        self.conn.commit()
+        
+    def sqlite_insert_or_update(self, table, rows):
+        try:
+            for row in rows:
+                cols = ', '.join('"{}"'.format(col) for col in row.keys())
+                vals = ', '.join(':{}'.format(col) for col in row.keys())
+                sql = 'INSERT OR REPLACE INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
+                self.conn.cursor().execute(sql, row)
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+    
+    def sqlite_select(self, table):
+        
+        returnRows = list()
+        with self.conn:    
+            
+            cur = self.conn.cursor() 
+#             print('before')
+            cur.execute("SELECT * FROM " + table)
+        
+            rows = cur.fetchall()
+            
+            for row in rows:
+                returnRows.append(row)
+        return returnRows
+    
+    def getColumn(self, tableName=None):
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                sql = "SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '" + tableName + "';"
+                rows = cur.execute(sql).fetchall()
+                tableCreateStmt = rows[0][1]
+                match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)
+                columns = set(match)
+                if columns:
+                    print(columns)
+#                 tableCreateStmt.replace(/^[^\(]+\(([^\)]+)\)/g, '$1').split(',')
+#                 print(rows)
+#                 for idx, item in enumerate(rows):
+#                     print(item)
+        except Exception as e:
+            print(e)
+            self.conn.rollback()
+            raise e    
+    
 if __name__ == "__main__":
     print('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
