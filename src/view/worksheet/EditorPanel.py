@@ -841,6 +841,14 @@ class CreatingEditorPanel(wx.Panel):
         self.sstc = SqlStyleTextCtrl(self, -1)
         self.sstc.initKeyShortCut()
         self.sstc.SetText(demoText)
+#---------------------------------------------------------------------------
+if __name__ == '__main__':
+    app = wx.App(False)
+    frame = wx.Frame(None)
+    panel = CreatingEditorPanel(frame)
+    frame.Show()
+    app.MainLoop()
+
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
         self.sstc.SetBestFittingSize(wx.Size(400, 400))
@@ -853,10 +861,3 @@ class CreatingEditorPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
-#---------------------------------------------------------------------------
-if __name__ == '__main__':
-    app = wx.App(False)
-    frame = wx.Frame(None)
-    panel = CreatingEditorPanel(frame)
-    frame.Show()
-    app.MainLoop()
