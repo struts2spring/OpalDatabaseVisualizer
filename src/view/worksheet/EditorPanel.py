@@ -782,20 +782,21 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         endTime=time.time()
         print('duration',endTime-startTime)
         duration=endTime-startTime
-        self.updateSqlLog(sqlText, duration)
+        if selectedItemText:
+            self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
 
         creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
         resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-        if sqlOutput:
-            resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+#         if sqlOutput:
+        resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
         # TODO Update update sql log history grid
         
-    def updateSqlLog(self, sqlText, duration):
+    def updateSqlLog(self, sqlText, duration,connectionName=None):
         print('updating sql log', sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         table = 'sql_log'
-        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':'connection name', 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
+        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
         
     def refreshSqlLogUi(self):
