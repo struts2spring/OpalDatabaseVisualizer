@@ -16,7 +16,8 @@ from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
-from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
+    ManageSqliteDatabase
 from datetime import date, datetime
 import time
 # from src.format_sql.shortcuts import Beautify
@@ -761,15 +762,23 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if self.GetSelectedText() == '' or self.GetSelectedText() == None:
             sqlText, column = self.GetCurLine()
         
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        textCtrl=self.GetTopLevelParent()._ctrl
+        selectedItemText=textCtrl.GetValue()
+        dbFilePath=sqlExecuter.getDbFilePath(selectedItemText)
+        print(dbFilePath)
+        
+        ##################################################################################
         print('executeSQL' , sqlText)
         sqlOutput=None
         startTime=time.time()
         try:
-            sqlExecuter = SQLExecuter(database='_opal.sqlite')
-            sqlOutput = sqlExecuter.executeText(sqlText)
+            manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
+            sqlOutput = manageSqliteDatabase.executeText(sqlText)
             print(sqlOutput)
-        except:
-            pass
+        except Exception as e:
+            print(e)
         endTime=time.time()
         print('duration',endTime-startTime)
         duration=endTime-startTime
@@ -841,14 +850,6 @@ class CreatingEditorPanel(wx.Panel):
         self.sstc = SqlStyleTextCtrl(self, -1)
         self.sstc.initKeyShortCut()
         self.sstc.SetText(demoText)
-#---------------------------------------------------------------------------
-if __name__ == '__main__':
-    app = wx.App(False)
-    frame = wx.Frame(None)
-    panel = CreatingEditorPanel(frame)
-    frame.Show()
-    app.MainLoop()
-
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
         self.sstc.SetBestFittingSize(wx.Size(400, 400))
@@ -861,3 +862,10 @@ if __name__ == '__main__':
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+#---------------------------------------------------------------------------
+if __name__ == '__main__':
+    app = wx.App(False)
+    frame = wx.Frame(None)
+    panel = CreatingEditorPanel(frame)
+    frame.Show()
+    app.MainLoop()

@@ -15,6 +15,9 @@ class SQLExecuter():
     def __init__(self, database='_opal.sqlite'):
         home = expanduser("~")
         databasePath = os.path.join(home, database)
+        print("===================================================================================")
+        print(databasePath)
+        print("===================================================================================")
         self.conn = sqlite3.connect(databasePath)
 #         self.createOpalTables()
         
@@ -276,8 +279,11 @@ class SQLExecuter():
     def getDbFilePath(self, connectionName=None):
         sqlScript="select db_file_path from conns where connection_name= '"+connectionName+"'"
         cur = self.conn.cursor()   
-        rows = cur.executescript(sqlScript).fetchall()
-        return rows
+        rows = cur.execute(sqlScript).fetchone()
+        dbFilePath=None
+        if rows:
+            dbFilePath=rows[0]
+        return dbFilePath
     
 class ManageSqliteDatabase():
     def __init__(self, connectionName=None, databaseAbsolutePath=None):
@@ -446,6 +452,7 @@ if __name__ == "__main__":
     print('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
+    sqlExecuter.getDbFilePath('database_sqlite_1')
 #     tableName = 'albums'
 #     sqlExecuter.getColumn(tableName)
 #     sql = "SELECT * FROM albums "
