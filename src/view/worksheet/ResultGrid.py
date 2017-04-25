@@ -230,41 +230,49 @@ class ResultDataGrid(gridlib.Grid):
 #         print(self.GetRowSizes())
 #         print(self.GetColSizes())
         self.ClearGrid()
-        print('rows:', self.GetNumberRows())
-        print('cols:', self.GetNumberCols())
-#         self.DeleteRows()
-        currentRows,currentCols = (self.GetNumberRows(), self.GetNumberCols())
-        newRows = len(data) - 1
-        newCols = len(data[0])
-#         self.AppendRows(numRows=len(data)-1, updateLabels=True)   
-#         if len(data) > 0 :
-#             self.AppendCols(numCols=len(data[0]), updateLabels=True)  
-        if newRows < currentRows:
-            # - Delete rows:
-            self.DeleteRows(0, currentRows - newRows, True)
-
-        if newRows > currentRows:
-            # - append currentRows:
-            self.AppendRows(newRows - currentRows)
-            
-            
-        if newCols < currentCols:
-            # - Delete rows:
-            self.DeleteCols(pos=0, numCols=currentCols - newCols, updateLabels=True)
-
-        if newCols > currentCols:
-            # - append currentRows:
-            self.AppendCols(newCols - currentCols)
         
-
-        for dataKey, dataValue in data.items():
-            print(dataKey, dataValue)
-            for idx, colValue in enumerate(dataValue):
-#                 print(idx, dataValue)
-                if dataKey == 0:
-                    self.SetColLabelValue(idx, str(colValue))
-                else:
-                    self.SetCellValue(dataKey - 1, idx, str(colValue))
+        if data and len(data)>0:
+            print('rows:', self.GetNumberRows())
+            print('cols:', self.GetNumberCols())
+    #         self.DeleteRows()
+            currentRows,currentCols = (self.GetNumberRows(), self.GetNumberCols())
+            newRows = len(data) - 1
+            newCols = len(data[0])
+    #         self.AppendRows(numRows=len(data)-1, updateLabels=True)   
+    #         if len(data) > 0 :
+    #             self.AppendCols(numCols=len(data[0]), updateLabels=True)  
+            if newRows < currentRows:
+                # - Delete rows:
+                self.DeleteRows(0, currentRows - newRows, True)
+    
+            if newRows > currentRows:
+                # - append currentRows:
+                self.AppendRows(newRows - currentRows)
+                
+                
+            if newCols < currentCols:
+                # - Delete rows:
+                self.DeleteCols(pos=0, numCols=currentCols - newCols, updateLabels=True)
+    
+            if newCols > currentCols:
+                # - append currentRows:
+                self.AppendCols(newCols - currentCols)
+            
+    
+            for dataKey, dataValue in data.items():
+                print(dataKey, dataValue)
+                for idx, colValue in enumerate(dataValue):
+    #                 print(idx, dataValue)
+                    if dataKey == 0:
+                        self.SetColLabelValue(idx, str(colValue))
+                    else:
+                        self.SetCellValue(dataKey - 1, idx, str(colValue))
+        else:
+            numCols=self.GetNumberCols()
+            numRows=self.GetNumberRows()
+            self.DeleteCols(pos=0,numCols=numCols, updateLabels=True)
+            self.DeleteRows(pos=0,numRows=numRows, updateLabels=True)
+            
         self.Refresh()
 #         self.SetColSize(0, 150)
 #         self.SetColSize(1, 150)
