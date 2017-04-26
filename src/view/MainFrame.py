@@ -5,7 +5,7 @@ Created on 11-Dec-2016
 @author: vijay
 '''
 
-
+　
 import wx
 
 import wx.aui
@@ -29,7 +29,7 @@ from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
-
+　
 # ID_UPDATE_CHECK = wx.NewId()
 # ID_newConnection = wx.NewId()
 # ID_openConnection = wx.NewId()
@@ -37,8 +37,8 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # ID_preferences = wx.NewId()
 #---------------------------------------------------------------------------
 
-
-
+　
+　
 class DatabaseMainFrame(wx.Frame):
 
     def __init__(self, parent):
@@ -75,7 +75,7 @@ class DatabaseMainFrame(wx.Frame):
         # Create a TreeCtrl
         treePanel = CreatingTreePanel(self)
 
-
+　
         return treePanel
     #---------------------------------------------    
 
@@ -103,10 +103,6 @@ class DatabaseMainFrame(wx.Frame):
         tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join(path, "script.png")))
         tb1.AddLabelTool(id=wx.ID_PREFERENCES, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join(path, "preference.png")))
         
-        
-#         self.combo = wx.ComboBox( tb1, 555, value = "Times", choices = ["Arial","Times","Courier"])  
-#         self.ch = wx.Choice(tb1, -1, (100, 50), choices = ['zero', 'one', 'two'])
-#         textCtrlAutoComplete=wx.TextCtrl(tb1)
         ###################################################################################################
         args = {}
         if True:
@@ -137,7 +133,7 @@ class DatabaseMainFrame(wx.Frame):
 #                 ]
         self._ctrl = TextCtrlAutoComplete(tb1, **args)
         print('size------------->',self._ctrl.GetSize())
-        self._ctrl.SetSize((200, 30))
+        self._ctrl.SetSize((200, 25))
         print('size------------->',self._ctrl.GetSize())
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.setDynamicChoices)
@@ -156,7 +152,7 @@ class DatabaseMainFrame(wx.Frame):
         """ Simply function that receive the row values when the
             user select an item
         """
-        print "Select Callback called...:",  values
+        print("Select Callback called...:",  values)
         
     def setDynamicChoices(self):
         ctrl = self._ctrl
@@ -452,7 +448,7 @@ class SizeReportCtrl(wx.PyControl):
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
-
+　
     def OnPaint(self, event):
 
         dc = wx.PaintDC(self)
@@ -491,19 +487,19 @@ class SizeReportCtrl(wx.PyControl):
             w, h = dc.GetTextExtent(s)
             dc.DrawText(s, (size.x - w) / 2, ((size.y - (height * 5)) / 2) + (height * 4))
 
-
+　
     def OnEraseBackground(self, event):
         # intentionally empty
         pass
 
-
+　
     def OnSize(self, event):
 
         self.Refresh()
         event.Skip()
         
 
-
+　
 if __name__ == "__main__":
     app = wx.App()
     frame = DatabaseMainFrame(None)
