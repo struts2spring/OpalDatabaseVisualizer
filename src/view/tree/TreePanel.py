@@ -8,23 +8,11 @@ import wx
 import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
-from src.view.images import catalog, images
-# from src.connect.sqlite.Connect import ConnectSqlite
 from src.view.Constant import ID_newWorksheet, keyMap, ID_CONNECT_DB,\
-    ID_DISCONNECT_DB
+    ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH
 from src.view.table.CreateTable import CreatingTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
     ManageSqliteDatabase
-import json
-import pprint
-
-
-_demoPngs = ["database", "table", "view", "indexs", "moredialog", "core",
-     "book", "customcontrol", "morecontrols", "layout", "process",
-     "clipboard", "images", "miscellaneous"]
-
-_treeList = [(u'table', [[u'author', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'author_name', u'VARCHAR', 1, None, 0), (2, u'about_author', u'VARCHAR', 0, None, 0), (3, u'email', u'VARCHAR', 0, None, 0), (4, u'created_on', u'DATETIME', 0, None, 0)]], [u'author_book_link', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'book_id', u'INTEGER', 0, None, 0), (2, u'author_id', u'INTEGER', 0, None, 0), (3, u'created_on', u'DATETIME', 0, None, 0)]], [u'book', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'book_name', u'VARCHAR', 1, None, 0), (2, u'sub_title', u'VARCHAR', 0, None, 0), (3, u'isbn_10', u'VARCHAR', 0, None, 0), (4, u'isbn_13', u'VARCHAR', 0, None, 0), (5, u'series', u'VARCHAR', 0, None, 0), (6, u'dimension', u'VARCHAR', 0, None, 0), (7, u'customer_review', u'VARCHAR', 0, None, 0), (8, u'book_description', u'VARCHAR', 0, None, 0), (9, u'edition_no', u'VARCHAR', 0, None, 0), (10, u'publisher', u'TEXT', 0, None, 0), (11, u'book_format', u'VARCHAR', 0, None, 0), (12, u'in_language', u'VARCHAR', 0, None, 0), (13, u'published_on', u'DATETIME', 0, None, 0), (14, u'has_cover', u'VARCHAR', 0, None, 0), (15, u'has_code', u'VARCHAR', 0, None, 0), (16, u'book_path', u'VARCHAR', 0, None, 0), (17, u'rating', u'VARCHAR', 0, None, 0), (18, u'uuid', u'VARCHAR', 0, None, 0), (19, u'tag', u'VARCHAR', 0, None, 0), (20, u'book_file_name', u'VARCHAR', 0, None, 0), (21, u'book_img_name', u'VARCHAR', 0, None, 0), (22, u'wish_listed', u'VARCHAR', 0, None, 0), (23, u'itEbookUrlNumber', u'VARCHAR', 0, None, 0), (24, u'created_on', u'DATETIME', 0, None, 0)]], [u'book_format', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'file_name', u'VARCHAR', 0, None, 0), (2, u'file_type', u'VARCHAR', 1, None, 0), (3, u'file_size', u'VARCHAR', 0, None, 0), (4, u'created_on', u'DATETIME', 0, None, 0)]], [u'book_format_link', [(0, u'id', u'INTEGER', 1, None, 1), (1, u'book_format_id', u'INTEGER', 0, None, 0), (2, u'book_id', u'INTEGER', 0, None, 0), (3, u'created_on', u'DATETIME', 0, None, 0)]]]), (u'index', [[u'author', []], [u'book', []]]), (u'view', [[u'book_author', []]])]
-
 
 class CreatingTreePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -36,8 +24,6 @@ class CreatingTreePanel(wx.Panel):
         ####################################################################
         sqlExecuter = SQLExecuter()
         self._treeList = sqlExecuter.getObject()
-#         pprint(self._treeList)
-#         self._treeList=_treeList
         self.treeMap = {}
         self.searchItems = {}
         self.tree = databaseNavigationTree(self)
@@ -95,7 +81,7 @@ class CreatingTreePanel(wx.Panel):
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
 
-
+　
                     
         self.createDefaultNode()
                     
@@ -127,7 +113,9 @@ class CreatingTreePanel(wx.Panel):
         self.tree.DeleteAllItems()
         self.root = self.tree.AddRoot("Connections")
         self.tree.SetItemImage(self.root, 0)
-        self.tree.SetItemPyData(self.root, 0)
+        data=dict()
+        data['depth']=0
+        self.tree.SetItemPyData(self.root, data)
         treeFont = self.tree.GetFont()
         catFont = self.tree.GetFont()
 
@@ -161,8 +149,8 @@ class CreatingTreePanel(wx.Panel):
             # Appending connections
             self.addNode(targetNode=self.root, nodeLabel=db[1],pydata=data, image=image)
 
-
-
+　
+　
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:
@@ -239,42 +227,20 @@ class CreatingTreePanel(wx.Panel):
             event.Skip()
             return
         print('OnTreeRightUp')
-#         if not self.tree.IsItemEnabled(item):
-#             event.Skip()
-#             return
 
-#         # Item Text Appearance
-#         ishtml = self.tree.IsItemHyperText(item)
-#         back = self.tree.GetItemBackgroundColour(item)
-#         fore = self.tree.GetItemTextColour(item)
-#         isbold = self.tree.IsBold(item)
-#         font = self.tree.GetItemFont(item)          
-
-#         self.popupID1 = wx.NewId()
-#         self.popupID2 = wx.NewId()
-#         self.popupID3 = wx.NewId()
-#         self.popupID4 = wx.NewId()
-#         self.popupID5 = wx.NewId()
-#         self.popupID6 = wx.NewId()
-#         self.popupID7 = wx.NewId()
-#         self.popupID8 = wx.NewId()
-#         self.popupID9 = wx.NewId()
-# 
-#         self.Bind(wx.EVT_MENU, self.OnPopupOne, id=self.popupID1)
-#         self.Bind(wx.EVT_MENU, self.OnPopupTwo, id=self.popupID2)
-#         self.Bind(wx.EVT_MENU, self.OnPopupThree, id=self.popupID3)
-#         self.Bind(wx.EVT_MENU, self.OnPopupFour, id=self.popupID4)
-#         self.Bind(wx.EVT_MENU, self.OnPopupFive, id=self.popupID5)
-#         self.Bind(wx.EVT_MENU, self.OnPopupSix, id=self.popupID6)
-#         self.Bind(wx.EVT_MENU, self.OnPopupSeven, id=self.popupID7)
-#         self.Bind(wx.EVT_MENU, self.OnPopupEight, id=self.popupID8)
-#         self.Bind(wx.EVT_MENU, self.OnPopupNine, id=self.popupID9)
         
         menu = wx.Menu()
         data=self.tree.GetPyData(item)
         rightClickDepth=data['depth']
         if rightClickDepth == 0:
-            item1 = menu.Append(wx.ID_ANY, "Refresh \tF5")
+            rootNewConnection = menu.Append(ID_ROOT_NEW_CONNECTION, "New connection ")
+            
+            refreshBmp = wx.MenuItem(menu, ID_ROOT_REFERESH, "&Refresh")
+            refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
+            rootRefresh = menu.AppendItem(refreshBmp)
+            
+            self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
+            self.Bind(wx.EVT_MENU, self.onRootNewConnection, rootNewConnection)
         elif rightClickDepth == 1:
             item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
             item2 = menu.Append(ID_CONNECT_DB, "Connect")
@@ -303,6 +269,7 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
+
             
 
         elif rightClickDepth == 2:
@@ -337,6 +304,10 @@ class CreatingTreePanel(wx.Panel):
         self.PopupMenu(menu)
         menu.Destroy() 
     
+    def onRootRefresh(self, event):
+        print('onRootRefresh')
+    def onRootNewConnection(self, event):
+        print('onRootNewConnection')
     def OnItemBackground(self, event):
         print('OnItemBackground')
         pt = event.GetPosition();
@@ -401,9 +372,7 @@ class CreatingTreePanel(wx.Panel):
         connectionName=data['connection_name']
         databaseAbsolutePath=data['db_file_path']
         dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject()
-#         pprint(dbObjects)
-#         for category, items in dbObjects:
-#             print(category)
+
         for dbObject in dbObjects[1]:
             for k0,v0 in dbObject.iteritems():
                 print(k0,v0)
@@ -461,66 +430,6 @@ class CreatingTreePanel(wx.Panel):
                                     image=18
                                 child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
                                 print(v2)
-#             child = self.tree.AppendItem(selectedItemId, dbObjects + ' (' + str(len(items)) + ')', image=count)
-#         self.tree.SetItemFont(child, catFont)
-#         self.tree.SetItemPyData(child, count)
-#         if not firstChild: firstChild = child
-#         for childItem in items:
-#             imageCount = count
-# #                     if DoesModifiedExist(childItem):
-# #                         image = len(_demoPngs)
-# #                     print "3: ", category, childItem, count
-#             if 'table' in category :
-#                 imageCount = 4
-#             elif 'index' in category :
-#                 imageCount = 5
-#             elif 'view' in category :
-#                 imageCount = 6
-#             try:
-#                 if type(childItem) == list:
-#                     tableNameNode = self.tree.AppendItem(child, childItem[0], image=imageCount)
-#                     self.tree.SetItemPyData(tableNameNode, count)
-#                     
-#                     if 'table' in category :
-#                         imageCount = 11
-#                         columnsNode = self.tree.AppendItem(tableNameNode, 'Columns', image=imageCount)
-#                         self.tree.SetItemPyData(columnsNode, count)
-#                         imageCount = 11
-#                         uniqueKeysNode = self.tree.AppendItem(tableNameNode, 'Unique Keys', image=imageCount)
-#                         self.tree.SetItemPyData(uniqueKeysNode, count)
-#                         imageCount = 11
-#                         foreignKeyNode = self.tree.AppendItem(tableNameNode, 'Foreign Keys', image=imageCount)
-#                         self.tree.SetItemPyData(foreignKeyNode, count)
-#                         imageCount = 11
-#                         referencesNode = self.tree.AppendItem(tableNameNode, 'References', image=imageCount)
-#                         self.tree.SetItemPyData(referencesNode, count)
-#                         
-#                     secondLevelItems = childItem[1]
-#                     for secondLevelChild in secondLevelItems:  
-#                         if 'table' in category :
-# #                                     print 'secondLevelChild:', secondLevelChild
-#                             if secondLevelChild[5] == 1:
-#                                 imageCount = 9
-#                             if secondLevelChild[2] == 'VARCHAR':
-#                                 imageCount = 8
-#                             if secondLevelChild[2] == 'VARCHAR':
-#                                 imageCount = 8
-#                             if secondLevelChild[2] == 'INTEGER' and secondLevelChild[5] == 0:
-#                                 imageCount = 8
-#                             if secondLevelChild[2] == 'DATETIME':
-#                                 imageCount = 14
-#                         secondLevelChildItem = self.tree.AppendItem(columnsNode, secondLevelChild[1], image=imageCount)
-#                         self.tree.SetItemPyData(secondLevelChildItem, count)
-#                     self.treeMap[childItem[0]] = tableNameNode
-#                     
-#                     if current and (childItem, category) == current:
-#                         selectItem = columnsNode
-#             except Exception as e:
-#                 print(e)   
-#         self.addNode()
-#         child = self.tree.AppendItem(databaseLeaf, category + ' (' + str(len(items)) + ')', image=count)
-#         self.tree.SetItemFont(child, catFont)
-#         self.tree.SetItemPyData(child, count)
         
 class databaseNavigationTree(ExpansionState, TreeCtrl):
     '''
