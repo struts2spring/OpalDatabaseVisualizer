@@ -23,7 +23,7 @@ import time
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
-
+　
 #----------------------------------------------------------------------
 keylist = {
     'DOWN'  :stc.STC_KEY_DOWN,
@@ -91,7 +91,7 @@ else:
               'size2': 10,
              }
 
-
+　
 #----------------------------------------------------------------------
 
 class SqlStyleTextCtrl(stc.StyledTextCtrl):
@@ -532,8 +532,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
             lineNum = lineNum + 1
 
-
-
+　
+　
     def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
         lastChild = self.GetLastChild(line, level)
         line = line + 1
@@ -767,29 +767,37 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         textCtrl=self.GetTopLevelParent()._ctrl
         selectedItemText=textCtrl.GetValue()
         dbFilePath=sqlExecuter.getDbFilePath(selectedItemText)
-        print(dbFilePath)
+        print("dbFilePath:",dbFilePath)
         
         ##################################################################################
-        print('executeSQL' , sqlText)
-        sqlOutput=None
-        startTime=time.time()
-        try:
-            manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
-            sqlOutput = manageSqliteDatabase.executeText(sqlText)
-            print(sqlOutput)
-        except Exception as e:
-            print(e)
-        endTime=time.time()
-        print('duration',endTime-startTime)
-        duration=endTime-startTime
-        if selectedItemText:
-            self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
-
-        creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
-        creatingWorksheetPanel.setResultData(data=sqlOutput)
-        resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-#         if sqlOutput:
-        resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+        print('executeSQL:' , sqlText)
+        if os.path.isfile(dbFilePath):
+            sqlOutput=None
+            startTime=time.time()
+            try:
+                manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
+                sqlOutput = manageSqliteDatabase.executeText(sqlText)
+                print(sqlOutput)
+            except Exception as e:
+                print(e)
+            endTime=time.time()
+            print('duration:',endTime-startTime)
+            duration=endTime-startTime
+            if selectedItemText:
+                self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
+    
+            creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
+            creatingWorksheetPanel.setResultData(data=sqlOutput)
+            resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
+    #         if sqlOutput:
+            resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+        else:
+            updateStatus="Unable to connect '"+dbFilePath +".' No such file. "
+            font = self.GetTopLevelParent().statusbar.GetFont() 
+            font.SetWeight(wx.BOLD) 
+            self.GetTopLevelParent().statusbar.SetFont(font) 
+            self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
+            self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
         # TODO Update update sql log history grid
         
     def updateSqlLog(self, sqlText, duration,connectionName=None):
