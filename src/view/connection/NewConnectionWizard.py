@@ -174,6 +174,9 @@ class CreateNewConncetionWixard():
     
         if wizard.RunWizard(page1):
             print("Success")
+            selectedItem=page1.tree.GetSelection()
+            print(page1.tree.GetItemText(selectedItem))
+            print(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
     
         wizard.Destroy()        
      
