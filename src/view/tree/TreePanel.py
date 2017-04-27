@@ -81,7 +81,7 @@ class CreatingTreePanel(wx.Panel):
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
 
-　
+
                     
         self.createDefaultNode()
                     
@@ -149,8 +149,8 @@ class CreatingTreePanel(wx.Panel):
             # Appending connections
             self.addNode(targetNode=self.root, nodeLabel=db[1],pydata=data, image=image)
 
-　
-　
+
+
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:

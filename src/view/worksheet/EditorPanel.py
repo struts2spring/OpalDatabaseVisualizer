@@ -23,7 +23,7 @@ import time
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
-　
+
 #----------------------------------------------------------------------
 keylist = {
     'DOWN'  :stc.STC_KEY_DOWN,
@@ -91,7 +91,7 @@ else:
               'size2': 10,
              }
 
-　
+
 #----------------------------------------------------------------------
 
 class SqlStyleTextCtrl(stc.StyledTextCtrl):
@@ -532,8 +532,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
             lineNum = lineNum + 1
 
-　
-　
+
+
     def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
         lastChild = self.GetLastChild(line, level)
         line = line + 1
