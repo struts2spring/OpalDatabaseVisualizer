@@ -87,7 +87,7 @@ class SQLExecuter():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
-        error='success'
+        error = 'success'
         sqlOutput = dict()
         try:
             with self.conn:    
@@ -110,7 +110,7 @@ class SQLExecuter():
                             sqlOutput[idx + 1] = item
         except Exception as e:
             print(e)
-            error=e
+            error = e
             self.conn.rollback()
 #             raise e
 #         print(sqlOutput)
@@ -187,6 +187,18 @@ class SQLExecuter():
 #             raise e
         return err
 
+    def addNewConnectionRow(self, dbFilePath=None, connectionName=None):
+        '''
+        addNewConnectionRow adding a new row of connection
+        '''
+        row = dict()
+        row['connection_name'] = connectionName
+        row['db_file_path'] = dbFilePath
+        row['dbms_id'] = 1
+        rowList=list()
+        rowList.append(row)
+        self.sqlite_insert('conns', rowList)
+#         "insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_2.sqlite', 1);"
     def getObject(self):
     
         con = None
@@ -273,16 +285,16 @@ class SQLExecuter():
         return dbList
 
     def getContectedObject(self, connectionName, databaseAbsolutePath):
-        dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject()
+        dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).getObject()
         return dbObjects
     
     def getDbFilePath(self, connectionName=None):
-        sqlScript="select db_file_path from conns where connection_name= '"+connectionName+"'"
+        sqlScript = "select db_file_path from conns where connection_name= '" + connectionName + "'"
         cur = self.conn.cursor()   
         rows = cur.execute(sqlScript).fetchone()
-        dbFilePath=None
+        dbFilePath = None
         if rows:
-            dbFilePath=rows[0]
+            dbFilePath = rows[0]
         return dbFilePath
     
 class ManageSqliteDatabase():
@@ -295,6 +307,16 @@ class ManageSqliteDatabase():
         self.conn = sqlite3.connect(databaseAbsolutePath)
         self.connectionName = connectionName
  
+    def createTable(self):
+        sql='''
+        CREATE TABLE  if not exists ABC
+          (
+            id INTEGER PRIMARY KEY
+        );
+        '''
+        cur = self.conn.cursor() 
+        cur.execute(sql)
+        
     def getObject(self):
         '''
         Method returns all database object [ table, view, index] from the given sqlite database path
@@ -357,7 +379,7 @@ class ManageSqliteDatabase():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
-        error='success'
+        error = 'success'
         sqlOutput = dict()
         try:
             with self.conn:    
@@ -380,7 +402,7 @@ class ManageSqliteDatabase():
                             sqlOutput[idx + 1] = item
         except Exception as e:
             print(e)
-            error=e
+            error = e
             self.conn.rollback()
 #             raise e
 #         print(sqlOutput)
@@ -452,18 +474,20 @@ if __name__ == "__main__":
     print('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
-    sqlExecuter.getDbFilePath('database_sqlite_1')
+#     sqlExecuter.getDbFilePath('database_sqlite_1')
+    sqlExecuter.addNewConnectionRow("c:\soft\abc.sqlite", connectionName='one')
 #     tableName = 'albums'
 #     sqlExecuter.getColumn(tableName)
 #     sql = "SELECT * FROM albums "
 #     result = sqlExecuter.executeText(text=sql)
 #     print(result)
-    dbList = sqlExecuter.getListDatabase()
-    for db in dbList:
-#         print(db)
-        if db[3] == 1:
-#             print('dbms_id:', db[3], 'sqlite')
-            dbObjects = ManageSqliteDatabase(connectionName=db[1] ,databaseAbsolutePath=db[2]).getObject()
-            print(dbObjects)
+
+##########################################################################################
+#     dbList = sqlExecuter.getListDatabase()
+#     for db in dbList:
+#         if db[3] == 1:
+#             dbObjects = ManageSqliteDatabase(connectionName=db[1] ,databaseAbsolutePath=db[2]).getObject()
+#             print(dbObjects)
+##########################################################################################
             
 #     print(dbList)

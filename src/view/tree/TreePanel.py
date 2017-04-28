@@ -30,10 +30,10 @@ class CreatingTreePanel(wx.Panel):
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter table name")
         self.filter.ShowCancelButton(True)
-        self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
+        self.filter.Bind(wx.EVT_TEXT, self.recreateTree)
         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
-        self.RecreateTree()
+        self.recreateTree()
         
 #         self.tree.SetExpansionState(self.expansionState)
         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
@@ -54,7 +54,7 @@ class CreatingTreePanel(wx.Panel):
 
         value = self.filter.GetValue()
         if not value:
-            self.RecreateTree()
+            self.recreateTree()
             return
 
         wx.BeginBusyCursor()
@@ -67,9 +67,9 @@ class CreatingTreePanel(wx.Panel):
         except Exception as e:
             print(e)
         wx.EndBusyCursor()
-        self.RecreateTree()   
+        self.recreateTree()   
     #---------------------------------------------    
-    def RecreateTree(self, evt=None):
+    def recreateTree(self, evt=None):
         # Catch the search type (name or content)
 #         searchMenu = self.filter.GetMenu().GetMenuItems()
 #         fullSearch = searchMenu[1].IsChecked()
@@ -161,6 +161,8 @@ class CreatingTreePanel(wx.Panel):
             self.skipLoad = True
             self.tree.SelectItem(selectItem)
             self.skipLoad = False      
+    
+    
             
     def addNode(self, targetNode=None, nodeLabel='label', pydata=None, image=16):  
         nodeCreated = self.tree.AppendItem(targetNode, nodeLabel, image=image)
@@ -314,6 +316,7 @@ class CreatingTreePanel(wx.Panel):
     
     def onRootRefresh(self, event):
         print('onRootRefresh')
+        self.recreateTree(event)
     def onRootNewConnection(self, event):
         print('onRootNewConnection')
     def OnItemBackground(self, event):

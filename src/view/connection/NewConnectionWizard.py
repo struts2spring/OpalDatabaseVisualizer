@@ -8,6 +8,8 @@ import wx
 import wx.wizard
 from src.view.connection.DatabaseNavigation import DatabaseNavigationTree
 import os
+from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
+    SQLExecuter
 
 class TitledPage(wx.wizard.WizardPageSimple):
     def __init__(self, parent, title):
@@ -177,8 +179,15 @@ class CreateNewConncetionWixard():
             selectedItem=page1.tree.GetSelection()
             print(page1.tree.GetItemText(selectedItem))
             print(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
-    
+            databasefile=page2.markFile.GetValue()
+            self.createNewDatabase(databaseAbsolutePath=databasefile, connectionName=page2.connectionNameTextCtrl.GetValue())
         wizard.Destroy()        
+    
+    def createNewDatabase(self, databaseAbsolutePath=None,connectionName=None):
+        manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath)
+        manageSqliteDatabase.createTable()
+        sqlExecuter=SQLExecuter()
+        sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
      
 if __name__ == "__main__":
 
