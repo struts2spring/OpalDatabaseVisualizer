@@ -10,6 +10,7 @@ from src.view.connection.DatabaseNavigation import DatabaseNavigationTree
 import os
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
     SQLExecuter
+from sqlite3 import OperationalError
 
 class TitledPage(wx.wizard.WizardPageSimple):
     def __init__(self, parent, title):
@@ -179,16 +180,19 @@ class CreateNewConncetionWixard():
             selectedItem=page1.tree.GetSelection()
             print(page1.tree.GetItemText(selectedItem))
             print(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
-            databasefile=page2.markFile.GetValue()
-            self.createNewDatabase(databaseAbsolutePath=databasefile, connectionName=page2.connectionNameTextCtrl.GetValue())
+            databasefile=page2.markFile.GetValue() 
+            connectionName=page2.connectionNameTextCtrl.GetValue()
+            self.createNewDatabase(databaseAbsolutePath=databasefile, connectionName=connectionName)
         wizard.Destroy()        
     
     def createNewDatabase(self, databaseAbsolutePath=None,connectionName=None):
-        manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath)
-        manageSqliteDatabase.createTable()
-        sqlExecuter=SQLExecuter()
-        sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
-     
+        try:
+            manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath)
+            manageSqliteDatabase.createTable()
+            sqlExecuter=SQLExecuter()
+            sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
+        except OperationalError as err:
+            print(err)
 if __name__ == "__main__":
 
     app = wx.App()
