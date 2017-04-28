@@ -304,7 +304,11 @@ class ManageSqliteDatabase():
         @param param: databaseAbsolutePath
         '''
 #         databaseAbsolutePath=os.path.abspath(databaseAbsolutePath)
-        self.conn = sqlite3.connect(databaseAbsolutePath)
+        databasePath=os.path.abspath(databaseAbsolutePath)
+        head, tail=os.path.split(databasePath)
+        pathDir=os.path.dirname(databaseAbsolutePath)
+        os.chdir(pathDir)
+        self.conn = sqlite3.connect(tail)
         self.connectionName = connectionName
  
     def createTable(self):
