@@ -81,7 +81,7 @@ class CreatingTreePanel(wx.Panel):
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
 
-　
+
                     
         self.createDefaultNode()
                     
@@ -149,8 +149,8 @@ class CreatingTreePanel(wx.Panel):
             # Appending connections
             self.addNode(targetNode=self.root, nodeLabel=db[1],pydata=data, image=image)
 
-　
-　
+
+
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:
@@ -325,12 +325,12 @@ class CreatingTreePanel(wx.Panel):
         print('onConnectDb')
 #         item = self.tree.GetSelection() 
         selectedItemId=self.tree.GetSelection()
-        self.getNodeOnOpenConnection(selectedItemId)
+        if self.getNodeOnOpenConnection(selectedItemId):
 #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
         # Todo change icon to enable
-        selectedItemText=self.tree.GetItemText(self.tree.GetSelection())
-        self.setAutoCompleteText(selectedItemText)
-        self.openWorksheet()
+            selectedItemText=self.tree.GetItemText(self.tree.GetSelection())
+            self.setAutoCompleteText(selectedItemText)
+            self.openWorksheet()
     
     def setAutoCompleteText(self, selectedItemText):
         '''
@@ -377,69 +377,83 @@ class CreatingTreePanel(wx.Panel):
         '''
         This method will return database node on open connection
         '''
+        isSuccessfullyConnected=False
         print('getNodeOnOpenConnection')
         data=self.tree.GetPyData(selectedItemId)
         connectionName=data['connection_name']
         databaseAbsolutePath=data['db_file_path']
-        dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject()
-
-        for dbObject in dbObjects[1]:
-            for k0,v0 in dbObject.iteritems():
-                print(k0,v0)
-                data=dict()
-                data['depth']=2
-                image=2
-                nodeLabel= k0 + ' (' + str(len(v0)) + ')'
-                child0= self.addNode(targetNode=selectedItemId, nodeLabel=nodeLabel, pydata=data, image=image) 
-                if 'table' == k0 :
-                    # setting image for 'table'
-                    image = 4
-                elif 'index'== k0 :
-                    # setting image for 'index'
-                    image = 5
-                elif 'view'== k0 :
-                    # setting image for 'view'
-                    image = 6
-#                 child = self.tree.AppendItem(selectedItemId, k0 + ' (' + str(len(items)) + ')', image=count)
-                for v00 in v0:
-                    for k1, v1 in v00.iteritems():
-                        # Listing tables
-                        data=dict()
-                        data['depth']=3
-                        nodeLabel= k1 + ' (' + str(len(v1)) + ')'
-                        if k0=='table':
-                            image = 4
-                        child1= self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
-                        
-                        print(k1,v1)
-                        if k0 == 'table':
-                            data = dict()
-                            data['depth']=4
-                            # setting  image for 'Columns', 'Unique Keys', 'Foreign Keys', 'References'
-                            image=11
-                            
-                            child1_1= self.addNode(targetNode=child1, nodeLabel='Columns', pydata=data, image=image) 
-                            child1_2= self.addNode(targetNode=child1, nodeLabel='Unique Keys', pydata=data, image=image) 
-                            child1_3= self.addNode(targetNode=child1, nodeLabel='Foreign Keys', pydata=data, image=image) 
-                            child1_4= self.addNode(targetNode=child1, nodeLabel='References', pydata=data, image=image) 
-                        for v2 in v1:
+        if os.path.isfile(databaseAbsolutePath):     
+            dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject() 
+            isSuccessfullyConnected=True
+            for dbObject in dbObjects[1]:
+                for k0,v0 in dbObject.iteritems():
+                    print(k0,v0)
+                    data=dict()
+                    data['depth']=2
+                    image=2
+                    nodeLabel= k0 + ' (' + str(len(v0)) + ')'
+                    child0= self.addNode(targetNode=selectedItemId, nodeLabel=nodeLabel, pydata=data, image=image) 
+                    if 'table' == k0 :
+                        # setting image for 'table'
+                        image = 4
+                    elif 'index'== k0 :
+                        # setting image for 'index'
+                        image = 5
+                    elif 'view'== k0 :
+                        # setting image for 'view'
+                        image = 6
+    #                 child = self.tree.AppendItem(selectedItemId, k0 + ' (' + str(len(items)) + ')', image=count)
+                    for v00 in v0:
+                        for k1, v1 in v00.iteritems():
+                            # Listing tables
+                            data=dict()
+                            data['depth']=3
+                            nodeLabel= k1 + ' (' + str(len(v1)) + ')'
                             if k0=='table':
-                                data=dict()
+                                image = 4
+                            child1= self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
+                            
+                            print(k1,v1)
+                            if k0 == 'table':
+                                data = dict()
                                 data['depth']=4
-#                                  (cid integer, name text, type text, nn bit, dflt_value, pk bit)
-                                nodeLabel= v2[1]
+                                # setting  image for 'Columns', 'Unique Keys', 'Foreign Keys', 'References'
+                                image=11
                                 
-                                if v2[5]==1:
-                                    # setting primary key image
-                                    image=9
-                                elif v2[5]==0 and v2[2]== 'INTEGER':
-                                    # setting INTEGER image
-                                    image=7
-                                elif v2[5]==0 and v2[2]== 'VARCHAR':
-                                    # setting VARCHAR image
-                                    image=18
-                                child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
-                                print(v2)
+                                child1_1= self.addNode(targetNode=child1, nodeLabel='Columns', pydata=data, image=image) 
+                                child1_2= self.addNode(targetNode=child1, nodeLabel='Unique Keys', pydata=data, image=image) 
+                                child1_3= self.addNode(targetNode=child1, nodeLabel='Foreign Keys', pydata=data, image=image) 
+                                child1_4= self.addNode(targetNode=child1, nodeLabel='References', pydata=data, image=image) 
+                            for v2 in v1:
+                                if k0=='table':
+                                    data=dict()
+                                    data['depth']=4
+    #                                  (cid integer, name text, type text, nn bit, dflt_value, pk bit)
+                                    nodeLabel= v2[1]
+                                    
+                                    if v2[5]==1:
+                                        # setting primary key image
+                                        image=9
+                                    elif v2[5]==0 and v2[2]== 'INTEGER':
+                                        # setting INTEGER image
+                                        image=7
+                                    elif v2[5]==0 and v2[2]== 'VARCHAR':
+                                        # setting VARCHAR image
+                                        image=18
+                                    child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
+                                    print(v2)
+        else:
+            updateStatus="Unable to connect '"+databaseAbsolutePath +".' No such file. "
+            font = self.GetTopLevelParent().statusbar.GetFont() 
+            font.SetWeight(wx.BOLD) 
+            self.GetTopLevelParent().statusbar.SetFont(font) 
+            self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
+            self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
+            
+        return isSuccessfullyConnected
+
+
+
         
 class databaseNavigationTree(ExpansionState, TreeCtrl):
     '''

@@ -21,7 +21,7 @@ from wx import ID_PREFERENCES
 from src.view.preference.OpalPreferences import OpalPreference
 from src.view.connection.GetConnect import CreatingNewConnectionPanel
 from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
-    TitledPage
+    TitledPage, CreateNewConncetionWixard
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
     TextCtrlAutoComplete
@@ -372,25 +372,7 @@ class DatabaseMainFrame(wx.Frame):
         print('onOpenConnection')
     def onNewConnection(self, event):
         print('onNewConnection')
-        wizard = wx.wizard.Wizard(self, -1, "Simple Wizard")
-        page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
-        page2 = TitledPage(wizard, "Connection settings")
-        page3 = TitledPage(wizard, "Page 3")
-        page4 = TitledPage(wizard, "Page 4")
-        page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
-        page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
-        wx.wizard.WizardPageSimple_Chain(page1, page2)
-        wx.wizard.WizardPageSimple_Chain(page2, page3)
-        wx.wizard.WizardPageSimple_Chain(page3, page4)
-        wizard.FitToPage(page1)
-    
-        if wizard.RunWizard(page1):
-            print("Success")
-    
-        wizard.Destroy()        
-        self.Show()
-#         newConnectionFrame=CreatingNewConnectionPanel(self)
-#         newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
+        CreateNewConncetionWixard().createWizard()
         
     def onNewWorksheet(self, event):
         print('onNewWorksheet')
