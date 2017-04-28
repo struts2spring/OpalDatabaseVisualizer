@@ -81,7 +81,7 @@ class CreatingTreePanel(wx.Panel):
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
 
-
+　
                     
         self.createDefaultNode()
                     
@@ -149,8 +149,8 @@ class CreatingTreePanel(wx.Panel):
             # Appending connections
             self.addNode(targetNode=self.root, nodeLabel=db[1],pydata=data, image=image)
 
-
-
+　
+　
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:
@@ -249,7 +249,10 @@ class CreatingTreePanel(wx.Panel):
             sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "script.png"))))
             item3 = menu.AppendItem(sqlEditorBmp)
             
-            item4 = menu.Append(wx.ID_ANY, "Properties")
+            infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
+            infoBmp = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_MENU, (16,16)) 
+            infoMenuItem.SetBitmap(infoBmp)     
+            item4 = menu.AppendItem(infoMenuItem)      
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
@@ -258,10 +261,14 @@ class CreatingTreePanel(wx.Panel):
             
             item6 = menu.Append(wx.ID_ANY, "Edit Connection")
             menu.AppendSeparator()
-            item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
-            item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
-            menu.AppendItem(item7)
+#             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
+#             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
+#             menu.AppendItem(item7)
             
+            deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
+            delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16,16))
+            deleteMenuItem.SetBitmap(delBmp)
+            delMenu = menu.AppendItem(deleteMenuItem)
 #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             self.Bind(wx.EVT_MENU, self.onDisconnectDb, item1)
             self.Bind(wx.EVT_MENU, self.onConnectDb, item2)
@@ -269,6 +276,7 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
+            self.Bind(wx.EVT_MENU, self.onDeleteConnection, delMenu)
 
             
 
@@ -357,6 +365,8 @@ class CreatingTreePanel(wx.Panel):
         print('onRefresh')
     def onEditConnection(self, event):
         print('onEditConnection')
+    def onDeleteConnection(self, event):
+        print('onDeleteConnection')
 
     def onNewTable(self, event):
         print('onNewTable')
