@@ -771,28 +771,31 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         ##################################################################################
         print('executeSQL:' , sqlText)
-        if os.path.isfile(dbFilePath):
-            sqlOutput=None
-            startTime=time.time()
-            try:
-                manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
-                sqlOutput = manageSqliteDatabase.executeText(sqlText)
-                print(sqlOutput)
-            except Exception as e:
-                print(e)
-            endTime=time.time()
-            print('duration:',endTime-startTime)
-            duration=endTime-startTime
-            if selectedItemText:
-                self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
-    
-            creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
-            creatingWorksheetPanel.setResultData(data=sqlOutput)
-            resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-    #         if sqlOutput:
-            resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
-        else:
-            updateStatus="Unable to connect '"+dbFilePath +".' No such file. "
+        try:
+            if os.path.isfile(dbFilePath):
+                sqlOutput=None
+                startTime=time.time()
+                try:
+                    manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
+                    sqlOutput = manageSqliteDatabase.executeText(sqlText)
+                    print(sqlOutput)
+                except Exception as e:
+                    print(e)
+                endTime=time.time()
+                print('duration:',endTime-startTime)
+                duration=endTime-startTime
+                if selectedItemText:
+                    self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
+        
+                creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
+                creatingWorksheetPanel.setResultData(data=sqlOutput)
+                resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
+        #         if sqlOutput:
+                resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+        except Exception as e:
+            print(e)
+            error=str(e)
+            updateStatus="Unable to connect '"+dbFilePath +". "+error
             font = self.GetTopLevelParent().statusbar.GetFont() 
             font.SetWeight(wx.BOLD) 
             self.GetTopLevelParent().statusbar.SetFont(font) 

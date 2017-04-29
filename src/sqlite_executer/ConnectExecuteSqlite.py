@@ -16,7 +16,7 @@ class SQLExecuter():
         home = expanduser("~")
         databasePath = os.path.join(home, database)
         print("===================================================================================")
-        print(databasePath)
+        print('databasePath:',databasePath)
         print("===================================================================================")
         self.conn = sqlite3.connect(databasePath)
 #         self.createOpalTables()
@@ -30,9 +30,14 @@ class SQLExecuter():
             cols = ', '.join('"{}"'.format(col) for col in row.keys())
             vals = ', '.join(':{}'.format(col) for col in row.keys())
             sql = 'INSERT INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
-            
-            self.conn.cursor().execute(sql, row)
-        self.conn.commit()
+            try:
+                with self.conn:    
+                    cur = self.conn.cursor() 
+                    cur.execute(sql, row)
+            except Exception as e:
+                print(e)
+#         self.conn.commit()
+#         pass
         
     def sqlite_insert_or_update(self, table, rows):
         try:
@@ -175,7 +180,7 @@ class SQLExecuter():
         '''
         try:
             with self.conn:    
-                cur = self.conn.cursor() 
+                cur = self.conn.cursor()    
 #                 print('before')
                 rows = cur.executescript(sqlScript).fetchall()
                 print(cur.description) 
@@ -184,6 +189,8 @@ class SQLExecuter():
             print(e)
             err = e
             self.conn.rollback()
+        finally:
+            self.conn.commit()
 #             raise e
         return err
 
@@ -280,7 +287,7 @@ class SQLExecuter():
         assumption , conns and sql_log table will available.
         
         '''
-        self.createOpalTables()
+#         self.createOpalTables()
         dbList = self.sqlite_select("conns")
         return dbList
 
@@ -304,9 +311,10 @@ class ManageSqliteDatabase():
         @param param: databaseAbsolutePath
         '''
 #         databaseAbsolutePath=os.path.abspath(databaseAbsolutePath)
-        databasePath=os.path.abspath(databaseAbsolutePath)
-        head, tail=os.path.split(databasePath)
+#         databasePath=os.path.abspath(databaseAbsolutePath)
+#         databaseAbsolutePath=os.path.normpath(databaseAbsolutePath)
         pathDir=os.path.dirname(databaseAbsolutePath)
+        head, tail=os.path.split(databaseAbsolutePath)
         os.chdir(pathDir)
         self.conn = sqlite3.connect(tail)
         self.connectionName = connectionName
@@ -479,7 +487,11 @@ if __name__ == "__main__":
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
 #     sqlExecuter.getDbFilePath('database_sqlite_1')
-    sqlExecuter.addNewConnectionRow("c:\soft\abc.sqlite", connectionName='one')
+    sqlExecuter.addNewConnectionRow(dbFilePath=r"c:\soft\4.sqlite", connectionName='4')
+    result=sqlExecuter.executeText("select * from conns")
+    print(result)
+#     obj=sqlExecuter.getObject()
+#     print(obj)
 #     tableName = 'albums'
 #     sqlExecuter.getColumn(tableName)
 #     sql = "SELECT * FROM albums "
@@ -495,3 +507,4 @@ if __name__ == "__main__":
 ##########################################################################################
             
 #     print(dbList)
+#     ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"c:\soft\1.sqlite")

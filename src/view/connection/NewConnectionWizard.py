@@ -182,12 +182,12 @@ class CreateNewConncetionWixard():
             print(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
             databasefile=page2.markFile.GetValue() 
             connectionName=page2.connectionNameTextCtrl.GetValue()
-            self.createNewDatabase(databaseAbsolutePath=databasefile, connectionName=connectionName)
+            self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
         wizard.Destroy()        
     
     def createNewDatabase(self, databaseAbsolutePath=None,connectionName=None):
         try:
-            manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath)
+            manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath=databaseAbsolutePath,connectionName=connectionName)
             manageSqliteDatabase.createTable()
             sqlExecuter=SQLExecuter()
             sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
