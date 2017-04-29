@@ -272,7 +272,7 @@ class CreatingWorksheetPanel(wx.Panel):
         self.splitter.SizeWindows()        
     
     def setResultData(self, data=None):  
-        print('setResultData')
+        print('setResultData:', data)
         self.data=data
 #         self.data = music
         self.resultPanel.Layout()

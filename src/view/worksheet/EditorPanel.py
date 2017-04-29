@@ -362,7 +362,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CallTipCancel()
         key = event.GetKeyCode()
         print(wx.WXK_CONTROL_C)
-        print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+#         print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
         if event.ControlDown() and event.AltDown() and key == 317:
             print('ctrl+Alt+Down: duplicate line of code')
             selectedText = self.GetSelectedText()

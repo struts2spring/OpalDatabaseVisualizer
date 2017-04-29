@@ -411,7 +411,7 @@ class CreatingTreePanel(wx.Panel):
                             # Listing tables
                             data=dict()
                             data['depth']=3
-                            nodeLabel= k1 + ' (' + str(len(v1)) + ')'
+                            nodeLabel= k1 
                             if k0=='table':
                                 image = 4
                             child1= self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
@@ -423,7 +423,7 @@ class CreatingTreePanel(wx.Panel):
                                 # setting  image for 'Columns', 'Unique Keys', 'Foreign Keys', 'References'
                                 image=11
                                 
-                                child1_1= self.addNode(targetNode=child1, nodeLabel='Columns', pydata=data, image=image) 
+                                child1_1= self.addNode(targetNode=child1, nodeLabel='Columns'+ ' (' + str(len(v1)) + ')', pydata=data, image=image) 
                                 child1_2= self.addNode(targetNode=child1, nodeLabel='Unique Keys', pydata=data, image=image) 
                                 child1_3= self.addNode(targetNode=child1, nodeLabel='Foreign Keys', pydata=data, image=image) 
                                 child1_4= self.addNode(targetNode=child1, nodeLabel='References', pydata=data, image=image) 
@@ -437,12 +437,15 @@ class CreatingTreePanel(wx.Panel):
                                     if v2[5]==1:
                                         # setting primary key image
                                         image=9
-                                    elif v2[5]==0 and v2[2]== 'INTEGER':
+                                    elif v2[5]==0 and v2[2] in ['INTEGER','INT']:
                                         # setting INTEGER image
                                         image=7
-                                    elif v2[5]==0 and v2[2]== 'VARCHAR':
-                                        # setting VARCHAR image
-                                        image=18
+                                    elif v2[5]==0 :
+                                        for datatype in ['VARCHAR','CHAR','REAL','TEXT']:
+                                            if v2[2].lower().startswith(datatype.lower()):
+                                                # setting VARCHAR image
+                                                image=18
+                                                break
                                     child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
                                     print(v2)
         else:
