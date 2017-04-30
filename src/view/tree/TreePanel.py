@@ -10,7 +10,7 @@ from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.Constant import ID_newWorksheet, keyMap, ID_CONNECT_DB,\
     ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH
-from src.view.table.CreateTable import CreatingTableFrame
+from src.view.table.CreateNewTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
     ManageSqliteDatabase
 
@@ -373,7 +373,7 @@ class CreatingTreePanel(wx.Panel):
 
     def onNewTable(self, event):
         print('onNewTable')
-        tableFrame = CreatingTableFrame(None, 'Table creation')
+        tableFrame = CreateTableFrame(None, 'Table creation')
         
         
     def getNodeOnOpenConnection(self, selectedItemId):
@@ -433,7 +433,7 @@ class CreatingTreePanel(wx.Panel):
                                     data['depth']=4
     #                                  (cid integer, name text, type text, nn bit, dflt_value, pk bit)
                                     nodeLabel= v2[1]
-                                    
+                                    image=18
                                     if v2[5]==1:
                                         # setting primary key image
                                         image=9

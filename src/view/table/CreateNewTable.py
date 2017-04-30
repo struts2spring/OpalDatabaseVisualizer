@@ -9,6 +9,10 @@ class CreateTableFrame(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title, size=(970, 720),
                           style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
+        
+        self.tableDict = dict()
+        self.setData(self.tableDict)
+        
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.allowAuiFloating = False 
         self.SetMinSize((640, 480))
@@ -17,7 +21,8 @@ class CreateTableFrame(wx.Frame):
         
         splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D)
         self.createTablePanel = CreateTablePanel(splitter)
-        
+        self.createTablePanel.setData(self.tableDict)
+        self.createTablePanel.headPanel.setData(self.tableDict)
         self.editorPanel = CreatingEditorPanel(splitter, -1)
 #         self.sstc = wx.stc.StyledTextCtrl(splitter, -1)
         splitter.SetMinimumPaneSize(20)
@@ -30,6 +35,14 @@ class CreateTableFrame(wx.Frame):
         self.Center()
         self.createNewTableStatusBar()
         self.Show(True)
+        
+        
+    def setData(self, tableDict=None):
+        self.tableDict = tableDict
+        self.tableDict['schemaName'] = 'schema_1'
+        self.tableDict['tableName'] = 'Table_1'
+#         self.tableDict['columns'] = dict()    
+        
     def OnCloseFrame(self, event):
         self.Destroy()
     def createNewTableStatusBar(self):
@@ -39,9 +52,9 @@ class CreateTableFrame(wx.Frame):
         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
     def getCurrentCursorPosition(self):
-        lineNo=1
-        column=1
-        return "Line "+str(lineNo)+" , Column "+str(column)
+        lineNo = 1
+        column = 1
+        return "Line " + str(lineNo) + " , Column " + str(column)
 class CreateTableHeadPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -49,17 +62,15 @@ class CreateTableHeadPanel(wx.Panel):
         import  wx.lib.rcsizer  as rcs
         sizer = rcs.RowColSizer()
 #         vBox = wx.BoxSizer(wx.VERTICAL)
-        
-        self.tableDict = dict()
-        self.tableDict['schemaName'] = 'schema 1'
-        self.tableDict['tableName'] = 'Table 1'
-        self.tableDict['columns'] = dict()
+        self.tableDict=dict()
+        self.setData(self.tableDict)
+
         
         schemaNameLabel = wx.StaticText(self, -1, "Schema Name:")
-        self.schemaNameText = wx.TextCtrl(self, -1, self.tableDict['schemaName'], size=(250, -1))
+        self.schemaNameText = wx.TextCtrl(self, -1, '', size=(250, -1))
         
         tableNameLabel = wx.StaticText(self, -1, "Table Name:")
-        self.tableNameText = wx.TextCtrl(self, -1, self.tableDict['tableName'], size=(250, -1))
+        self.tableNameText = wx.TextCtrl(self, -1, '', size=(250, -1))
         
         sizer.Add(schemaNameLabel, flag=wx.EXPAND, row=1, col=1)
         sizer.Add(self.schemaNameText, row=1, col=2)
@@ -71,6 +82,16 @@ class CreateTableHeadPanel(wx.Panel):
 #         vBox.Add(sizer)
         self.SetSizer(sizer)
 #         self.Layout()
+
+    def setData(self, tableDict=None):
+        if tableDict and len(tableDict)>1:
+            self.tableDict=tableDict
+            self.schemaNameText.SetValue(self.tableDict['schemaName'])
+            self.tableNameText.SetValue(self.tableDict['tableName'])
+        else:
+            self.tableDict['schemaName']=''
+            self.tableDict['tableName']=''
+        
 class CreateButtonPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -112,8 +133,8 @@ class CreateTablePanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         vBox = wx.BoxSizer(wx.VERTICAL)
         #######################################33
-        self.row = dict()
-        self.row[0] = ["icon", "Column name", "Data type", "Primary key", "Allow null", "Unique", "Auto increment", "Default value"]
+#         self.row = dict()
+#         self.row[0] = ["icon", "Column name", "Data type", "Primary key", "Allow null", "Unique", "Auto increment", "Default value"]
 #         self.row[1] = ["1", "One", "INT", "1", "0", "1", "1", None ]        
         
         self.headPanel = CreateTableHeadPanel(self)
@@ -132,6 +153,16 @@ class CreateTablePanel(wx.Panel):
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
         self.Layout()
+        
+    def setData(self, tableDict=None):
+        if tableDict:
+            self.tableDict=tableDict
+            self.tableDict['rows']=list()
+            self.tableDict['row']=dict()
+            self.tableDict['row'][0] = ["icon", "Column name", "Data type", "Primary key", "Allow null", "Unique", "Auto increment", "Default value"]
+
+    def getData(self):
+        return self.tableDict
 
     def creatingToolbar(self):
         tb = wx.ToolBar(self, style=wx.TB_FLAT)
@@ -167,13 +198,20 @@ class CreateTablePanel(wx.Panel):
         return tb
     def onAddColumnClick(self, event):
         print('onAddColumn clicked')
-        rowNum = len(self.row)
+        
+        rowNum = len(self.tableDict['row'])
+        columnName="Column_" + str(rowNum)
         isPrimaryKey = "0"
         isAutoIncrement = "0"
+        isNotNull="0"
+        isUnique='0'
+        default=None
         if rowNum == 1:
             iconIndex = 0  # random.choice([0, 1, 2, 3])
             datatype = "INTEGER"  # random.choice(["INTEGER", "TEXT"])
             isPrimaryKey = "1"
+            isNotNull='0'
+            isUnique='0'
         elif rowNum > 1:
             iconIndex = 1  # random.choice([0, 1, 2, 3])
             datatype = "VARCHAR"  # random.choice(["INTEGER", "TEXT"])
@@ -182,10 +220,24 @@ class CreateTablePanel(wx.Panel):
         if isPrimaryKey == "1":
             isAutoIncrement = "1"
            
-        self.row[rowNum] = [str(iconIndex), "One " + str(rowNum), datatype, isPrimaryKey, "0", "1", isAutoIncrement, None ]        
+        self.tableDict['row'][rowNum] = [str(iconIndex), columnName, datatype, isPrimaryKey, "0", isUnique, isAutoIncrement, default ]        
+        
+        
+        self.tableDict['rows'].append({
+            'rowNum':rowNum,
+            "columnName":columnName,
+            'dataType': datatype,
+            'isPrimaryKey':isPrimaryKey,
+            'isAutoIncrement':isAutoIncrement,
+            'isNotNull':isNotNull,
+            'isUnique':isUnique,
+            'default': default
+            })
+        
+            
 #         data.append(row)
         grid = self.GetTopLevelParent().createTablePanel.grid
-        grid.addData(data=self.row)
+        grid.addData(data=self.tableDict['row'])
         
         self.updateTableEditorPanel()
 #         table=self.GetTopLevelParent().createTablePanel.grid
@@ -195,7 +247,8 @@ class CreateTablePanel(wx.Panel):
 #         print(tableData)
         
     def updateTableEditorPanel(self):
-        self.GetTopLevelParent().editorPanel.sstc.SetText(self.createSql())
+        tableDict=self.GetTopLevelParent().createTablePanel.tableDict
+        self.GetTopLevelParent().editorPanel.sstc.SetText(self.createSql(tableDict))
         
     def createSql(self, tableDict=None):    
         '''
@@ -214,24 +267,24 @@ class CreateTablePanel(wx.Panel):
             else:
                 sqlList.append("'" + tableDict['tableName'] + "'")
             sqlList.append('(')
-            print(tableDict['columns'])
-            for key, column in tableDict['columns'].items():
+            print(tableDict['rows'])
+            for idx, column in enumerate(tableDict['rows']):
                 sqlList.append("'" + column['columnName'] + "'")
                 sqlList.append(column['dataType'])
-                if column['isPrimaryKey']:
+                if column['isPrimaryKey']=='1':
                     sqlList.append('PRIMARY KEY')
-                    if column['isAutoIncrement']:
+                    if column['isAutoIncrement']=='1':
                         sqlList.append('AUTOINCREMENT')
-                elif column['isNotNull']:
+                elif column['isNotNull']=='1':
                     sqlList.append('NOT NULL')
-                elif column['isUnique']:
+                elif column['isUnique']=='1':
                     sqlList.append('UNIQUE')
-                elif column['isUnique']:
+                elif column['isUnique']=='1':
                     sqlList.append('UNIQUE')
                 elif 'check' in column.keys():
                     sqlList.append('CHECK ( ' + column['check'] + ' )')
                 elif 'default' in column.keys():
-                    sqlList.append('DEFAULT ' + column['default'])
+                    sqlList.append('DEFAULT ' + str(column['default']))
                 
                 sqlList.append(',')
             sqlList.pop()

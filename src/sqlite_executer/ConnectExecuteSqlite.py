@@ -102,7 +102,7 @@ class SQLExecuter():
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
-                    print(rows)
+#                     print(rows)
                     print(cur.description) 
     #                 print(rows)
                     if cur.description:
