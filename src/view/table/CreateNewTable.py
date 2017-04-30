@@ -28,11 +28,20 @@ class CreateTableFrame(wx.Frame):
 #         self.creatingTable = CreatingTablePanel(splitter)
 #         grid = SimpleGrid(self)
         self.Center()
-        self.CreateStatusBar()
+        self.createNewTableStatusBar()
         self.Show(True)
     def OnCloseFrame(self, event):
         self.Destroy()
-
+    def createNewTableStatusBar(self):
+        print('creating status bar')
+        self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
+        self.statusbar.SetStatusWidths([-2, -3])
+        self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
+        self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
+    def getCurrentCursorPosition(self):
+        lineNo=1
+        column=1
+        return "Line "+str(lineNo)+" , Column "+str(column)
 class CreateTableHeadPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -188,8 +197,49 @@ class CreateTablePanel(wx.Panel):
     def updateTableEditorPanel(self):
         self.GetTopLevelParent().editorPanel.sstc.SetText(self.createSql())
         
-    def createSql(self):
-        return ''                
+    def createSql(self, tableDict=None):    
+        '''
+        This method creates sql script for create table sql.
+        '''
+        sqlList = list()
+        if tableDict:
+            sqlList.append("CREATE")
+            if 'temp' in tableDict.keys():
+                sqlList.append("TEMP")
+            sqlList.append('TABLE')
+            if 'ifNotExists' in  tableDict.keys():
+                sqlList.append('IF NOT EXISTS')
+            if 'schemaName' in tableDict.keys():
+                sqlList.append("'" + tableDict['schemaName'] + "'.'" + tableDict['tableName'] + "'")
+            else:
+                sqlList.append("'" + tableDict['tableName'] + "'")
+            sqlList.append('(')
+            print(tableDict['columns'])
+            for key, column in tableDict['columns'].items():
+                sqlList.append("'" + column['columnName'] + "'")
+                sqlList.append(column['dataType'])
+                if column['isPrimaryKey']:
+                    sqlList.append('PRIMARY KEY')
+                    if column['isAutoIncrement']:
+                        sqlList.append('AUTOINCREMENT')
+                elif column['isNotNull']:
+                    sqlList.append('NOT NULL')
+                elif column['isUnique']:
+                    sqlList.append('UNIQUE')
+                elif column['isUnique']:
+                    sqlList.append('UNIQUE')
+                elif 'check' in column.keys():
+                    sqlList.append('CHECK ( ' + column['check'] + ' )')
+                elif 'default' in column.keys():
+                    sqlList.append('DEFAULT ' + column['default'])
+                
+                sqlList.append(',')
+            sqlList.pop()
+            sqlList.append(')')  
+            sqlList.append(';')  
+        sql = " ".join(sqlList)
+#         formatedSql=sqlparse.format(sql, encoding=None)
+        return sql                      
     def onRemoveColumnClick(self, event):
         print('onRemoveColumnClick clicked')
         self.removeRow()

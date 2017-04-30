@@ -51,13 +51,18 @@ class CreatingTableFrame(wx.Frame):
         splitter.SplitHorizontally(self.creatingTable, self.sstc)
 #         self.creatingToolbar()
         self.Center()
-        self.CreateStatusBar()
+        self.createStatusBar()
         self.Show(True)
     
     def OnCloseFrame(self, event):
         self.Destroy()
 
-
+    def createStatusBar(self):
+        print('creating status bar')
+        self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
+        self.statusbar.SetStatusWidths([-2, -3])
+        self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
+        self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
 
 class TableListCtrl(ULC.UltimateListCtrl,
                    listmix.ListCtrlAutoWidthMixin,
