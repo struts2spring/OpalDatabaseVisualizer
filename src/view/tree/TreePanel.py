@@ -549,7 +549,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "table.png"))))# 4
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "view.png"))))# 5
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))# 6
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "column.png"))))# 7 using to show integer column
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "column.png"))))# 7 using to show integer column 
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "string.png"))))  # 8
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "key.png"))))  # 9
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "foreign_key_column.png"))))  # 10
@@ -559,8 +559,8 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "datetime.png"))))  # 14
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "columns.png"))))  # 15
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "sqlite.png"))))  # 16
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "h2.png"))))  # 17
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "textfield.png"))))  # 18
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "h2.png"))))  # 17 use to show h2 database icon
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "textfield.png"))))  # 18 use to show [varchar, char, text data] type icon 
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())
