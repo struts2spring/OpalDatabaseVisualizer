@@ -26,6 +26,9 @@ from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
     TextCtrlAutoComplete
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+import logging
+
+logger = logging.getLogger(__name__)
 # from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
 
@@ -45,8 +48,7 @@ class DatabaseMainFrame(wx.Frame):
         style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
-        
-        print('1----------------------->', os.getcwd())
+        logger.info('1----------------------->'+ os.getcwd())
         path = os.path.abspath(__file__)
         tail = None
         while tail != 'src':
