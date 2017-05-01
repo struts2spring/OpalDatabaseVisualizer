@@ -99,7 +99,7 @@ class ConnPropertyFrame(wx.Frame):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
@@ -203,7 +203,7 @@ class ConnPropertyFrame(wx.Frame):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # min size for the frame itself isn't completely done.
@@ -292,7 +292,7 @@ class ConnPropertyFrame(wx.Frame):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         

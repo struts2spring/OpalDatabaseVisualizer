@@ -27,8 +27,10 @@ from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel
     TextCtrlAutoComplete
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 import logging
+from src.view.sqlScriptOutput.SqlOutputPanel import SqlScriptOutputPanel
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('extensive')
+
 # from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
 
@@ -44,6 +46,7 @@ logger = logging.getLogger(__name__)
 class DatabaseMainFrame(wx.Frame):
 
     def __init__(self, parent):
+        logger.info("This is from Runner ")
         title = "Opal Database Visualizer"
         style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
@@ -68,8 +71,8 @@ class DatabaseMainFrame(wx.Frame):
         
         try:
             self.createAuiManager()
-        except Exception as ex:
-            print(ex)
+        except Exception as e:
+            logger.error(e, exc_info=True)
         self.bindingEvent()
         self._mgr.Update()  
     def creatingTreeCtrl(self):
@@ -91,8 +94,8 @@ class DatabaseMainFrame(wx.Frame):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->',path)
+            logger.error(e, exc_info=True)
+        logging.debug(path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
@@ -153,7 +156,7 @@ class DatabaseMainFrame(wx.Frame):
         """ Simply function that receive the row values when the
             user select an item
         """
-        print("Select Callback called...:",  values)
+        logging.debug("Select Callback called...:"+values)
         
     def setDynamicChoices(self):
         ctrl = self._ctrl
@@ -191,8 +194,7 @@ class DatabaseMainFrame(wx.Frame):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->',path)
+            logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
@@ -228,9 +230,9 @@ class DatabaseMainFrame(wx.Frame):
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
 
   
-#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
-#                           Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
-#                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
+        self._mgr.AddPane(self.sqlScriptOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql_script_recent.png"))).
+                          Name("scriptOutput").Caption("Script Output").Dockable(True).Movable(True).LeftDockable(True).
+                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
             
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
@@ -252,7 +254,9 @@ class DatabaseMainFrame(wx.Frame):
 #     def constructSchemaViewerPane(self):
 #         svgViewer = SVGViewerPanel(self)
 #         return svgViewer
-    
+    def sqlScriptOutputPane(self):
+        sqlScriptOutputPanel=SqlScriptOutputPanel(self)
+        return sqlScriptOutputPanel
     def constructSqlPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
           
@@ -280,8 +284,7 @@ class DatabaseMainFrame(wx.Frame):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->',path)
+            logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         
         print('creating menu bar')

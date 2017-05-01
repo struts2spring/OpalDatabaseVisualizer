@@ -20,6 +20,9 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
     ManageSqliteDatabase
 from datetime import date, datetime
 import time
+import logging
+
+logger = logging.getLogger('extensive')
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -231,7 +234,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->', path)
         path = os.path.abspath(os.path.join(path, "images"))
         # register some images for use in the AutoComplete box.
@@ -758,6 +761,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CmdKeyExecute(cmd)
     
     def executeSQL(self):
+        error='success'
         sqlText = self.GetSelectedText()
         if self.GetSelectedText() == '' or self.GetSelectedText() == None:
             sqlText, column = self.GetCurLine()
@@ -792,26 +796,34 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
         #         if sqlOutput:
                 resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+        except TypeError as te:
+            logger.error(te, exc_info=True)
+            if not dbFilePath:
+                error='Unable to connect. Please choose a database to execute Script.'
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
+#             print(e)
             error=str(e)
-            updateStatus="Unable to connect '"+dbFilePath +". "+error
-            font = self.GetTopLevelParent().statusbar.GetFont() 
-            font.SetWeight(wx.BOLD) 
-            self.GetTopLevelParent().statusbar.SetFont(font) 
-            self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
-            self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
+#         updateStatus="Unable to connect '"+dbFilePath +". "+error
+        scriptOutputPanel = self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window
+        scriptOutputPanel.text.SetValue(error)
+#             font = self.GetTopLevelParent().statusbar.GetFont() 
+#             font.SetWeight(wx.BOLD) 
+#             self.GetTopLevelParent().statusbar.SetFont(font) 
+#             self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
+#             self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
         # TODO Update update sql log history grid
         
     def updateSqlLog(self, sqlText, duration,connectionName=None):
-        print('updating sql log', sqlText)
+#         print('updating sql log', sqlText)
+        logger.debug('updating sql log %s', sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         table = 'sql_log'
         rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
         
     def refreshSqlLogUi(self):
-        print('refreshSqlLogUi')
+        logger.debug('refreshSqlLogUi')
         historyGrid=self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
         sqlText='select * from sql_log order by created_time desc;'
         sqlExecuter = SQLExecuter(database='_opal.sqlite')

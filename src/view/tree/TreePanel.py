@@ -13,6 +13,10 @@ from src.view.Constant import ID_newWorksheet, keyMap, ID_CONNECT_DB,\
 from src.view.table.CreateNewTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
     ManageSqliteDatabase
+import logging
+
+logger = logging.getLogger('extensive')
+
 
 class CreatingTreePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -94,7 +98,7 @@ class CreatingTreePanel(wx.Panel):
     
     #---------------------------------------------
     def createDefaultNode(self):
-        print("TreePanel.createDefaultNode")
+        logger.debug("TreePanel.createDefaultNode")
         sqlExecuter = SQLExecuter()
         dbList = sqlExecuter.getListDatabase()
         
@@ -174,13 +178,13 @@ class CreatingTreePanel(wx.Panel):
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
-#         print("OnItemExpanded: %s" % self.tree.GetItemText(item))
+#         logger.debug("OnItemExpanded: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
     def OnItemCollapsed(self, event):
         item = event.GetItem()
-#         print("OnItemCollapsed: %s" % self.tree.GetItemText(item))
+#         logger.debug("OnItemCollapsed: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
@@ -189,11 +193,11 @@ class CreatingTreePanel(wx.Panel):
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
         if item == self.tree.GetSelection():
-            print(self.tree.GetItemText(item) + " Overview")
+            logger.debug(self.tree.GetItemText(item) + " Overview")
         event.Skip()
     #---------------------------------------------
     def OnSelChanged(self, event):
-        print('OnSelChanged')
+        logger.debug('OnSelChanged')
     #---------------------------------------------
     def OnTreeRightDown(self, event):
         
@@ -203,10 +207,10 @@ class CreatingTreePanel(wx.Panel):
         if item:
             self.tree.item = item
             self.tree.item
-            print("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
+            logger.debug("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
             self.tree.SelectItem(item)
             if self.tree.GetItemText(self.tree.item) != 'Connections':
-                print('parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)))
+                logger.debug('parent %s', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)))
 
     #---------------------------------------------
     def OnTreeRightUp(self, event):
@@ -219,8 +223,7 @@ class CreatingTreePanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->', path)
+            logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         
         item = self.tree.item     
@@ -228,7 +231,7 @@ class CreatingTreePanel(wx.Panel):
         if not item:
             event.Skip()
             return
-        print('OnTreeRightUp')
+        logger.debug('OnTreeRightUp')
 
         
         menu = wx.Menu()
@@ -300,11 +303,11 @@ class CreatingTreePanel(wx.Panel):
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             
         elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
-            print(self.tree.GetItemText(item))
+            logger.debug(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit table")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
         elif 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
-            print(self.tree.GetItemText(item))
+            logger.debug(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit column")
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
@@ -315,17 +318,17 @@ class CreatingTreePanel(wx.Panel):
         menu.Destroy() 
     
     def onRootRefresh(self, event):
-        print('onRootRefresh')
+        logger.debug('onRootRefresh')
         self.recreateTree(event)
     def onRootNewConnection(self, event):
-        print('onRootNewConnection')
+        logger.debug('onRootNewConnection')
     def OnItemBackground(self, event):
-        print('OnItemBackground')
+        logger.debug('OnItemBackground')
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
         self.tree.EditLabel(item)
     def onConnectDb(self, event):
-        print('onConnectDb')
+        logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
         selectedItemId=self.tree.GetSelection()
         if self.getNodeOnOpenConnection(selectedItemId):
@@ -339,7 +342,7 @@ class CreatingTreePanel(wx.Panel):
         '''
         This is to set autocomplete text as we connect to database
         '''
-        print(selectedItemText)
+        logger.debug(selectedItemText)
         tb1=self.GetTopLevelParent()._mgr.GetPane("tb1").window
         choice=self.GetTopLevelParent()._ctrl.GetChoices()
         textCtrl=self.GetTopLevelParent()._ctrl
@@ -350,29 +353,29 @@ class CreatingTreePanel(wx.Panel):
         textCtrl._showDropDown( False )
     
     def onDisconnectDb(self, event):
-        print('onDisconnectDb')
+        logger.debug('onDisconnectDb')
         selectedItem = self.tree.GetSelection()
         if selectedItem:
             self.tree.DeleteChildren(selectedItem)
             # Todo change icon to dissable
     def onOpenSqlEditorTab(self, event):
-        print('onOpenSqlEditorTab')
+        logger.debug('onOpenSqlEditorTab')
         self.openWorksheet()
     def openWorksheet(self):
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         sqlExecutionTab.window.addTab("Worksheet")
 
     def onProperties(self, event):
-        print('onProperties')
+        logger.debug('onProperties')
     def onRefresh(self, event):
-        print('onRefresh')
+        logger.debug('onRefresh')
     def onEditConnection(self, event):
-        print('onEditConnection')
+        logger.debug('onEditConnection')
     def onDeleteConnection(self, event):
-        print('onDeleteConnection')
+        logger.debug('onDeleteConnection')
 
     def onNewTable(self, event):
-        print('onNewTable')
+        logger.debug('onNewTable')
         tableFrame = CreateTableFrame(None, 'Table creation')
         
         
@@ -381,7 +384,7 @@ class CreatingTreePanel(wx.Panel):
         This method will return database node on open connection
         '''
         isSuccessfullyConnected=False
-        print('getNodeOnOpenConnection')
+        logger.debug('getNodeOnOpenConnection')
         data=self.tree.GetPyData(selectedItemId)
         connectionName=data['connection_name']
         databaseAbsolutePath=data['db_file_path']
@@ -390,7 +393,7 @@ class CreatingTreePanel(wx.Panel):
             isSuccessfullyConnected=True
             for dbObject in dbObjects[1]:
                 for k0,v0 in dbObject.iteritems():
-                    print(k0,v0)
+                    logger.debug("k0 : %s, v0: %s",k0,v0)
                     data=dict()
                     data['depth']=2
                     image=2
@@ -416,7 +419,7 @@ class CreatingTreePanel(wx.Panel):
                                 image = 4
                             child1= self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
                             
-                            print(k1,v1)
+                            logger.debug("k1 : %s, v1: %s",k1,v1)
                             if k0 == 'table':
                                 data = dict()
                                 data['depth']=4
@@ -447,7 +450,7 @@ class CreatingTreePanel(wx.Panel):
                                                 image=18
                                                 break
                                     child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
-                                    print(v2)
+                                    logger.debug(v2)
         else:
             updateStatus="Unable to connect '"+databaseAbsolutePath +".' No such file. "
             font = self.GetTopLevelParent().statusbar.GetFont() 
@@ -495,7 +498,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print('onkey')
+        logger.debug('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 
@@ -526,17 +529,17 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
 
         event.Skip()            
     def BuildTreeImageList(self):
+        logger.debug('BuildTreeImageList')
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->', path)
+            logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         imgList = wx.ImageList(16, 16)
 

@@ -11,6 +11,9 @@ import os
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
     SQLExecuter
 from sqlite3 import OperationalError
+import logging
+
+logger = logging.getLogger('extensive')
 
 class TitledPage(wx.wizard.WizardPageSimple):
     def __init__(self, parent, title):
@@ -70,7 +73,7 @@ class SelectDatabaseNamePage(wx.wizard.WizardPageSimple):
     #                 if SearchDemo(childItem, value):
                     self.searchItems[category].append(childItem)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         wx.EndBusyCursor()
         self.RecreateTree()   
     #---------------------------------------------    

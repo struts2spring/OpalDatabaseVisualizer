@@ -8,6 +8,10 @@ from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.Constant import keyMap
 import os
+import logging
+
+logger = logging.getLogger('extensive')
+
 
 class CreatingNewConnectionFrame(wx.Frame):
 
@@ -85,7 +89,7 @@ class CreatingNewConnectionPanel(wx.Panel):
     #                 if SearchDemo(childItem, value):
                     self.searchItems[category].append(childItem)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         wx.EndBusyCursor()
         self.RecreateTree()   
     #---------------------------------------------    

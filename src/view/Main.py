@@ -18,13 +18,13 @@ LOG_SETTINGS = {
 'handlers': {
     'console': {
         'class': 'logging.StreamHandler',
-        'level': 'INFO',
+        'level': 'DEBUG',
         'formatter': 'detailed',
         'stream': 'ext://sys.stdout',
     },
     'file': {
         'class': 'logging.handlers.RotatingFileHandler',
-        'level': 'INFO',
+        'level': 'DEBUG',
         'formatter': 'detailed',
         'filename': os.path.join(tempfile.gettempdir(),'OpalDatabaseVisualizer.log'),
         'mode': 'a',
@@ -35,8 +35,7 @@ LOG_SETTINGS = {
 },
 'formatters': {
     'detailed': {
-        'format': '%(asctime)s %(module)-17s line:%(lineno)-4d ' \
-        '%(levelname)-8s %(message)s',
+        'format': '%(asctime)s %(module)-17s line:%(lineno)-4d %(levelname)-8s %(message)s',
     },
     'email': {
         'format': 'Timestamp: %(asctime)s\nModule: %(module)s\n' \
@@ -51,16 +50,18 @@ LOG_SETTINGS = {
 }
 }
 logging.config.dictConfig(LOG_SETTINGS)
+logger = logging.getLogger('extensive')
+logger.info("This is from Runner ")
 if __name__ == "__main__":
-#     print(tempfile.gettempdir())
+    print(tempfile.gettempdir())
 #     logging.basicConfig(level=logging.DEBUG,
 #                     format='%(asctime)s %(levelname)-8s %(message)s',
 #                     datefmt='%a, %d %b %Y %H:%M:%S',
 #                     filename=os.path.join(tempfile.gettempdir(),'OpalDatabaseVisualizer.log'),
 #                     filemode='w')
 
-    logger = logging.getLogger('extensive')
-    logger.info("This is from Runner ")
+#     logger = logging.getLogger('extensive')
+#     logger.info("This is from Runner ")
 
     app = wx.App()
     

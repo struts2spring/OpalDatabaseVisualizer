@@ -8,16 +8,20 @@ import os
 import re
 from os.path import expanduser
 import sys
+import logging
+
+logger = logging.getLogger('extensive')
 
 class SQLExecuter():
     '''
     '''
     def __init__(self, database='_opal.sqlite'):
+        logger.debug(self.__class__.__name__)
         home = expanduser("~")
         databasePath = os.path.join(home, database)
-        print("===================================================================================")
-        print('databasePath:',databasePath)
-        print("===================================================================================")
+        logger.debug("===================================================================================")
+        logger.debug('databasePath: %s',databasePath)
+        logger.debug("===================================================================================")
         self.conn = sqlite3.connect(databasePath)
 #         self.createOpalTables()
         
@@ -35,7 +39,7 @@ class SQLExecuter():
                     cur = self.conn.cursor() 
                     cur.execute(sql, row)
             except Exception as e:
-                print(e)
+                logger.error(e, exc_info=True)
 #         self.conn.commit()
 #         pass
         
@@ -49,6 +53,7 @@ class SQLExecuter():
             self.conn.commit()
         # Catch the exception
         except Exception as e:
+            logger.error(e, exc_info=True)
             # Roll back any change if something goes wrong
             self.conn.rollback()
             raise e
@@ -56,19 +61,20 @@ class SQLExecuter():
     def sqlite_select(self, table):
         
         returnRows = list()
-        with self.conn:    
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                cur.execute("SELECT * FROM " + table)
+                rows = cur.fetchall()
+                for row in rows:
+                    returnRows.append(row)
+        except Exception as e:
+            logger.error(e, exc_info=True)
             
-            cur = self.conn.cursor() 
-#             print('before')
-            cur.execute("SELECT * FROM " + table)
-        
-            rows = cur.fetchall()
-            
-            for row in rows:
-                returnRows.append(row)
         return returnRows
     
     def getColumn(self, tableName=None):
+        logger.debug('tableName: %s',tableName)
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
@@ -84,7 +90,7 @@ class SQLExecuter():
 #                 for idx, item in enumerate(rows):
 #                     print(item)
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
             self.conn.rollback()
             raise e
     
@@ -92,6 +98,7 @@ class SQLExecuter():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
+        logger.debug('text: %s',text)
         error = 'success'
         sqlOutput = dict()
         try:
@@ -114,11 +121,9 @@ class SQLExecuter():
                         for idx, item in enumerate(rows):
                             sqlOutput[idx + 1] = item
         except Exception as e:
-            print(e)
-            error = e
+            logger.error(e, exc_info=True)
             self.conn.rollback()
-#             raise e
-#         print(sqlOutput)
+        logger.debug('len(sqlOutput) : %s',len(sqlOutput))
         return sqlOutput
     
     
@@ -186,7 +191,7 @@ class SQLExecuter():
                 print(cur.description) 
 
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
             err = e
             self.conn.rollback()
         finally:
@@ -270,9 +275,7 @@ class SQLExecuter():
             
 #             data = cur.fetchone()
         except sqlite3.Error as e:
-            print("Error %s:" % e.args[0])
-            sys.exit(1)
-            
+            logger.error(e, exc_info=True)
         finally:
             
             if self.conn:
@@ -376,7 +379,7 @@ class ManageSqliteDatabase():
 #             print(dbObjects)
 
         except sqlite3.Error as e:
-            print("Error %s:" % e.args[0])
+            logger.error(e, exc_info=True)
             sys.exit(1)
             
         finally:
@@ -413,12 +416,12 @@ class ManageSqliteDatabase():
                         for idx, item in enumerate(rows):
                             sqlOutput[idx + 1] = item
         except Exception as e:
-            print(e)
-            error = e
+            logger.error(e, exc_info=True)
             self.conn.rollback()
+            error=e
 #             raise e
 #         print(sqlOutput)
-        return sqlOutput
+        return sqlOutput,error
     
     def sqlite_insert(self, table, rows):
         '''
@@ -443,6 +446,7 @@ class ManageSqliteDatabase():
             self.conn.commit()
         # Catch the exception
         except Exception as e:
+            logger.error(e, exc_info=True)
             # Roll back any change if something goes wrong
             self.conn.rollback()
             raise e
@@ -478,7 +482,7 @@ class ManageSqliteDatabase():
 #                 for idx, item in enumerate(rows):
 #                     print(item)
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
             self.conn.rollback()
             raise e    
     

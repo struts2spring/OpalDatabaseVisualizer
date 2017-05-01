@@ -295,7 +295,7 @@ class CreatingTreePanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         
@@ -747,7 +747,7 @@ class CreatingTreePanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         
@@ -926,7 +926,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         imgList = wx.ImageList(16, 16)
@@ -1003,7 +1003,7 @@ if __name__ == '__main__':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         imgList = wx.ImageList(16, 16)

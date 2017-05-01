@@ -4,6 +4,10 @@ import wx.stc
 import os
 import random
 from src.view.worksheet.EditorPanel import CreatingEditorPanel
+import logging
+
+logger = logging.getLogger('extensive')
+
 
 class CreateTableFrame(wx.Frame):
     def __init__(self, parent, title):
@@ -120,9 +124,10 @@ class CreateButtonPanel(wx.Panel):
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
     def onOkClick(self, event):
-        print('onOkClick')
+        logger.debug('onOkClick')
 
     def onCancelButtonClick(self, event):
+        logger.debug('onCancelButtonClick')
         self.GetTopLevelParent().Destroy()
         
 class CreateTablePanel(wx.Panel):
@@ -155,6 +160,7 @@ class CreateTablePanel(wx.Panel):
         self.Layout()
         
     def setData(self, tableDict=None):
+        logger.debug('setData')
         if tableDict:
             self.tableDict=tableDict
             self.tableDict['rows']=list()
@@ -162,9 +168,11 @@ class CreateTablePanel(wx.Panel):
             self.tableDict['row'][0] = ["icon", "Column name", "Data type", "Primary key", "Allow null", "Unique", "Auto increment", "Default value"]
 
     def getData(self):
+        logger.debug('getData')
         return self.tableDict
 
     def creatingToolbar(self):
+        logger.debug('creatingToolbar')
         tb = wx.ToolBar(self, style=wx.TB_FLAT)
         tsize = (24, 24)
         plus_bmp = wx.ArtProvider.GetBitmap(wx.ART_PLUS, wx.ART_TOOLBAR, tsize)
@@ -196,8 +204,9 @@ class CreateTablePanel(wx.Panel):
         tb.AddSeparator()
         tb.Realize()
         return tb
+    
     def onAddColumnClick(self, event):
-        print('onAddColumn clicked')
+        logger.debug('onAddColumn clicked')
         
         rowNum = len(self.tableDict['row'])
         columnName="Column_" + str(rowNum)
@@ -247,6 +256,7 @@ class CreateTablePanel(wx.Panel):
 #         print(tableData)
         
     def updateTableEditorPanel(self):
+        logger.debug('updateTableEditorPanel')
         tableDict=self.GetTopLevelParent().createTablePanel.tableDict
         self.GetTopLevelParent().editorPanel.sstc.SetText(self.createSql(tableDict))
         
@@ -291,18 +301,19 @@ class CreateTablePanel(wx.Panel):
             sqlList.append(')')  
             sqlList.append(';')  
         sql = " ".join(sqlList)
+        logger.debug('sql: %s',sql)
 #         formatedSql=sqlparse.format(sql, encoding=None)
         return sql                      
     def onRemoveColumnClick(self, event):
-        print('onRemoveColumnClick clicked')
+        logger.debug('onRemoveColumnClick clicked')
         self.removeRow()
 #         self.updateItemStatus(event.GetIndex(), event.GetItem())
         
     def onMoveUpClick(self, event):
-        print('onMoveUpClick clicked')
+        logger.debug('onMoveUpClick clicked')
         
     def onMoveDownClick(self, event):
-        print('onMoveDownClick clicked')
+        logger.debug('onMoveDownClick clicked')
 class SimpleGrid(wx.grid.Grid):
     def __init__(self, parent):
         wx.grid.Grid.__init__(self, parent, -1, size=(400, 300))
@@ -322,13 +333,13 @@ class SimpleGrid(wx.grid.Grid):
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->', path)
         path = os.path.abspath(os.path.join(path, "images"))
         self.bmpList = list()
