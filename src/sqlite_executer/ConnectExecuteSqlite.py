@@ -394,7 +394,6 @@ class ManageSqliteDatabase():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
-        error = 'success'
         sqlOutput = dict()
         try:
             with self.conn:    
@@ -417,11 +416,11 @@ class ManageSqliteDatabase():
                             sqlOutput[idx + 1] = item
         except Exception as e:
             logger.error(e, exc_info=True)
+            raise e
             self.conn.rollback()
-            error=e
 #             raise e
 #         print(sqlOutput)
-        return sqlOutput,error
+        return sqlOutput
     
     def sqlite_insert(self, table, rows):
         '''

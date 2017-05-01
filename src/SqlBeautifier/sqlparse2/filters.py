@@ -11,7 +11,9 @@ from src.SqlBeautifier.sqlparse2.tokens import (Comment, Comparison, Keyword, Na
                              String, Whitespace)
 from src.SqlBeautifier.sqlparse2.utils import memoize_generator
 
+import logging
 
+logger = logging.getLogger('extensive')
 # --------------------------
 # token process
 

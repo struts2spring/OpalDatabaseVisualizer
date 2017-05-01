@@ -9,12 +9,10 @@ from src.view.preference.PreferencePanel import PreferencePanel, AppearancePanel
     SearchPanel, WorkspacePanel, KeysPanel
 from src.view.preference.images import catalog
 from src.view.images import WXPdemo
-# from src.ui.view.preference.General import GeneralPreferencePanel
-# from src.audit.singletonLoggerLogging import Logger
-# from src.ui.view.preference.PreferencePanel import PreferencePanel,\
-#     WorkspacePanel, SearchPanel, AppearancePanel, KeysPanel
+import logging
 
-# logger = Logger(__name__)
+logger = logging.getLogger('extensive')
+
 print('Opal preferences logger init')
 
 _demoPngs = ["overview", "recent", "frame", "dialog", "moredialog", "core",
@@ -210,11 +208,11 @@ class OpalPreference(wx.Frame):
         self.Show()
     # Makes sure the user was intending to quit the application
     def OnCloseFrame(self, event):
-        print('OnCloseFrame')
+        logger.debug('OnCloseFrame')
         self.OnExitApp(event)
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
-        print('OnExitApp')
+        logger.debug('OnExitApp')
         self.Destroy()
         
     def OnSearchMenu(self, event):
@@ -332,13 +330,13 @@ class OpalPreference(wx.Frame):
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
-        print("OnItemExpanded: %s" % self.tree.GetItemText(item))
+        logger.debug("OnItemExpanded: %s" , self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
     def OnItemCollapsed(self, event):
         item = event.GetItem()
-        print("OnItemCollapsed: %s" % self.tree.GetItemText(item))
+        logger.debug("OnItemCollapsed: %s",self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
@@ -365,7 +363,7 @@ class OpalPreference(wx.Frame):
 #         self.StartDownload()
     #---------------------------------------------
     def UpdateNotebook(self, select=-1, preferenceName=None):
-        print('UpdateNotebook ' + preferenceName)
+        logger.debug("UpdateNotebook: %s",preferenceName)
         self.pnl.Freeze()
         self.nb.DeletePage(0)
         self.nb.InsertPage(0, self.getPreferencePanelObj(preferenceName), preferenceName, imageId=0)

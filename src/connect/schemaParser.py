@@ -4,7 +4,9 @@ Created on 25-Dec-2016
 @author: vijay
 '''
 import json
+import logging
 
+logger = logging.getLogger('extensive')
 class Table():
     def __init__(self, name):
         self._name = name

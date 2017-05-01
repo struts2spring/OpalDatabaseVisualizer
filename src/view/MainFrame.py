@@ -95,7 +95,7 @@ class DatabaseMainFrame(wx.Frame):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        logging.debug(path)
+        logger.debug(path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
@@ -156,7 +156,7 @@ class DatabaseMainFrame(wx.Frame):
         """ Simply function that receive the row values when the
             user select an item
         """
-        logging.debug("Select Callback called...:"+values)
+        logger.debug("Select Callback called...:"+values)
         
     def setDynamicChoices(self):
         ctrl = self._ctrl

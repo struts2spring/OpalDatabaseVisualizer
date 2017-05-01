@@ -5,7 +5,9 @@
 import re
 
 from src.SqlBeautifier.sqlparse2 import tokens as T
+import logging
 
+logger = logging.getLogger('extensive')
 
 class Token(object):
     """Base class for all other classes in this module.
