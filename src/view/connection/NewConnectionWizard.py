@@ -7,6 +7,13 @@ Created on 04-Feb-2017
 import wx
 import wx.wizard
 from src.view.connection.DatabaseNavigation import DatabaseNavigationTree
+import os
+from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
+    SQLExecuter
+from sqlite3 import OperationalError
+import logging
+
+logger = logging.getLogger('extensive')
 
 class TitledPage(wx.wizard.WizardPageSimple):
     def __init__(self, parent, title):
@@ -14,7 +21,7 @@ class TitledPage(wx.wizard.WizardPageSimple):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.SetSizer(self.sizer)
         titleText = wx.StaticText(self, -1, title)
-        titleText.SetFont(wx.Font(18, wx.SWISS, wx.NORMAL, wx.BOLD))
+        titleText.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD))
         self.sizer.Add(titleText, 0, wx.ALIGN_CENTRE | wx.ALL, 5)
         self.sizer.Add(wx.StaticLine(self, -1), 0,
                 wx.EXPAND | wx.ALL, 5)
@@ -66,7 +73,7 @@ class SelectDatabaseNamePage(wx.wizard.WizardPageSimple):
     #                 if SearchDemo(childItem, value):
                     self.searchItems[category].append(childItem)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         wx.EndBusyCursor()
         self.RecreateTree()   
     #---------------------------------------------    
@@ -120,24 +127,76 @@ class SelectDatabaseNamePage(wx.wizard.WizardPageSimple):
 
         databaseLeaf = self.tree.AppendItem(self.root, 'SQLite', image=16)
 
-     
+class ConncectionSettings(wx.wizard.WizardPageSimple):
+    def __init__(self, parent, title='define title'):
+        wx.wizard.WizardPageSimple.__init__(self, parent)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.SetSizer(self.sizer)
+        titleText = wx.StaticText(self, -1, title)
+        
+        
+        fs = self.GetFont().GetPointSize()
+        bf = wx.Font(fs + 4, wx.SWISS, wx.NORMAL, wx.BOLD)
+        nf = wx.Font(fs + 2, wx.SWISS, wx.NORMAL, wx.NORMAL)
+        titleText.SetFont(bf)    
+        
+        self.sizer.Add(titleText, 0, wx.ALIGN_CENTRE | wx.ALL, 5)
+        self.sizer.Add(wx.StaticLine(self, -1), 0, wx.EXPAND | wx.ALL, 5)
+        #################################################################### 
+        self.panel = wx.Panel(self, -1)
+        
+        vbox1 = wx.BoxSizer(wx.VERTICAL) 
+        hbox1 = wx.BoxSizer(wx.HORIZONTAL) 
+        connectionNameLabel = wx.StaticText(self.panel, -1, "Connection name :   ")
+        self.connectionNameTextCtrl = wx.TextCtrl(self.panel, size=(300,23))
+        hbox1.Add(connectionNameLabel) 
+        hbox1.Add(self.connectionNameTextCtrl,0,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,1)
+        
+        import wx.lib.filebrowsebutton as brows
+        self.markFile = brows.FileBrowseButton(self.panel,labelText="File path                  :",  fileMode=wx.OPEN, size=(400,30))
+
+        vbox1.Add(hbox1)
+        vbox1.Add(self.markFile)
+        self.panel.SetSizer(vbox1) 
+        self.sizer.Add(self.panel, 0, wx.ALL , 5)
+        ####################################################################        
+        
+class CreateNewConncetionWixard():
+    
+    def __init__(self):
+        pass
+    def createWizard(self):
+        wizard = wx.wizard.Wizard(None, -1, "Create new connection")
+        page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
+        page2 = ConncectionSettings(wizard, "Connection settings")
+#         page3 = TitledPage(wizard, "Page 3")
+#         page4 = TitledPage(wizard, "Page 4")
+#         page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
+#         page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
+        wx.wizard.WizardPageSimple_Chain(page1, page2)
+#         wx.wizard.WizardPageSimple_Chain(page2, page3)
+#         wx.wizard.WizardPageSimple_Chain(page3, page4)
+        wizard.FitToPage(page1)
+    
+        if wizard.RunWizard(page1):
+            print("Success")
+            selectedItem=page1.tree.GetSelection()
+            print(page1.tree.GetItemText(selectedItem))
+            print(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
+            databasefile=page2.markFile.GetValue() 
+            connectionName=page2.connectionNameTextCtrl.GetValue()
+            self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
+        wizard.Destroy()        
+    
+    def createNewDatabase(self, databaseAbsolutePath=None,connectionName=None):
+        try:
+            manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath=databaseAbsolutePath,connectionName=connectionName)
+            manageSqliteDatabase.createTable()
+            sqlExecuter=SQLExecuter()
+            sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
+        except OperationalError as err:
+            print(err)
 if __name__ == "__main__":
 
-
     app = wx.App()
-    wizard = wx.wizard.Wizard(None, -1, "Simple Wizard")
-    page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
-    page2 = TitledPage(wizard, "Page 2")
-    page3 = TitledPage(wizard, "Page 3")
-    page4 = TitledPage(wizard, "Page 4")
-    page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
-    page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
-    wx.wizard.WizardPageSimple_Chain(page1, page2)
-    wx.wizard.WizardPageSimple_Chain(page2, page3)
-    wx.wizard.WizardPageSimple_Chain(page3, page4)
-    wizard.FitToPage(page1)
-  
-    if wizard.RunWizard(page1):
-        print("Success")
-  
-    wizard.Destroy()
+    CreateNewConncetionWixard().createWizard()

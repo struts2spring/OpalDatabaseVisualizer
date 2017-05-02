@@ -16,9 +16,15 @@ from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
-from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
+    ManageSqliteDatabase
 from datetime import date, datetime
 import time
+import logging
+from sys import exc_info
+from sqlite3 import OperationalError
+
+logger = logging.getLogger('extensive')
 # from src.format_sql.shortcuts import Beautify
 # from src.format_sql.shortcuts import format_sql
 
@@ -230,7 +236,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->', path)
         path = os.path.abspath(os.path.join(path, "images"))
         # register some images for use in the AutoComplete box.
@@ -245,7 +251,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             wx.ArtProvider.GetBitmap(wx.ART_COPY, size=(16, 16)))
         
     def formatCode(self, inputText=None):
-        print("formatCode:", inputText)
+        logger.debug("formatCode: %s", inputText)
 #         new = inputText + "1"
         formatted_sql = SqlBeautifierCommand().format_sql(inputText)
 #         new=Beautify().format_sql(inputText)
@@ -272,6 +278,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 
     def copyClipboard(self, text=None):
         """"""
+        logger.debug("formatCode: %s", text)
         if self.SelectionIsRectangle():
             self.selection_column_mode = True
         else:
@@ -290,16 +297,16 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
-        print('OnKeyUp------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+        logger.debug('OnKeyUp: GetKeyCode:%s ControlDown:%s ShiftDown:%s', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
         
         if event.ControlDown() and  key == 67:
-            print('ctrl+C', self.GetSelectedText())
+            logger.debug('ctrl+C %s', self.GetSelectedText())
             self.copyClipboard(text=self.GetSelectedText())    
             if key == 86:
                 self.Paste()
 
         elif event.ControlDown() and  key == 76:
-            print('ctrl+L', self.GetSelectedText())
+            logger.debug('ctrl+L %s', self.GetSelectedText())
             dlg = CreatingGoToLinePanel(self, -1, "Go to Line", size=(350, 200),
                  style=wx.DEFAULT_DIALOG_STYLE,
                  )
@@ -310,36 +317,35 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             
             if val == wx.ID_OK:
                 lineNumber = dlg.lineNumberText.GetValue()
-                print("You pressed OK\n", lineNumber)
+                logger.debug("You pressed OK %s", lineNumber)
                 if lineNumber != '':
                     self.GotoLine(int(lineNumber))
                 
             else:
-                print("You pressed Cancel\n")
+                logger.debug("You pressed Cancel\n")
             
             dlg.Destroy()
 #             app.MainLoop()
         elif event.ControlDown() and  key == 86:
-            print('ctrl+V : paste')
+            logger.debug('ctrl+V : paste')
             self.Paste()
         elif event.ControlDown() and  key == 90:
-            print('Ctrl+Z: Undo')
+            logger.debug('Ctrl+Z: Undo')
             self.Undo()
             event.Skip()
         elif event.ControlDown() and  key == 88:
-            print('ctrl+X: for cut')
+            logger.debug('ctrl+X: for cut')
             self.Cut()
             event.Skip()
         elif event.ControlDown() and  key == 89:
-            print('Ctrl+Y: Redo')
+            logger.debug('Ctrl+Y: Redo')
             self.Redo()
             event.Skip()
         elif key in (314, 315, 316, 317):
             line = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
-            print('left right up down', lineText, line, column)
+            logger.debug('left right up down. lineText: %s line: %s column:%s', lineText, line, column)
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
-            print(self.GetTopLevelParent())
             self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
     
 #     def duplicateLine(self, lineText, lineNo):
@@ -360,46 +366,45 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
-        print(wx.WXK_CONTROL_C)
-        print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+#         print('OnKeyPressed------->', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
         if event.ControlDown() and event.AltDown() and key == 317:
-            print('ctrl+Alt+Down: duplicate line of code')
+            logger.debug('ctrl+Alt+Down: duplicate line of code')
             selectedText = self.GetSelectedText()
-            print(selectedText)
+            logger.debug(selectedText)
             lineNo = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
             if selectedText != None:
                 self.AddText(lineText)
             
         elif event.ControlDown() and event.ShiftDown() and key == 70:
-            print('ctrl+Shtft+F: format code')
+            logger.debug('ctrl+Shtft+F: format code')
             selectedText = self.GetSelectedText()
             self.formatCode(inputText=selectedText)
             
             event.Skip()
         elif event.ControlDown() and  key == 70:
-            print('ctrl+F: for find and relpace')
+            logger.debug('ctrl+F: for find and relpace')
             if self.frame == None:
                 self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
 #             self.copyClipboard(text=self.GetSelectedText())
             event.Skip()            
         elif not event.ControlDown() and event.AltDown() and key == 317:
-            print('Alt+Down: MoveSelectedLinesDown')
+            logger.debug('Alt+Down: MoveSelectedLinesDown')
             self.MoveSelectedLinesDown()
             event.Skip()
         elif event.AltDown() and key == 316:
-            print('Alt+up: MoveSelectedLinesUp')
+            logger.debug('Alt+up: MoveSelectedLinesUp')
             self.MoveSelectedLinesUp()
             event.Skip()
 
         elif key == wx.WXK_RETURN and event.ControlDown():
-            print('ctrl+Enter: execute sql')
+            logger.debug('ctrl+Enter: execute sql')
             self.executeSQL()
             self.refreshSqlLogUi()
             
         elif key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
-            print(self.GetSelectedText())
+            logger.debug(self.GetSelectedText())
 #             self.AddText('viajy')
 #             self.AddSelection('viajy')
             
@@ -419,7 +424,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 # for x in range(50000):
                 #    lst.append('%05d' % x)
                 # st = " ".join(lst)
-                # print len(st)
+                # logger.debug len(st)
                 # self.AutoCompShow(0, st)
 
 #                 kw = keyword.kwlist[:]
@@ -477,10 +482,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.BraceHighlight(braceAtCaret, braceOpposite)
             # pt = self.PointFromPosition(braceOpposite)
             # self.Refresh(True, wxRect(pt.x, pt.y, 5,5))
-            # print pt
+            # logger.debug pt
             # self.Refresh(False)
     def OnMarginClick(self, event):
-        print('on_margin_click', self, event)
+        logger.debug('on_margin_click self:%s event:%s', self, event)
         # fold and unfold as needed
         if event.GetMargin() == 2:
             if event.GetShift() and event.GetControl():
@@ -572,16 +577,15 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def onLeftMouseUp(self, event):
         line = self.GetCurrentLine()
         lineText, column = self.GetCurLine()
-        print('left right up down', lineText, line, column)
-        print('GetHighlightGuide: ', self.GetHighlightGuide())
+        logger.debug('onLeftMouseUp lineText:%s line:%s column:%s', lineText, line, column)
+        logger.debug('GetHighlightGuide: %s', self.GetHighlightGuide())
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
-        print(self.GetTopLevelParent())
         self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
         
         event.Skip()
     def onRightMouseDown(self, event):
         other_menus = []
-        print('OnPopUp', self, event)
+        logger.debug('OnPopUp self:%s event:%s', self, event)
         if self.popmenu:
             self.popmenu.Destroy()
             self.popmenu = None
@@ -729,7 +733,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def convert_key(self, keydef):
         f = 0
         ikey = 0
-#         print 'keydef-------------->', keydef
+#         logger.debug 'keydef-------------->', keydef
         for k in keydef.split('+'):
             uk = k.upper()
             if uk == 'CTRL':
@@ -743,12 +747,12 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             elif len(uk) == 1:
                 ikey = ord(uk)
             else:
-                print("[TextEditor] Undefined char [%s]" % uk)
+                logger.debug("[TextEditor] Undefined char [%s]", uk)
                 continue
         return f, ikey      
 
     def execute_key(self, keydef):
-#         print 'execute_key--->', keydef
+#         logger.debug 'execute_key--->', keydef
         if isinstance(keydef, str):
             cmd = self.keydefs.get(keydef.upper(), None)
         else:
@@ -757,40 +761,72 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CmdKeyExecute(cmd)
     
     def executeSQL(self):
+        error='success'
         sqlText = self.GetSelectedText()
         if self.GetSelectedText() == '' or self.GetSelectedText() == None:
             sqlText, column = self.GetCurLine()
         
-        print('executeSQL' , sqlText)
-        sqlOutput=None
-        startTime=time.time()
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        textCtrl=self.GetTopLevelParent()._ctrl
+        selectedItemText=textCtrl.GetValue()
+        dbFilePath=sqlExecuter.getDbFilePath(selectedItemText)
+        logger.debug("dbFilePath: %s",dbFilePath)
+        
+        ##################################################################################
+        logger.debug('executeSQL: %s' , sqlText)
         try:
-            sqlExecuter = SQLExecuter(database='_opal.sqlite')
-            sqlOutput = sqlExecuter.executeText(sqlText)
-            print(sqlOutput)
-        except:
-            pass
-        endTime=time.time()
-        print('duration',endTime-startTime)
-        duration=endTime-startTime
-        self.updateSqlLog(sqlText, duration)
-
-        creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
-        creatingWorksheetPanel.setResultData(data=sqlOutput)
-        resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
-        if sqlOutput:
-            resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+            if os.path.isfile(dbFilePath):
+                sqlOutput=None
+                startTime=time.time()
+                try:
+                    manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
+                    sqlOutput = manageSqliteDatabase.executeText(sqlText)
+                except OperationalError as oe:
+                    self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n"+str(oe))
+                except Exception as e:
+                    logger.error(e, exc_info=True)
+                endTime=time.time()
+                logger.debug('duration:',endTime-startTime)
+                duration=endTime-startTime
+                if selectedItemText:
+                    self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
+        
+                creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
+                creatingWorksheetPanel.setResultData(data=sqlOutput)
+                resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
+        #         if sqlOutput:
+                resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+        except TypeError as te:
+            logger.error(te, exc_info=True)
+            if not dbFilePath:
+                error='Unable to connect. Please choose a database to execute Script.'
+                self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.AppendText("\n"+error)
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.AppendText("\n"+str(e))
+#             print(e)
+            error=str(e)
+#         updateStatus="Unable to connect '"+dbFilePath +". "+error
+#         scriptOutputPanel = self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window
+#         scriptOutputPanel.text.AppendText(error)
+#             font = self.GetTopLevelParent().statusbar.GetFont() 
+#             font.SetWeight(wx.BOLD) 
+#             self.GetTopLevelParent().statusbar.SetFont(font) 
+#             self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
+#             self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
         # TODO Update update sql log history grid
         
-    def updateSqlLog(self, sqlText, duration):
-        print('updating sql log', sqlText)
+    def updateSqlLog(self, sqlText, duration,connectionName=None):
+#         print('updating sql log', sqlText)
+        logger.debug('updating sql log %s', sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         table = 'sql_log'
-        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':'connection name', 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
+        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
         
     def refreshSqlLogUi(self):
-        print('refreshSqlLogUi')
+        logger.debug('refreshSqlLogUi')
         historyGrid=self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
         sqlText='select * from sql_log order by created_time desc;'
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
@@ -843,7 +879,8 @@ class CreatingEditorPanel(wx.Panel):
         self.sstc.SetText(demoText)
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
-        self.sstc.SetBestFittingSize(wx.Size(400, 400))
+        self.sstc.SetInitialSize(wx.Size(400, 400))
+#         self.sstc.SetBestFittingSize(wx.Size(400, 400))
 
         # line numbers in the margin
         self.sstc.SetMarginType(1, stc.STC_MARGIN_NUMBER)

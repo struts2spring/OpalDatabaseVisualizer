@@ -7,7 +7,9 @@ from src.SqlBeautifier.sqlparse3 import tokens
 from src.SqlBeautifier.sqlparse3.keywords import KEYWORDS, KEYWORDS_COMMON
 from io import StringIO
 import collections
+import logging
 
+logger = logging.getLogger('extensive')
 
 class include(str):
     pass

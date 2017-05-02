@@ -5,6 +5,7 @@ Created on 11-Dec-2016
 @author: vijay
 '''
 
+
 import wx
 
 import wx.aui
@@ -21,16 +22,11 @@ from wx import ID_PREFERENCES
 from src.view.preference.OpalPreferences import OpalPreference
 from src.view.connection.GetConnect import CreatingNewConnectionPanel
 from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
-    TitledPage, CreateNewConncetionWixard
+    TitledPage
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
     TextCtrlAutoComplete
-from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
-import logging
-from src.view.sqlScriptOutput.SqlOutputPanel import SqlScriptOutputPanel
-
-logger = logging.getLogger('extensive')
-
+# from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
 
@@ -40,18 +36,27 @@ logger = logging.getLogger('extensive')
 # ID_newWorksheet = wx.NewId()
 # ID_preferences = wx.NewId()
 #---------------------------------------------------------------------------
+class BasicPanel(wx.Panel):
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent
+        
+        vBox = wx.BoxSizer(wx.VERTICAL)
 
-
-
-class DatabaseMainFrame(wx.Frame):
+        ####################################################################
+        ####################################################################
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(vBox, 1, wx.EXPAND , 0)
+        self.SetSizer(sizer)
+class ConnPropertyFrame(wx.Frame):
 
     def __init__(self, parent):
-        logger.info("This is from Runner ")
         title = "Opal Database Visualizer"
         style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
-        logger.info('1----------------------->'+ os.getcwd())
+        
+        print('1----------------------->', os.getcwd())
         path = os.path.abspath(__file__)
         tail = None
         while tail != 'src':
@@ -71,16 +76,16 @@ class DatabaseMainFrame(wx.Frame):
         
         try:
             self.createAuiManager()
-        except Exception as e:
-            logger.error(e, exc_info=True)
+        except Exception as ex:
+            print(ex)
         self.bindingEvent()
         self._mgr.Update()  
-    def creatingTreeCtrl(self):
+    def creatingBasicPanel(self):
         # Create a TreeCtrl
-        treePanel = CreatingTreePanel(self)
+        basicPanel = BasicPanel(self)
 
 
-        return treePanel
+        return basicPanel
     #---------------------------------------------    
 
          
@@ -95,7 +100,7 @@ class DatabaseMainFrame(wx.Frame):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        logger.debug(path)
+        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
@@ -107,6 +112,10 @@ class DatabaseMainFrame(wx.Frame):
         tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join(path, "script.png")))
         tb1.AddLabelTool(id=wx.ID_PREFERENCES, label="Preferences", shortHelp="Preferences", bitmap=wx.Bitmap(os.path.join(path, "preference.png")))
         
+        
+#         self.combo = wx.ComboBox( tb1, 555, value = "Times", choices = ["Arial","Times","Courier"])  
+#         self.ch = wx.Choice(tb1, -1, (100, 50), choices = ['zero', 'one', 'two'])
+#         textCtrlAutoComplete=wx.TextCtrl(tb1)
         ###################################################################################################
         args = {}
         if True:
@@ -137,7 +146,7 @@ class DatabaseMainFrame(wx.Frame):
 #                 ]
         self._ctrl = TextCtrlAutoComplete(tb1, **args)
         print('size------------->',self._ctrl.GetSize())
-        self._ctrl.SetSize((200, 25))
+        self._ctrl.SetSize((200, 30))
         print('size------------->',self._ctrl.GetSize())
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.setDynamicChoices)
@@ -156,7 +165,7 @@ class DatabaseMainFrame(wx.Frame):
         """ Simply function that receive the row values when the
             user select an item
         """
-        logger.debug("Select Callback called...:"+values)
+        print "Select Callback called...:",  values
         
     def setDynamicChoices(self):
         ctrl = self._ctrl
@@ -195,6 +204,7 @@ class DatabaseMainFrame(wx.Frame):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
+        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
@@ -213,7 +223,7 @@ class DatabaseMainFrame(wx.Frame):
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "folder_database.png"))).
+        self._mgr.AddPane(self.creatingBasicPanel(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "folder_database.png"))).
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
                           Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
      
@@ -230,14 +240,14 @@ class DatabaseMainFrame(wx.Frame):
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
 
   
-        self._mgr.AddPane(self.sqlScriptOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql_script_recent.png"))).
-                          Name("scriptOutput").Caption("Script Output").Dockable(True).Movable(True).LeftDockable(True).
-                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
+#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
+#                           Name("test1").Caption("Client Size Reporter").Dockable(True).Movable(True).LeftDockable(True).
+#                           Bottom().Layer(0).Position(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
         
             
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
-                          Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
-                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
+#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
+#                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
+#                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
         
             
         self._mgr.GetPane("tb1").Show()
@@ -254,9 +264,7 @@ class DatabaseMainFrame(wx.Frame):
 #     def constructSchemaViewerPane(self):
 #         svgViewer = SVGViewerPanel(self)
 #         return svgViewer
-    def sqlScriptOutputPane(self):
-        sqlScriptOutputPanel=SqlScriptOutputPanel(self)
-        return sqlScriptOutputPanel
+    
     def constructSqlPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
           
@@ -285,6 +293,7 @@ class DatabaseMainFrame(wx.Frame):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
+        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         
         print('creating menu bar')
@@ -377,7 +386,25 @@ class DatabaseMainFrame(wx.Frame):
         print('onOpenConnection')
     def onNewConnection(self, event):
         print('onNewConnection')
-        CreateNewConncetionWixard().createWizard()
+        wizard = wx.wizard.Wizard(self, -1, "Simple Wizard")
+        page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
+        page2 = TitledPage(wizard, "Connection settings")
+        page3 = TitledPage(wizard, "Page 3")
+        page4 = TitledPage(wizard, "Page 4")
+        page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
+        page4.sizer.Add(wx.StaticText(page4, -1, "This is the last page."))
+        wx.wizard.WizardPageSimple_Chain(page1, page2)
+        wx.wizard.WizardPageSimple_Chain(page2, page3)
+        wx.wizard.WizardPageSimple_Chain(page3, page4)
+        wizard.FitToPage(page1)
+    
+        if wizard.RunWizard(page1):
+            print("Success")
+    
+        wizard.Destroy()        
+        self.Show()
+#         newConnectionFrame=CreatingNewConnectionPanel(self)
+#         newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
         
     def onNewWorksheet(self, event):
         print('onNewWorksheet')
@@ -488,6 +515,6 @@ class SizeReportCtrl(wx.PyControl):
 
 if __name__ == "__main__":
     app = wx.App()
-    frame = DatabaseMainFrame(None)
+    frame = ConnPropertyFrame(None)
     frame.Show()
     app.MainLoop()

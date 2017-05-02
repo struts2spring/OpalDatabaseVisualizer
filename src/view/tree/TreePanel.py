@@ -10,9 +10,13 @@ from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.Constant import ID_newWorksheet, keyMap, ID_CONNECT_DB,\
     ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH
-from src.view.table.CreateTable import CreatingTableFrame
+from src.view.table.CreateNewTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
     ManageSqliteDatabase
+import logging
+
+logger = logging.getLogger('extensive')
+
 
 class CreatingTreePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -30,10 +34,10 @@ class CreatingTreePanel(wx.Panel):
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter table name")
         self.filter.ShowCancelButton(True)
-        self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
+        self.filter.Bind(wx.EVT_TEXT, self.recreateTree)
         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
-        self.RecreateTree()
+        self.recreateTree()
         
 #         self.tree.SetExpansionState(self.expansionState)
         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
@@ -54,7 +58,7 @@ class CreatingTreePanel(wx.Panel):
 
         value = self.filter.GetValue()
         if not value:
-            self.RecreateTree()
+            self.recreateTree()
             return
 
         wx.BeginBusyCursor()
@@ -67,9 +71,9 @@ class CreatingTreePanel(wx.Panel):
         except Exception as e:
             print(e)
         wx.EndBusyCursor()
-        self.RecreateTree()   
+        self.recreateTree()   
     #---------------------------------------------    
-    def RecreateTree(self, evt=None):
+    def recreateTree(self, evt=None):
         # Catch the search type (name or content)
 #         searchMenu = self.filter.GetMenu().GetMenuItems()
 #         fullSearch = searchMenu[1].IsChecked()
@@ -81,7 +85,7 @@ class CreatingTreePanel(wx.Panel):
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
 
-　
+
                     
         self.createDefaultNode()
                     
@@ -94,7 +98,7 @@ class CreatingTreePanel(wx.Panel):
     
     #---------------------------------------------
     def createDefaultNode(self):
-        print("TreePanel.createDefaultNode")
+        logger.debug("TreePanel.createDefaultNode")
         sqlExecuter = SQLExecuter()
         dbList = sqlExecuter.getListDatabase()
         
@@ -149,8 +153,8 @@ class CreatingTreePanel(wx.Panel):
             # Appending connections
             self.addNode(targetNode=self.root, nodeLabel=db[1],pydata=data, image=image)
 
-　
-　
+
+
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:
@@ -161,6 +165,8 @@ class CreatingTreePanel(wx.Panel):
             self.skipLoad = True
             self.tree.SelectItem(selectItem)
             self.skipLoad = False      
+    
+    
             
     def addNode(self, targetNode=None, nodeLabel='label', pydata=None, image=16):  
         nodeCreated = self.tree.AppendItem(targetNode, nodeLabel, image=image)
@@ -172,13 +178,13 @@ class CreatingTreePanel(wx.Panel):
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
-#         print("OnItemExpanded: %s" % self.tree.GetItemText(item))
+#         logger.debug("OnItemExpanded: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
     def OnItemCollapsed(self, event):
         item = event.GetItem()
-#         print("OnItemCollapsed: %s" % self.tree.GetItemText(item))
+#         logger.debug("OnItemCollapsed: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
@@ -187,11 +193,11 @@ class CreatingTreePanel(wx.Panel):
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
         if item == self.tree.GetSelection():
-            print(self.tree.GetItemText(item) + " Overview")
+            logger.debug(self.tree.GetItemText(item) + " Overview")
         event.Skip()
     #---------------------------------------------
     def OnSelChanged(self, event):
-        print('OnSelChanged')
+        logger.debug('OnSelChanged')
     #---------------------------------------------
     def OnTreeRightDown(self, event):
         
@@ -201,10 +207,10 @@ class CreatingTreePanel(wx.Panel):
         if item:
             self.tree.item = item
             self.tree.item
-            print("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
+            logger.debug("OnRightClick: %s, %s, %s" % (self.tree.GetItemText(item), type(item), item.__class__) + "\n")
             self.tree.SelectItem(item)
             if self.tree.GetItemText(self.tree.item) != 'Connections':
-                print('parent', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)))
+                logger.debug('parent %s', self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)))
 
     #---------------------------------------------
     def OnTreeRightUp(self, event):
@@ -217,8 +223,7 @@ class CreatingTreePanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->', path)
+            logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         
         item = self.tree.item     
@@ -226,7 +231,7 @@ class CreatingTreePanel(wx.Panel):
         if not item:
             event.Skip()
             return
-        print('OnTreeRightUp')
+        logger.debug('OnTreeRightUp')
 
         
         menu = wx.Menu()
@@ -249,7 +254,10 @@ class CreatingTreePanel(wx.Panel):
             sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "script.png"))))
             item3 = menu.AppendItem(sqlEditorBmp)
             
-            item4 = menu.Append(wx.ID_ANY, "Properties")
+            infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
+            infoBmp = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_MENU, (16,16)) 
+            infoMenuItem.SetBitmap(infoBmp)     
+            item4 = menu.AppendItem(infoMenuItem)      
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
@@ -258,10 +266,14 @@ class CreatingTreePanel(wx.Panel):
             
             item6 = menu.Append(wx.ID_ANY, "Edit Connection")
             menu.AppendSeparator()
-            item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
-            item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
-            menu.AppendItem(item7)
+#             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
+#             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
+#             menu.AppendItem(item7)
             
+            deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
+            delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16,16))
+            deleteMenuItem.SetBitmap(delBmp)
+            delMenu = menu.AppendItem(deleteMenuItem)
 #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             self.Bind(wx.EVT_MENU, self.onDisconnectDb, item1)
             self.Bind(wx.EVT_MENU, self.onConnectDb, item2)
@@ -269,6 +281,7 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
+            self.Bind(wx.EVT_MENU, self.onDeleteConnection, delMenu)
 
             
 
@@ -290,11 +303,11 @@ class CreatingTreePanel(wx.Panel):
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             
         elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
-            print(self.tree.GetItemText(item))
+            logger.debug(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit table")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
         elif 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
-            print(self.tree.GetItemText(item))
+            logger.debug(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit column")
             item1 = menu.Append(wx.ID_ANY, "Create new column")
             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
@@ -305,30 +318,31 @@ class CreatingTreePanel(wx.Panel):
         menu.Destroy() 
     
     def onRootRefresh(self, event):
-        print('onRootRefresh')
+        logger.debug('onRootRefresh')
+        self.recreateTree(event)
     def onRootNewConnection(self, event):
-        print('onRootNewConnection')
+        logger.debug('onRootNewConnection')
     def OnItemBackground(self, event):
-        print('OnItemBackground')
+        logger.debug('OnItemBackground')
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
         self.tree.EditLabel(item)
     def onConnectDb(self, event):
-        print('onConnectDb')
+        logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
         selectedItemId=self.tree.GetSelection()
-        self.getNodeOnOpenConnection(selectedItemId)
+        if self.getNodeOnOpenConnection(selectedItemId):
 #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
         # Todo change icon to enable
-        selectedItemText=self.tree.GetItemText(self.tree.GetSelection())
-        self.setAutoCompleteText(selectedItemText)
-        self.openWorksheet()
+            selectedItemText=self.tree.GetItemText(self.tree.GetSelection())
+            self.setAutoCompleteText(selectedItemText)
+            self.openWorksheet()
     
     def setAutoCompleteText(self, selectedItemText):
         '''
         This is to set autocomplete text as we connect to database
         '''
-        print(selectedItemText)
+        logger.debug(selectedItemText)
         tb1=self.GetTopLevelParent()._mgr.GetPane("tb1").window
         choice=self.GetTopLevelParent()._ctrl.GetChoices()
         textCtrl=self.GetTopLevelParent()._ctrl
@@ -339,97 +353,116 @@ class CreatingTreePanel(wx.Panel):
         textCtrl._showDropDown( False )
     
     def onDisconnectDb(self, event):
-        print('onDisconnectDb')
+        logger.debug('onDisconnectDb')
         selectedItem = self.tree.GetSelection()
         if selectedItem:
             self.tree.DeleteChildren(selectedItem)
             # Todo change icon to dissable
     def onOpenSqlEditorTab(self, event):
-        print('onOpenSqlEditorTab')
+        logger.debug('onOpenSqlEditorTab')
         self.openWorksheet()
     def openWorksheet(self):
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         sqlExecutionTab.window.addTab("Worksheet")
 
     def onProperties(self, event):
-        print('onProperties')
+        logger.debug('onProperties')
     def onRefresh(self, event):
-        print('onRefresh')
+        logger.debug('onRefresh')
     def onEditConnection(self, event):
-        print('onEditConnection')
+        logger.debug('onEditConnection')
+    def onDeleteConnection(self, event):
+        logger.debug('onDeleteConnection')
 
     def onNewTable(self, event):
-        print('onNewTable')
-        tableFrame = CreatingTableFrame(None, 'Table creation')
+        logger.debug('onNewTable')
+        tableFrame = CreateTableFrame(None, 'Table creation')
         
         
     def getNodeOnOpenConnection(self, selectedItemId):
         '''
         This method will return database node on open connection
         '''
-        print('getNodeOnOpenConnection')
+        isSuccessfullyConnected=False
+        logger.debug('getNodeOnOpenConnection')
         data=self.tree.GetPyData(selectedItemId)
         connectionName=data['connection_name']
         databaseAbsolutePath=data['db_file_path']
-        dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject()
-
-        for dbObject in dbObjects[1]:
-            for k0,v0 in dbObject.iteritems():
-                print(k0,v0)
-                data=dict()
-                data['depth']=2
-                image=2
-                nodeLabel= k0 + ' (' + str(len(v0)) + ')'
-                child0= self.addNode(targetNode=selectedItemId, nodeLabel=nodeLabel, pydata=data, image=image) 
-                if 'table' == k0 :
-                    # setting image for 'table'
-                    image = 4
-                elif 'index'== k0 :
-                    # setting image for 'index'
-                    image = 5
-                elif 'view'== k0 :
-                    # setting image for 'view'
-                    image = 6
-#                 child = self.tree.AppendItem(selectedItemId, k0 + ' (' + str(len(items)) + ')', image=count)
-                for v00 in v0:
-                    for k1, v1 in v00.iteritems():
-                        # Listing tables
-                        data=dict()
-                        data['depth']=3
-                        nodeLabel= k1 + ' (' + str(len(v1)) + ')'
-                        if k0=='table':
-                            image = 4
-                        child1= self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
-                        
-                        print(k1,v1)
-                        if k0 == 'table':
-                            data = dict()
-                            data['depth']=4
-                            # setting  image for 'Columns', 'Unique Keys', 'Foreign Keys', 'References'
-                            image=11
-                            
-                            child1_1= self.addNode(targetNode=child1, nodeLabel='Columns', pydata=data, image=image) 
-                            child1_2= self.addNode(targetNode=child1, nodeLabel='Unique Keys', pydata=data, image=image) 
-                            child1_3= self.addNode(targetNode=child1, nodeLabel='Foreign Keys', pydata=data, image=image) 
-                            child1_4= self.addNode(targetNode=child1, nodeLabel='References', pydata=data, image=image) 
-                        for v2 in v1:
+        if os.path.isfile(databaseAbsolutePath):     
+            dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).getObject() 
+            isSuccessfullyConnected=True
+            for dbObject in dbObjects[1]:
+                for k0,v0 in dbObject.iteritems():
+                    logger.debug("k0 : %s, v0: %s",k0,v0)
+                    data=dict()
+                    data['depth']=2
+                    image=2
+                    nodeLabel= k0 + ' (' + str(len(v0)) + ')'
+                    child0= self.addNode(targetNode=selectedItemId, nodeLabel=nodeLabel, pydata=data, image=image) 
+                    if 'table' == k0 :
+                        # setting image for 'table'
+                        image = 4
+                    elif 'index'== k0 :
+                        # setting image for 'index'
+                        image = 5
+                    elif 'view'== k0 :
+                        # setting image for 'view'
+                        image = 6
+    #                 child = self.tree.AppendItem(selectedItemId, k0 + ' (' + str(len(items)) + ')', image=count)
+                    for v00 in v0:
+                        for k1, v1 in v00.iteritems():
+                            # Listing tables
+                            data=dict()
+                            data['depth']=3
+                            nodeLabel= k1 
                             if k0=='table':
-                                data=dict()
+                                image = 4
+                            child1= self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
+                            
+                            logger.debug("k1 : %s, v1: %s",k1,v1)
+                            if k0 == 'table':
+                                data = dict()
                                 data['depth']=4
-#                                  (cid integer, name text, type text, nn bit, dflt_value, pk bit)
-                                nodeLabel= v2[1]
+                                # setting  image for 'Columns', 'Unique Keys', 'Foreign Keys', 'References'
+                                image=11
                                 
-                                if v2[5]==1:
-                                    # setting primary key image
-                                    image=9
-                                elif v2[5]==0 and v2[2]== 'INTEGER':
-                                    # setting INTEGER image
-                                    image=7
-                                elif v2[5]==0 and v2[2]== 'VARCHAR':
-                                    # setting VARCHAR image
+                                child1_1= self.addNode(targetNode=child1, nodeLabel='Columns'+ ' (' + str(len(v1)) + ')', pydata=data, image=image) 
+                                child1_2= self.addNode(targetNode=child1, nodeLabel='Unique Keys', pydata=data, image=image) 
+                                child1_3= self.addNode(targetNode=child1, nodeLabel='Foreign Keys', pydata=data, image=image) 
+                                child1_4= self.addNode(targetNode=child1, nodeLabel='References', pydata=data, image=image) 
+                            for v2 in v1:
+                                if k0=='table':
+                                    data=dict()
+                                    data['depth']=4
+    #                                  (cid integer, name text, type text, nn bit, dflt_value, pk bit)
+                                    nodeLabel= v2[1]
                                     image=18
-                                child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
-                                print(v2)
+                                    if v2[5]==1:
+                                        # setting primary key image
+                                        image=9
+                                    elif v2[5]==0 and v2[2] in ['INTEGER','INT']:
+                                        # setting INTEGER image
+                                        image=7
+                                    elif v2[5]==0 :
+                                        for datatype in ['VARCHAR','CHAR','REAL','TEXT']:
+                                            if v2[2].lower().startswith(datatype.lower()):
+                                                # setting VARCHAR image
+                                                image=18
+                                                break
+                                    child2= self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
+                                    logger.debug(v2)
+        else:
+            updateStatus="Unable to connect '"+databaseAbsolutePath +".' No such file. "
+            font = self.GetTopLevelParent().statusbar.GetFont() 
+            font.SetWeight(wx.BOLD) 
+            self.GetTopLevelParent().statusbar.SetFont(font) 
+            self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
+            self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
+            
+        return isSuccessfullyConnected
+
+
+
         
 class databaseNavigationTree(ExpansionState, TreeCtrl):
     '''
@@ -465,7 +498,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print('onkey')
+        logger.debug('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 
@@ -496,17 +529,17 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
 
         event.Skip()            
     def BuildTreeImageList(self):
+        logger.debug('BuildTreeImageList')
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
-        print('------------------------------------------------------------------------->', path)
+            logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         imgList = wx.ImageList(16, 16)
 
@@ -519,7 +552,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "table.png"))))# 4
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "view.png"))))# 5
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))# 6
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "column.png"))))# 7 using to show integer column
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "column.png"))))# 7 using to show integer column 
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "string.png"))))  # 8
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "key.png"))))  # 9
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "foreign_key_column.png"))))  # 10
@@ -529,8 +562,8 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "datetime.png"))))  # 14
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "columns.png"))))  # 15
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "sqlite.png"))))  # 16
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "h2.png"))))  # 17
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "textfield.png"))))  # 18
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "h2.png"))))  # 17 use to show h2 database icon
+        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "textfield.png"))))  # 18 use to show [varchar, char, text data] type icon 
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())

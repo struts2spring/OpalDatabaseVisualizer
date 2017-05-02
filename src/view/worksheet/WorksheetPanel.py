@@ -11,6 +11,11 @@ import os
 import wx.aui as aui
 from src.view.Constant import ID_RUN
 from wx import ID_SPELL_CHECK
+import logging
+
+logger = logging.getLogger('extensive')
+
+
 
 ID_executeScript = wx.NewId()
 
@@ -27,7 +32,7 @@ class CreateWorksheetTabPanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         
@@ -182,7 +187,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
                 
@@ -272,7 +277,7 @@ class CreatingWorksheetPanel(wx.Panel):
         self.splitter.SizeWindows()        
     
     def setResultData(self, data=None):  
-        print('setResultData')
+        print('setResultData:', data)
         self.data=data
 #         self.data = music
         self.resultPanel.Layout()

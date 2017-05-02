@@ -12,7 +12,9 @@ import re
 from src.SqlBeautifier.sqlparse2 import tokens
 from src.SqlBeautifier.sqlparse2.keywords import KEYWORDS, KEYWORDS_COMMON
 from cStringIO import StringIO
+import logging
 
+logger = logging.getLogger('extensive')
 
 class include(str):
     pass

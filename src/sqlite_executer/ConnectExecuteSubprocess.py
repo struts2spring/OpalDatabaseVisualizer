@@ -6,7 +6,9 @@ Created on Feb 18, 2017
 import os
 import sys
 import subprocess
+import logging
 
+logger = logging.getLogger('extensive')
 
 print(sys.platform)
 class SqliteConnect():

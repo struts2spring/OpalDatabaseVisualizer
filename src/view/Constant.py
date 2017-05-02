@@ -106,7 +106,6 @@ keyMap = {
     wx.WXK_NUMPAD_DIVIDE : "WXK_NUMPAD_DIVIDE"
     }
 
-　
 ID_UPDATE_CHECK = wx.NewId()
 ID_newConnection = wx.NewId()
 ID_openConnection = wx.NewId()
@@ -129,5 +128,3 @@ ID_DISCONNECT_DB= wx.NewId()
 ID_ROOT_REFERESH= wx.NewId()
 ID_ROOT_NEW_CONNECTION= wx.NewId()
 
-　
-　

@@ -2,7 +2,9 @@
 
 import sys
 import os
+import logging
 
+logger = logging.getLogger('extensive')
 sys.path.append(os.path.dirname(__file__))
 
 if sys.version_info >= (3, 0):

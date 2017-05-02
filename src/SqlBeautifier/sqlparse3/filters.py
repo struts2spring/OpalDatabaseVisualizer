@@ -11,7 +11,9 @@ from src.SqlBeautifier.sqlparse3.pipeline import Pipeline
 from sqlparse3.tokens import (Comment, Comparison, Keyword, Name, Punctuation,
                              String, Whitespace)
 from src.SqlBeautifier.sqlparse3.utils import memoize_generator
+import logging
 
+logger = logging.getLogger('extensive')
 
 # --------------------------
 # token process

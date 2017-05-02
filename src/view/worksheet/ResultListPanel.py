@@ -5,9 +5,11 @@ import wx.aui as aui
 import os
 from src.view.Constant import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
-    ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST, music
+    ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST
 from src.view.worksheet.ResultGrid import ResultDataGrid
+import logging
 
+logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------
 
 # This model class provides the data to the view when it is asked for.
@@ -307,7 +309,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))        
         # create some toolbars
@@ -348,7 +350,7 @@ class CreateResultSheetTabPanel(wx.Panel):
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
-            e.print_stack_trace()
+            logger.error(e, exc_info=True)
         print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
                 
