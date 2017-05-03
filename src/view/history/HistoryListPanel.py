@@ -12,6 +12,10 @@ from src.view.Constant import ID_COPY_COLUMN_HEADER
 import string
 import  wx.grid as gridlib
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+import logging
+
+logger = logging.getLogger('extensive')
+
 
 #---------------------------------------------------------------------------
 class MyCellEditor(gridlib.PyGridCellEditor):
@@ -22,7 +26,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
     docstring.
     """
     def __init__(self):
-        print("MyCellEditor ctor\n")
+        logger.debug("MyCellEditor ctor\n")
         gridlib.PyGridCellEditor.__init__(self)
 
 
@@ -31,7 +35,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Called to create the control, which must derive from wx.Control.
         *Must Override*
         """
-        print("MyCellEditor: Create\n")
+        logger.debug("MyCellEditor: Create\n")
         self._tc = wx.TextCtrl(parent, id, "")
         self._tc.SetInsertionPoint(0)
         self.SetControl(self._tc)
@@ -46,7 +50,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         If you don't fill the cell (the rect) then be sure to override
         PaintBackground and do something meaningful there.
         """
-        print("MyCellEditor: SetSize %s\n" % rect)
+        logger.debug("MyCellEditor: SetSize %s\n", rect)
         self._tc.SetDimensions(rect.x, rect.y, rect.width + 2, rect.height + 2,
                                wx.SIZE_ALLOW_MINUS_ONE)
 
@@ -56,7 +60,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Show or hide the edit control.  You can use the attr (if not None)
         to set colours or fonts for the control.
         """
-        print("MyCellEditor: Show(self, %s, %s)\n" % (show, attr))
+        logger.debug("MyCellEditor: Show(self, %s, %s)\n", show, attr)
         super(MyCellEditor, self).Show(show, attr)
 
 
@@ -67,7 +71,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         attribute.  In this class the edit control fills the whole cell so
         don't do anything at all in order to reduce flicker.
         """
-        print("MyCellEditor: PaintBackground\n")
+        logger.debug("MyCellEditor: PaintBackground\n")
 
 
     def BeginEdit(self, row, col, grid):
@@ -76,7 +80,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         to begin editing.  Set the focus to the edit control.
         *Must Override*
         """
-        print("MyCellEditor: BeginEdit (%d,%d)\n" % (row, col))
+        logger.debug("MyCellEditor: BeginEdit (%d,%d)\n" ,row, col)
         self.startValue = grid.GetTable().GetValue(row, col)
         self._tc.SetValue(self.startValue)
         self._tc.SetInsertionPointEnd()
@@ -95,7 +99,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         the value in its string form.
         *Must Override*
         """
-        print("MyCellEditor: EndEdit (%s)\n" % oldVal)
+        logger.debug("MyCellEditor: EndEdit (%s)\n" ,oldVal)
         val = self._tc.GetValue()
         if val != oldVal:  # self.startValue:
             return val
@@ -110,7 +114,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         a non-None value.
         *Must Override*
         """
-        print("MyCellEditor: ApplyEdit (%d,%d)\n" % (row, col))
+        logger.debug("MyCellEditor: ApplyEdit (%d,%d)\n" . row, col)
         val = self._tc.GetValue()
         grid.GetTable().SetValue(row, col, val)  # update the table
 
@@ -123,7 +127,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Reset the value in the control back to its starting value.
         *Must Override*
         """
-        print("MyCellEditor: Reset\n")
+        logger.debug("MyCellEditor: Reset\n")
         self._tc.SetValue(self.startValue)
         self._tc.SetInsertionPointEnd()
 
@@ -134,7 +138,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         version only checks that the event has no modifiers.  F2 is special
         and will always start the editor.
         """
-        print("MyCellEditor: IsAcceptedKey: %d\n" % (evt.GetKeyCode()))
+        logger.debug("MyCellEditor: IsAcceptedKey: %d\n" ,evt.GetKeyCode())
 
         # # We can ask the base class to do it
         # return super(MyCellEditor, self).IsAcceptedKey(evt)
@@ -149,7 +153,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         If the editor is enabled by pressing keys on the grid, this will be
         called to let the editor do something about that first key if desired.
         """
-        print("MyCellEditor: StartingKey %d\n" % evt.GetKeyCode())
+        logger.debug("MyCellEditor: StartingKey %d\n" , evt.GetKeyCode())
         key = evt.GetKeyCode()
         ch = None
         if key in [ wx.WXK_NUMPAD0, wx.WXK_NUMPAD1, wx.WXK_NUMPAD2, wx.WXK_NUMPAD3,
@@ -177,12 +181,12 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         called to allow the editor to simulate the click on the control if
         needed.
         """
-        print("MyCellEditor: StartingClick\n")
+        logger.debug("MyCellEditor: StartingClick\n")
 
 
     def Destroy(self):
         """final cleanup"""
-        print("MyCellEditor: Destroy\n")
+        logger.debug("MyCellEditor: Destroy\n")
         super(MyCellEditor, self).Destroy()
 
 
@@ -191,7 +195,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Create a new object which is the copy of this one
         *Must Override*
         """
-        print("MyCellEditor: Clone\n")
+        logger.debug("MyCellEditor: Clone\n")
         return MyCellEditor()
         
             
@@ -236,11 +240,11 @@ class HistoryGrid(gridlib.Grid):
 
 
     def addData(self, data=None):
-#         print(self.GetRowSizes())
-#         print(self.GetColSizes())
+#         logger.debug(self.GetRowSizes())
+#         logger.debug(self.GetColSizes())
         self.ClearGrid()
-        print('rows:', self.GetNumberRows())
-        print('cols:', self.GetNumberCols())
+        logger.debug('rows: %s', self.GetNumberRows())
+        logger.debug('cols: %s', self.GetNumberCols())
 #         self.DeleteRows()
         currentRows,currentCols = (self.GetNumberRows(), self.GetNumberCols())
         newRows = len(data) - 1
@@ -267,7 +271,7 @@ class HistoryGrid(gridlib.Grid):
         
 
         for dataKey, dataValue in data.items():
-            print(dataKey, dataValue)
+            logger.debug("dataKey: %s dataValue: %s",dataKey, dataValue)
             for idx, colValue in enumerate(dataValue):
 #                 print(idx, dataValue)
                 if dataKey == 0:

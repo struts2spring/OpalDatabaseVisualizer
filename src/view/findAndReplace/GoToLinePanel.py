@@ -5,6 +5,10 @@ Created on 05-Feb-2017
 '''
 import wx
 
+import logging
+
+logger = logging.getLogger('extensive')
+
 
 
 #---------------------------------------------------------------------------
@@ -109,9 +113,9 @@ if __name__ == '__main__':
     val = dlg.ShowModal()
     
     if val == wx.ID_OK:
-        print("You pressed OK\n")
+        logger.debug("You pressed OK\n")
     else:
-        print("You pressed Cancel\n")
+        logger.debug("You pressed Cancel\n")
     
     dlg.Destroy()
     app.MainLoop()

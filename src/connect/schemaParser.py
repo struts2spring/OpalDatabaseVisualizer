@@ -46,8 +46,8 @@ if __name__ == '__main__':
     table.addColumn(col1 )
 #     table.addColumn('col2')
 #     table.addColumn('col3')
-    print(table)
-    print(col1)
+#     print(table)
+#     print(col1)
 #     print table.depth_first()
 #     print json.dump(table)
     pass

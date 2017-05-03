@@ -179,10 +179,10 @@ class CreateNewConncetionWixard():
         wizard.FitToPage(page1)
     
         if wizard.RunWizard(page1):
-            print("Success")
+            logger.debug("Success")
             selectedItem=page1.tree.GetSelection()
-            print(page1.tree.GetItemText(selectedItem))
-            print(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
+            logger.debug(page1.tree.GetItemText(selectedItem))
+            logger.debug(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
             databasefile=page2.markFile.GetValue() 
             connectionName=page2.connectionNameTextCtrl.GetValue()
             self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
@@ -195,7 +195,7 @@ class CreateNewConncetionWixard():
             sqlExecuter=SQLExecuter()
             sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
         except OperationalError as err:
-            print(err)
+            logger.error(err, exc_info=True)
 if __name__ == "__main__":
 
     app = wx.App()

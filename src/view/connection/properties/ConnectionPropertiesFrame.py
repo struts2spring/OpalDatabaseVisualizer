@@ -26,6 +26,10 @@ from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
     TextCtrlAutoComplete
+import logging
+
+logger = logging.getLogger('extensive')
+
 # from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.schema.CreateSchemaViewer import SVGViewerPanel
 
@@ -56,7 +60,7 @@ class ConnPropertyFrame(wx.Frame):
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
         
-        print('1----------------------->', os.getcwd())
+        logger.debug('ConnPropertyFrame: %s', os.getcwd())
         path = os.path.abspath(__file__)
         tail = None
         while tail != 'src':
@@ -77,7 +81,7 @@ class ConnPropertyFrame(wx.Frame):
         try:
             self.createAuiManager()
         except Exception as ex:
-            print(ex)
+            logger.error(ex, exc_info=True)
         self.bindingEvent()
         self._mgr.Update()  
     def creatingBasicPanel(self):
@@ -93,14 +97,13 @@ class ConnPropertyFrame(wx.Frame):
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
@@ -145,9 +148,9 @@ class ConnPropertyFrame(wx.Frame):
 #                 'www.wxPython.org', 'www.osafoundation.org'
 #                 ]
         self._ctrl = TextCtrlAutoComplete(tb1, **args)
-        print('size------------->',self._ctrl.GetSize())
+        logger.debug('self._ctrl.GetSize: %s',self._ctrl.GetSize())
         self._ctrl.SetSize((200, 30))
-        print('size------------->',self._ctrl.GetSize())
+        logger.debug('self._ctrl.GetSize: %s',self._ctrl.GetSize())
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.setDynamicChoices)
         self._ctrl.SetMatchFunction(self.match)
@@ -165,7 +168,7 @@ class ConnPropertyFrame(wx.Frame):
         """ Simply function that receive the row values when the
             user select an item
         """
-        print "Select Callback called...:",  values
+        logger.debug( "Select Callback called...:%s",  values)
         
     def setDynamicChoices(self):
         ctrl = self._ctrl
@@ -187,7 +190,7 @@ class ConnPropertyFrame(wx.Frame):
         if c.startswith('www.'): c = c[4:]
         return c.startswith(t)    
     def createAuiManager(self):
-        print('createAuiManager')
+        logger.debug('createAuiManager')
         # tell FrameManager to manage this frame
         self._mgr = aui.AuiManager()
         self._mgr.SetManagedWindow(self)
@@ -197,14 +200,13 @@ class ConnPropertyFrame(wx.Frame):
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
@@ -276,7 +278,7 @@ class ConnPropertyFrame(wx.Frame):
         return "Line "+str(lineNo)+" , Column "+str(column)
         
     def createStatusBar(self):
-        print('creating status bar')
+        logger.debug('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
@@ -286,18 +288,17 @@ class ConnPropertyFrame(wx.Frame):
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
         
-        print('creating menu bar')
-                # create menu
+        logger.debug('creating menu bar')
+        # create menu
         mb = wx.MenuBar()
 
         file_menu = wx.Menu()
@@ -383,9 +384,9 @@ class ConnPropertyFrame(wx.Frame):
         self.Close() 
         
     def onOpenConnection(self, event):
-        print('onOpenConnection')
+        logger.debug('onOpenConnection')
     def onNewConnection(self, event):
-        print('onNewConnection')
+        logger.debug('onNewConnection')
         wizard = wx.wizard.Wizard(self, -1, "Simple Wizard")
         page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
         page2 = TitledPage(wizard, "Connection settings")
@@ -399,7 +400,7 @@ class ConnPropertyFrame(wx.Frame):
         wizard.FitToPage(page1)
     
         if wizard.RunWizard(page1):
-            print("Success")
+            logger.debug("Success")
     
         wizard.Destroy()        
         self.Show()
@@ -407,27 +408,27 @@ class ConnPropertyFrame(wx.Frame):
 #         newConnectionFrame = CreatingNewConnectionFrame(None, "Opal preferences")
         
     def onNewWorksheet(self, event):
-        print('onNewWorksheet')
+        logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
-        print('onPreferences')
+        logger.debug('onPreferences')
         frame1 = OpalPreference(None, "Opal preferences")
         
     def onSqlLog(self, event):
-        print('onSqlLog')
+        logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def onSqlExecution(self, event):
-        print('onSqlExecution')
+        logger.debug('onSqlExecution')
         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def OnAbout(self, event):
-        print('OnAbout')
+        logger.debug('OnAbout')
 #         msg=u"\u00A9"
         msg = u"""Opal Database Visualizer 
 Version : 0.1 Release 

@@ -9,6 +9,10 @@ Contributed to the wxPython project under the wxPython project's license.
 import locale, wx, sys, cStringIO
 import  wx.lib.mixins.listctrl  as  listmix
 from wx import ImageFromStream, BitmapFromImage
+
+import logging
+
+logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------
 def getSmallUpArrowData():
     return \
@@ -499,7 +503,7 @@ class test:
         """ Simply function that receive the row values when the
             user select an item
         """
-        print "Select Callback called...:",  values
+        logger.debug( "Select Callback called...: %s",  values)
 
 class TextCtrlAutoCompletePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -543,7 +547,7 @@ class TextCtrlAutoCompletePanel(wx.Panel):
         """ Simply function that receive the row values when the
             user select an item
         """
-        print "Select Callback called...:",  values
+        logger.debug( "selectCallback...: %s",  values)
     def setDynamicChoices(self):
         ctrl = self._ctrl
         text = ctrl.GetValue().lower()

@@ -19,11 +19,11 @@ class CreatingFindAndReplaceFrame(wx.Frame):
 
         self.Show()
     def OnCloseFrame(self, event):
-        print('OnCloseFrame')
+        logger.debug('OnCloseFrame')
         self.OnExitApp(event)
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
-        print('OnExitApp')
+        logger.debug('OnExitApp')
         if self.GetParent():
             self.GetParent().frame = None
         self.Destroy()
@@ -139,13 +139,13 @@ class CreatingFindAndReplacePanel(wx.Panel):
         self.SetAutoLayout(True)       
         
     def onFindClicked(self, event):
-        print('onFindClicked: '+ self.findText) 
+        logger.debug('onFindClicked: '+ self.findText) 
     def onReplaceClicked(self, event):
-        print('onReplaceClicked') 
+        logger.debug('onReplaceClicked') 
     def onReplaceFindClicked(self, event):
-        print('onReplaceFindClicked') 
+        logger.debug('onReplaceFindClicked') 
     def onReplaceAllClicked(self, event):
-        print('onReplaceAllClicked') 
+        logger.debug('onReplaceAllClicked') 
 
     def setFindText(self):
         if not wx.TheClipboard.IsOpened():  # may crash, otherwise

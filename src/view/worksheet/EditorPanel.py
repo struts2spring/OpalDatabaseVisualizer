@@ -237,7 +237,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->', path)
+        logger.debug('registerAllImages: %s', path)
         path = os.path.abspath(os.path.join(path, "images"))
         # register some images for use in the AutoComplete box.
 #         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
@@ -787,7 +787,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 except Exception as e:
                     logger.error(e, exc_info=True)
                 endTime=time.time()
-                logger.debug('duration:',endTime-startTime)
+                logger.debug('duration: %s',endTime-startTime)
                 duration=endTime-startTime
                 if selectedItemText:
                     self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
@@ -801,10 +801,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             logger.error(te, exc_info=True)
             if not dbFilePath:
                 error='Unable to connect. Please choose a database to execute Script.'
-                self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.AppendText("\n"+error)
+                self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n"+error)
         except Exception as e:
             logger.error(e, exc_info=True)
-            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.AppendText("\n"+str(e))
+            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n"+str(e))
 #             print(e)
             error=str(e)
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error

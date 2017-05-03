@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger('extensive')
 
-print(sys.platform)
+logger.debug(sys.platform)
 class SqliteConnect():
     def __init__(self):
         
@@ -18,21 +18,21 @@ class SqliteConnect():
     
 
     def getSqlitePath(self):
-        print(sys.version)
-        print( sys.version_info)
+        logger.debug(sys.version)
+        logger.debug( sys.version_info)
 #         path=os.path.join("src",'sqlite',sys.platform,'3170000','sqlite3.exe')
         path = os.path.abspath(__file__)
         tail = None
         while tail != 'src':
             path = os.path.abspath(os.path.join(path, '..'))
             head, tail = os.path.split(path)
-        print(path)
+        logger.debug(path)
         sqliteDatabaseFilePath=os.path.join(path,'view','_opal.sqlite')
         sqlitePath=os.path.join(path,'sqlite',sys.platform,'3170000')
         sqlitePath=os.path.abspath(sqlitePath)
         os.chdir(sqlitePath)
-        print(os.getcwd())
-        print(os.listdir(os.getcwd()))
+        logger.debug(os.getcwd())
+        logger.debug(os.listdir(os.getcwd()))
         return sqlitePath, sqliteDatabaseFilePath
     
     def executeProcess(self):
@@ -41,11 +41,11 @@ class SqliteConnect():
 #         sqliteDatabaseFilePath="C:\Documents and Settings\vijay\git\OpalDatabaseVisualizer\src\view\_opal.sqlite"
         query="select * from book"
         cmd=['sqlite3.exe', sqliteDatabaseFilePath, query]
-        print(cmd)
+        logger.debug(cmd)
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, stdin=subprocess.PIPE,  stderr=None)
         try:
             outs, errs = proc.communicate()
-            print(outs, errs)
+            logger.debug("outs: %s, errs: %s",outs, errs)
 
         except Exception as e:
             proc.kill()

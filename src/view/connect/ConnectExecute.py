@@ -3,6 +3,11 @@ import sqlite3 as lite
 import os
 import subprocess
 import io
+import logging
+
+logger = logging.getLogger('extensive')
+
+
 
 class SqlExecuterProcess():
     '''
@@ -16,7 +21,7 @@ class SqlExecuterProcess():
 #         process = subprocess.check_output(['echo $PWD','sqlite3','_opal.sqlite','.schema book'], stderr=subprocess.PIPE, shell=True)
         args = ["sqlite3", "db.sqlite", "CREATE TABLE my_table(my_column TEXT)"]
         process = subprocess.call(args)
-        print(process)
+        logger.debug(process)
 #         while True:
 #             line = process.stdout.readline()
 #             if line != '':
@@ -32,7 +37,7 @@ class SQLExecuter1():
     '''
     '''
     def __init__(self, database=None):
-        print(os.getcwd())
+        logger.debug("SQLExecuter1:%",os.getcwd())
         self.conn = lite.connect('_opal.sqlite')
         
     def sqlite_insert(self, table, rows):
@@ -63,7 +68,6 @@ class SQLExecuter1():
         with self.conn:    
             
             cur = self.conn.cursor() 
-            print('before')
             cur.execute("SELECT * FROM " + table)
         
             rows = cur.fetchall()
@@ -80,27 +84,23 @@ class SQLExecuter1():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                print('before')
                 rows = cur.execute(text).fetchall()
-                print(cur.description) 
-#                 print(rows)
+                logger.debug("cur.description: %s",cur.description) 
                 for idx, item in enumerate(rows):
                     sqlOutput[idx] = item
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
             self.conn.rollback()
             raise e
-#         print(sqlOutput)
         return sqlOutput
     
     
 if __name__ == "__main__":
-    print('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
     sqlExecuterProcess = SqlExecuterProcess()
     command = """.tables """
     result = sqlExecuterProcess.executeCmd(command)
-    print(result)
+    logger.debug(result)
     
 #     book_row = [
 #                 {'id':'2',

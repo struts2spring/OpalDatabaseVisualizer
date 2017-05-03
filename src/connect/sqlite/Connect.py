@@ -7,6 +7,9 @@ Created on 13-Dec-2016
 
 import sqlite3
 import sys
+import logging
+
+logger = logging.getLogger('extensive')
 
 class ConnectSqlite():
     def __init__(self):
@@ -26,33 +29,29 @@ class ConnectSqlite():
             
             data = cur.fetchone()
             
-            print("SQLite version: %s" % data)   
+            logger.debug("SQLite version: %s" , data)   
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
             dbObjects = list()
-#             print types
             for t in types:
-#                 print t[0], type(t)
                 tObjectArrayList = list()
                 query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
-                print(query)
+                logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
-                        print(tableColumnsOrIndexesSql)
+                        logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
-#                         print objChildList
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild)
-#                             print objChild
                         tableColumnList.append([tObj[0], tableColumnsOrIndexes])
                     if t[0] == 'view':
                         tableColumnList.append([tObj[0], []])
-                        print('view')
+                        logger.debug('view')
                         
 #                     if t[0] == 'index':
 #                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
@@ -80,8 +79,7 @@ class ConnectSqlite():
             
             
         except sqlite3.Error as e:
-            print("Error %s:" % e.args[0])
-            sys.exit(1)
+            logger.error(e, exc_info=True)
             
         finally:
             
@@ -97,8 +95,7 @@ class ConnectSqlite():
             cur = self.connection.cursor() 
 #             cur.execute('CREATE TABLE {tn} ({fn} {ft} PRIMARY KEY)'.format(tn=table_name, fn=id_field, ft=field_type))
         except sqlite3.Error as e:
-            
-            print("Error %s:" % e.args[0])
+            logger.error(e, exc_info=True)
             sys.exit(1)
             
         finally:

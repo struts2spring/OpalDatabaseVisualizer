@@ -19,9 +19,7 @@ class SQLExecuter():
         logger.debug(self.__class__.__name__)
         home = expanduser("~")
         databasePath = os.path.join(home, database)
-        logger.debug("===================================================================================")
         logger.debug('databasePath: %s',databasePath)
-        logger.debug("===================================================================================")
         self.conn = sqlite3.connect(databasePath)
 #         self.createOpalTables()
         

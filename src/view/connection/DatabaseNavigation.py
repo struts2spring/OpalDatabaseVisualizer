@@ -8,6 +8,9 @@ import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.Constant import keyMap
+import logging
+
+logger = logging.getLogger('extensive')
 
 class DatabaseNavigationTree(ExpansionState, TreeCtrl):
     '''
@@ -43,7 +46,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print('onkey')
+        logger.debug('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 
@@ -82,7 +85,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
             path = os.path.abspath(os.path.join(path, '..'))
             head, tail = os.path.split(path)
         path = os.path.join(path, "images")
-        print('---------------------------------------------->',path)
+        logger.debug('---------------------------------------------->',path)
         # add the image for modified demos.
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database.png"))))
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database_category.png"))))

@@ -24,11 +24,11 @@ class CreatingNewConnectionFrame(wx.Frame):
 
         self.Show()
     def OnCloseFrame(self, event):
-        print('OnCloseFrame')
+        logger.debug('OnCloseFrame')
         self.OnExitApp(event)
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
-        print('OnExitApp')
+        logger.debug('OnExitApp')
         self.Destroy()
         
         
@@ -177,7 +177,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print('onkey')
+        logger.debug('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 
@@ -216,7 +216,6 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
             path = os.path.abspath(os.path.join(path, '..'))
             head, tail = os.path.split(path)
         path = os.path.join(path, "images")
-        print('---------------------------------------------->',path)
         # add the image for modified demos.
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database.png"))))
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database_category.png"))))

@@ -25,11 +25,11 @@ class CreatingNewConnectionFrame(wx.Frame):
 
         self.Show()
     def OnCloseFrame(self, event):
-        print('OnCloseFrame')
+        logger.debug('OnCloseFrame')
         self.OnExitApp(event)
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
-        print('OnExitApp')
+        logger.debug('OnExitApp')
         self.Destroy()
         
         
@@ -178,7 +178,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
     #---------------------------------------------
 
     def OnKey(self, event):
-        print('onkey')
+        logger.debug('onkey')
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
                 

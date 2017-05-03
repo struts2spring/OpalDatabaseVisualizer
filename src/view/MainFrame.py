@@ -20,14 +20,13 @@ from src.view.Constant import ID_newConnection, ID_openConnection,\
 from wx import ID_PREFERENCES
 from src.view.preference.OpalPreferences import OpalPreference
 from src.view.connection.GetConnect import CreatingNewConnectionPanel
-from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
-    TitledPage, CreateNewConncetionWixard
+from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,CreateNewConncetionWixard
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
     TextCtrlAutoComplete
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
-import logging
 from src.view.sqlScriptOutput.SqlOutputPanel import SqlScriptOutputPanel
+import logging
 
 logger = logging.getLogger('extensive')
 

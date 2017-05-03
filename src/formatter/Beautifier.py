@@ -115,4 +115,4 @@ FROM  book, author, book_author_link where book.id=book_author_link.id and autho
 
 """
     formatted_sql=SqlBeautifierCommand().format_sql(raw_sql)
-    print(formatted_sql)
+#     print(formatted_sql)
