@@ -26,11 +26,14 @@ class CreateTableFrame(wx.Frame):
         splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D)
         self.createTablePanel = CreateTablePanel(splitter)
         self.createTablePanel.setData(self.tableDict)
-        self.createTablePanel.headPanel.setData(self.tableDict)
-        self.editorPanel = CreatingEditorPanel(splitter, -1)
+        try:
+            self.createTablePanel.headPanel.setData(self.tableDict)
+        except Exception as e:
+            logger.error(e, exc_info=True)
+        self.editPanel = CreatingEditorPanel(splitter, -1)
 #         self.sstc = wx.stc.StyledTextCtrl(splitter, -1)
         splitter.SetMinimumPaneSize(20)
-        splitter.SplitHorizontally(self.createTablePanel, self.editorPanel)
+        splitter.SplitHorizontally(self.createTablePanel, self.editPanel)
         sizer.Add(splitter, 1, wx.EXPAND)
         sizer.Add(self.buttonPanel, 0, wx.EXPAND)
         self.SetSizer(sizer)
@@ -40,6 +43,8 @@ class CreateTableFrame(wx.Frame):
         self.createNewTableStatusBar()
         self.Show(True)
         
+    def getEditorPanel(self):
+        return self.editPanel
         
     def setData(self, tableDict=None):
         self.tableDict = tableDict
@@ -72,9 +77,11 @@ class CreateTableHeadPanel(wx.Panel):
         
         schemaNameLabel = wx.StaticText(self, -1, "Schema Name:")
         self.schemaNameText = wx.TextCtrl(self, -1, '', size=(250, -1))
+        self.schemaNameText.Bind( wx.EVT_TEXT, self.onSchemaName ) 
         
         tableNameLabel = wx.StaticText(self, -1, "Table Name:")
         self.tableNameText = wx.TextCtrl(self, -1, '', size=(250, -1))
+        self.tableNameText.Bind( wx.EVT_TEXT, self.onTableName) 
         
         sizer.Add(schemaNameLabel, flag=wx.EXPAND, row=1, col=1)
         sizer.Add(self.schemaNameText, row=1, col=2)
@@ -95,7 +102,20 @@ class CreateTableHeadPanel(wx.Panel):
         else:
             self.tableDict['schemaName']=''
             self.tableDict['tableName']=''
-        
+    def onSchemaName(self,event):
+        logger.debug("onSchemaName")    
+        try:   
+            self.GetTopLevelParent().createTablePanel.tableDict['schemaName']=self.schemaNameText.GetValue()
+            self.GetTopLevelParent().createTablePanel.updateTableEditorPanel()
+        except Exception as e:
+            logger.error(e, exc_info=True)
+    def onTableName(self,event):
+        logger.debug("onTableName") 
+        try:   
+            self.GetTopLevelParent().createTablePanel.tableDict['tableName']=self.tableNameText.GetValue()
+            self.GetTopLevelParent().createTablePanel.updateTableEditorPanel()
+        except Exception as e:
+            logger.error(e, exc_info=True)
 class CreateButtonPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
@@ -209,7 +229,10 @@ class CreateTablePanel(wx.Panel):
         logger.debug('onAddColumn clicked')
         
         rowNum = len(self.tableDict['row'])
-        columnName="Column_" + str(rowNum)
+        if rowNum==1:
+            columnName="Id"
+        else:
+            columnName="Column_" + str(rowNum)
         isPrimaryKey = "0"
         isAutoIncrement = "0"
         isNotNull="0"
@@ -258,7 +281,7 @@ class CreateTablePanel(wx.Panel):
     def updateTableEditorPanel(self):
         logger.debug('updateTableEditorPanel')
         tableDict=self.GetTopLevelParent().createTablePanel.tableDict
-        self.GetTopLevelParent().editorPanel.sstc.SetText(self.createSql(tableDict))
+        self.GetTopLevelParent().getEditorPanel().sstc.SetText(self.createSql(tableDict))
         
     def createSql(self, tableDict=None):    
         '''
@@ -273,7 +296,11 @@ class CreateTablePanel(wx.Panel):
             if 'ifNotExists' in  tableDict.keys():
                 sqlList.append('IF NOT EXISTS')
             if 'schemaName' in tableDict.keys():
-                sqlList.append("'" + tableDict['schemaName'] + "'.'" + tableDict['tableName'] + "'")
+                if tableDict['schemaName'].strip() !='':
+                    sqlList.append("'" + tableDict['schemaName'] + "'.'" + tableDict['tableName'] + "'")
+                else:
+                    sqlList.append("'"+ tableDict['tableName'] + "'")
+                    
             else:
                 sqlList.append("'" + tableDict['tableName'] + "'")
             sqlList.append('(')
