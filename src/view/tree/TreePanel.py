@@ -290,6 +290,8 @@ class CreatingTreePanel(wx.Panel):
                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
                 item2 = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                 self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
+
+                
             if 'view' in self.tree.GetItemText(item):
                 newTableItem = menu.Append(wx.ID_ANY, "Create new view")
                 item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
@@ -304,8 +306,17 @@ class CreatingTreePanel(wx.Panel):
             
         elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             logger.debug(self.tree.GetItemText(item))
-            item1 = menu.Append(wx.ID_ANY, "Edit table")
-            self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+            editTableItem = menu.Append(wx.ID_ANY, "Edit table")
+                            
+            deleteTableItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
+            delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16,16))
+            deleteTableItem.SetBitmap(delBmp)
+            delTableMenu = menu.AppendItem(deleteTableItem)
+            
+            
+            self.Bind(wx.EVT_MENU, self.onDeleteTable, delTableMenu)
+            self.Bind(wx.EVT_MENU, self.OnItemBackground, editTableItem)
+            
         elif 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             logger.debug(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit column")
@@ -317,6 +328,9 @@ class CreatingTreePanel(wx.Panel):
         self.PopupMenu(menu)
         menu.Destroy() 
     
+    def onDeleteTable(self, event):
+        logger.debug('onDeleteTable')
+        
     def onRootRefresh(self, event):
         logger.debug('onRootRefresh')
         self.recreateTree(event)
