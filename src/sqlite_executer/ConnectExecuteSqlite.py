@@ -8,9 +8,8 @@ import os
 import re
 from os.path import expanduser
 import sys
-import logging
+from src.log.OpalLog import logger
 
-logger = logging.getLogger('extensive')
 
 class SQLExecuter():
     '''
@@ -175,11 +174,7 @@ class SQLExecuter():
         insert into dbms (dbms_name, vendor, jdbc_driver,driver_path) values (  'H2','H2','org.h2.Driver','/lib');
         insert into dbms (dbms_name, vendor, jdbc_driver,driver_path) values (  'HSQLDB','HSQLDB','org.hsqldb.jdbc.JDBCDriver','/lib');
         
-        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_1','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_1.sqlite', 1);
-        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_2.sqlite', 1);
-        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_3','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_3.sqlite', 1);
-        insert into conns (connection_name, db_file_path, dbms_id) values (  'database_H2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_4.sqlite', 3);
-        
+       
         '''
         try:
             with self.conn:    
@@ -275,10 +270,10 @@ class SQLExecuter():
         except sqlite3.Error as e:
             logger.error(e, exc_info=True)
         finally:
-            
-            if self.conn:
-                self.conn.close()
-        databaseList.append('database')
+            pass
+#             if self.conn:
+#                 self.conn.close()
+        databaseList.append('_opal')
         databaseList.append(dbObjects)
         return databaseList
     
@@ -489,8 +484,12 @@ if __name__ == "__main__":
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
 #     sqlExecuter.getDbFilePath('database_sqlite_1')
     sqlExecuter.addNewConnectionRow(dbFilePath=r"c:\soft\4.sqlite", connectionName='4')
-    result=sqlExecuter.executeText("select * from conns")
-    logger.debug(result)
+    obj=sqlExecuter.getObject()
+    if len(obj[1])==0:
+        sqlExecuter.createOpalTables()
+    logger.debug(len(obj[1]))
+#     result=sqlExecuter.executeText("select * from conns")
+#     logger.debug(result)
 #     obj=sqlExecuter.getObject()
 #     logger.debug(obj)
 #     tableName = 'albums'

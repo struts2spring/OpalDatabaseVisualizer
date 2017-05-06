@@ -85,7 +85,6 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
             path = os.path.abspath(os.path.join(path, '..'))
             head, tail = os.path.split(path)
         path = os.path.join(path, "images")
-        logger.debug('---------------------------------------------->',path)
         # add the image for modified demos.
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database.png"))))
         imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database_category.png"))))

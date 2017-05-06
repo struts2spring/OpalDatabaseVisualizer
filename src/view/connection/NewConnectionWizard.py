@@ -182,7 +182,7 @@ class CreateNewConncetionWixard():
             logger.debug("Success")
             selectedItem=page1.tree.GetSelection()
             logger.debug(page1.tree.GetItemText(selectedItem))
-            logger.debug(page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
+            logger.debug("%s, %s",page2.connectionNameTextCtrl.GetValue(),page2.markFile.GetValue() )
             databasefile=page2.markFile.GetValue() 
             connectionName=page2.connectionNameTextCtrl.GetValue()
             self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
@@ -193,6 +193,9 @@ class CreateNewConncetionWixard():
             manageSqliteDatabase=ManageSqliteDatabase(databaseAbsolutePath=databaseAbsolutePath,connectionName=connectionName)
             manageSqliteDatabase.createTable()
             sqlExecuter=SQLExecuter()
+            obj=sqlExecuter.getObject()
+            if len(obj[1])==0:
+                sqlExecuter.createOpalTables()
             sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
         except OperationalError as err:
             logger.error(err, exc_info=True)

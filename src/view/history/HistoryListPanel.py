@@ -234,7 +234,8 @@ class HistoryGrid(gridlib.Grid):
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         sqlText='select * from sql_log;'
         sqlOutput = sqlExecuter.executeText(sqlText)
-        self.addData(data=sqlOutput)
+        if sqlOutput:
+            self.addData(data=sqlOutput)
 
 
 

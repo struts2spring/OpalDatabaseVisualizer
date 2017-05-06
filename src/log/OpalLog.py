@@ -1,13 +1,6 @@
-'''
-Created on 11-Dec-2016
-
-@author: vijay
-'''
-import wx
-from src.view.MainFrame import DatabaseMainFrame
+import logging.config
 import os
 import tempfile
-import logging.config
 
 logger = logging.getLogger('extensive')
 
@@ -50,10 +43,3 @@ LOG_SETTINGS = {
 }
 }
 logging.config.dictConfig(LOG_SETTINGS)
-print( os.path.join(tempfile.gettempdir()))
-       
-if __name__ == "__main__":
-    app = wx.App()
-    frame = DatabaseMainFrame(None)
-    frame.Show()
-    app.MainLoop()
