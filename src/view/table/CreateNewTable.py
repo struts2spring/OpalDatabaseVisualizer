@@ -28,9 +28,9 @@ class CreateTableFrame(wx.Frame):
         self.createTablePanel.setData(self.tableDict)
         try:
             self.createTablePanel.headPanel.setData(self.tableDict)
+            self.editPanel = CreatingEditorPanel(splitter, -1)
         except Exception as e:
             logger.error(e, exc_info=True)
-        self.editPanel = CreatingEditorPanel(splitter, -1)
 #         self.sstc = wx.stc.StyledTextCtrl(splitter, -1)
         splitter.SetMinimumPaneSize(20)
         splitter.SplitHorizontally(self.createTablePanel, self.editPanel)
@@ -55,7 +55,7 @@ class CreateTableFrame(wx.Frame):
     def OnCloseFrame(self, event):
         self.Destroy()
     def createNewTableStatusBar(self):
-        print('creating status bar')
+        logger.debug('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
@@ -161,11 +161,12 @@ class CreateTablePanel(wx.Panel):
 #         self.row = dict()
 #         self.row[0] = ["icon", "Column name", "Data type", "Primary key", "Allow null", "Unique", "Auto increment", "Default value"]
 #         self.row[1] = ["1", "One", "INT", "1", "0", "1", "1", None ]        
-        
-        self.headPanel = CreateTableHeadPanel(self)
-        self.tb = self.creatingToolbar()
-        self.grid = SimpleGrid(self)
-
+        try:
+            self.headPanel = CreateTableHeadPanel(self)
+            self.tb = self.creatingToolbar()
+            self.grid = SimpleGrid(self)
+        except Exception as e:
+            logger.error(e, exc_info=True)
         
         vBox.Add(self.headPanel, 0, wx.EXPAND)
         vBox.Add(self.tb, 0, wx.EXPAND)
@@ -281,7 +282,8 @@ class CreateTablePanel(wx.Panel):
     def updateTableEditorPanel(self):
         logger.debug('updateTableEditorPanel')
         tableDict=self.GetTopLevelParent().createTablePanel.tableDict
-        self.GetTopLevelParent().getEditorPanel().sstc.SetText(self.createSql(tableDict))
+        if self.GetTopLevelParent().getEditorPanel():
+            self.GetTopLevelParent().getEditorPanel().sstc.SetText(self.createSql(tableDict))
         
     def createSql(self, tableDict=None):    
         '''
@@ -304,7 +306,7 @@ class CreateTablePanel(wx.Panel):
             else:
                 sqlList.append("'" + tableDict['tableName'] + "'")
             sqlList.append('(')
-            print(tableDict['rows'])
+            logger.debug(tableDict['rows'])
             for idx, column in enumerate(tableDict['rows']):
                 sqlList.append("'" + column['columnName'] + "'")
                 sqlList.append(column['dataType'])
@@ -367,7 +369,6 @@ class SimpleGrid(wx.grid.Grid):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->', path)
         path = os.path.abspath(os.path.join(path, "images"))
         self.bmpList = list()
         keyBmp = wx.Bitmap(os.path.abspath(os.path.join(path, "key.png")))  # 0 for primary key column
@@ -422,13 +423,14 @@ class SimpleGrid(wx.grid.Grid):
         
     ########################### Check box start ###################################    
     def OnCellLeftClick(self, evt):
-        print("OnCellLeftClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnCellLeftClick: (%d,%d) %s\n" , evt.GetRow(),
                                                  evt.GetCol(),
-                                                 evt.GetPosition()))
+                                                 evt.GetPosition())
         row = evt.GetRow()
         col = evt.GetCol()
         if col in self.checkBoxColumns:
-            print(self.GetCellValue(row, col))
+            logger.debug(self.GetCellValue(row, col))
+            wx.MilliSleep(100)
             self.toggleCheckBox(row, col)
 #             wx.CallLater(100,self.toggleCheckBox(row,col))
         evt.Skip()
@@ -438,10 +440,10 @@ class SimpleGrid(wx.grid.Grid):
             self.lastSelectedCell = (row, col)
             self.afterCheckBox(self.cb.Value, row=row, col=col)
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
 
     def afterCheckBox(self, isChecked, row=None, col=None):
-        print('afterCheckBox', self.GridCursorRow, isChecked)
+        logger.debug('afterCheckBox  GridCursorRow:%s , isChecked:%s', self.GridCursorRow, isChecked)
         self.isChecked = isChecked
         targetRow = row
         targetCol = 0
@@ -466,12 +468,12 @@ class SimpleGrid(wx.grid.Grid):
         self.Refresh()
         
     def OnEditorCreated(self, evt):
-        print("OnEditorCreated: (%d, %d) %s\n" % (evt.GetRow(),
+        logger.debug("OnEditorCreated: (%d, %d) %s\n" , evt.GetRow(),
                                                   evt.GetCol(),
-                                                  evt.GetControl()))
+                                                  evt.GetControl())
         row = evt.GetRow()
         col = evt.GetCol()
-        
+        self.lastSelectedCell = (row, col)
         # In this example, all cells in row 0 are GridCellChoiceEditors,
         # so we need to setup the selection list and bindings. We can't
         # do this in advance, because the ComboBox control is created with
@@ -488,15 +490,15 @@ class SimpleGrid(wx.grid.Grid):
             for (item, data) in self.dataTypeList:
                 self.comboBox.Append(item, data)
         elif col in self.checkBoxColumns:
-            self.lastSelectedCell = (row, col)
+            
             self.cb = evt.Control
             self.cb.WindowStyle |= wx.WANTS_CHARS
             self.cb.Bind(wx.EVT_KEY_DOWN, self.onKeyDown)
             self.cb.Bind(wx.EVT_CHECKBOX, self.onCheckBox)  
             
-        print("After change OnEditorCreated: (%d, %d) %s\n" % (evt.GetRow(),
+        logger.debug("After change OnEditorCreated: (%d, %d) %s\n" , evt.GetRow(),
                                                   evt.GetCol(),
-                                                  evt.GetControl().Value))   
+                                                  evt.GetControl().Value)   
         evt.Skip()
         
     def onKeyDown(self, evt):
@@ -519,7 +521,7 @@ class SimpleGrid(wx.grid.Grid):
         else:
             evt.Skip()
     def onCheckBox(self, evt):
-        print(self.lastSelectedCell)
+        logger.debug('onCheckBox lastSelectedCell:%',self.lastSelectedCell)
         if self.lastSelectedCell:
             self.afterCheckBox(evt.IsChecked(), row=self.lastSelectedCell[0], col=self.lastSelectedCell[1])
 
@@ -528,55 +530,55 @@ class SimpleGrid(wx.grid.Grid):
     ########################### Check box close ###################################    
                  
     def OnCellRightClick(self, evt):
-        print("OnCellRightClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnCellRightClick: (%d,%d) %s\n" , evt.GetRow(),
                                                   evt.GetCol(),
-                                                  evt.GetPosition()))
+                                                  evt.GetPosition())
         evt.Skip()
  
     def OnCellLeftDClick(self, evt):
-        print("OnCellLeftDClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnCellLeftDClick: (%d,%d) %s\n" , evt.GetRow(),
                                                   evt.GetCol(),
-                                                  evt.GetPosition()))
+                                                  evt.GetPosition())
         evt.Skip()
  
     def OnCellRightDClick(self, evt):
-        print("OnCellRightDClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnCellRightDClick: (%d,%d) %s\n" , evt.GetRow(),
                                                    evt.GetCol(),
-                                                   evt.GetPosition()))
+                                                   evt.GetPosition())
         evt.Skip()
  
     def OnLabelLeftClick(self, evt):
-        print("OnLabelLeftClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnLabelLeftClick: (%d,%d) %s\n" , evt.GetRow(),
                                                   evt.GetCol(),
-                                                  evt.GetPosition()))
+                                                  evt.GetPosition())
         evt.Skip()
  
     def OnLabelRightClick(self, evt):
-        print("OnLabelRightClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnLabelRightClick: (%d,%d) %s\n" , evt.GetRow(),
                                                    evt.GetCol(),
-                                                   evt.GetPosition()))
+                                                   evt.GetPosition())
         evt.Skip()
  
     def OnLabelLeftDClick(self, evt):
-        print("OnLabelLeftDClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnLabelLeftDClick: (%d,%d) %s\n" , evt.GetRow(),
                                                    evt.GetCol(),
-                                                   evt.GetPosition()))
+                                                   evt.GetPosition())
         evt.Skip()
  
     def OnLabelRightDClick(self, evt):
-        print("OnLabelRightDClick: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnLabelRightDClick: (%d,%d) %s\n" , evt.GetRow(),
                                                     evt.GetCol(),
-                                                    evt.GetPosition()))
+                                                    evt.GetPosition())
         evt.Skip()
  
     def OnRowSize(self, evt):
-        print("OnRowSize: row %d, %s\n" % (evt.GetRowOrCol(),
-                                           evt.GetPosition()))
+        logger.debug("OnRowSize: row %d, %s\n" , evt.GetRowOrCol(),
+                                           evt.GetPosition())
         evt.Skip()
  
     def OnColSize(self, evt):
-        print("OnColSize: col %d, %s\n" % (evt.GetRowOrCol(),
-                                           evt.GetPosition()))
+        logger.debug("OnColSize: col %d, %s\n" , evt.GetRowOrCol(),
+                                           evt.GetPosition())
         evt.Skip()
  
     def OnRangeSelect(self, evt):
@@ -584,8 +586,8 @@ class SimpleGrid(wx.grid.Grid):
             msg = 'Selected'
         else:
             msg = 'Deselected'
-        print("OnRangeSelect: %s  top-left %s, bottom-right %s\n" % (msg, evt.GetTopLeftCoords(),
-                                                                     evt.GetBottomRightCoords()))
+        logger.debug("OnRangeSelect: %s  top-left %s, bottom-right %s\n" , msg, evt.GetTopLeftCoords(),
+                                                                     evt.GetBottomRightCoords())
         evt.Skip()
  
  
@@ -596,7 +598,7 @@ class SimpleGrid(wx.grid.Grid):
         # won't have any effect.  Instead, set coordinates to move to in
         # idle time.
         sourceValue = self.GetCellValue(evt.GetRow(), evt.GetCol())
-        print("OnCellChange: (%d,%d) %s\n" % (evt.GetRow(), evt.GetCol(), evt.GetPosition()), sourceValue)
+        logger.debug("OnCellChange: (%s,%s) %s , sourceValue : %s" , evt.GetRow(), evt.GetCol(), evt.GetPosition(), sourceValue)
         sourceRow = evt.GetRow()
         sourceCol = evt.GetCol()
         
@@ -634,8 +636,8 @@ class SimpleGrid(wx.grid.Grid):
             msg = 'Selected'
         else:
             msg = 'Deselected'
-        print("OnSelectCell: %s (%d,%d) %s\n" % (msg, evt.GetRow(),
-                                                 evt.GetCol(), evt.GetPosition()))
+        logger.debug("OnSelectCell: %s (%d,%d) %s\n" ,msg, evt.GetRow(),
+                                                 evt.GetCol(), evt.GetPosition())
  
         # Another way to stay in a cell that has a bad value...
         row = self.GetGridCursorRow()
@@ -660,8 +662,8 @@ class SimpleGrid(wx.grid.Grid):
             evt.Veto()
             return
  
-        print("OnEditorShown: (%d,%d) %s\n" % (evt.GetRow(), evt.GetCol(),
-                                               evt.GetPosition()))
+        logger.debug("OnEditorShown: (%d,%d) %s\n" , evt.GetRow(), evt.GetCol(),
+                                               evt.GetPosition())
         evt.Skip()
  
  
@@ -672,9 +674,9 @@ class SimpleGrid(wx.grid.Grid):
             evt.Veto()
             return
  
-        print("OnEditorHidden: (%d,%d) %s\n" % (evt.GetRow(),
+        logger.debug("OnEditorHidden: (%d,%d) %s\n" ,evt.GetRow(),
                                                 evt.GetCol(),
-                                                evt.GetPosition()))
+                                                evt.GetPosition())
         evt.Skip()
  
  
@@ -687,9 +689,9 @@ class SimpleGrid(wx.grid.Grid):
         self.index = self.comboBox.GetSelection()
         self.data = self.comboBox.GetClientData(self.index)
         
-        print('ComboBoxChanged: %s' % self.comboBox.GetValue())
-        print('ComboBox index: %u' % self.index)
-        print('ComboBox data: %u\n' % self.data)
+        logger.debug('ComboBoxChanged: %s' , self.comboBox.GetValue())
+        logger.debug('ComboBox index: %u' , self.index)
+        logger.debug('ComboBox data: %u\n' , self.data)
         event.Skip()        
         
         
@@ -708,8 +710,20 @@ class SimpleGrid(wx.grid.Grid):
         # that later, once all of the text has been entered.
         self.index = self.comboBox.GetSelection()
         
-        print('ComboBoxText: %s' % self.comboBox.GetValue())
-        print ('ComboBox index: %u\n' % self.index)
+        logger.debug('ComboBoxText: %s' , self.comboBox.GetValue())
+        logger.debug('ComboBox index: %u\n' , self.index)
+        selectedColName=self.GetParent().tableDict['row'][0][self.lastSelectedCell[1]]
+        colName="".join(selectedColName.split(' ')).lower()
+        columns=self.GetParent().tableDict['rows'][self.lastSelectedCell[0]].keys()
+        for col in columns:
+            if colName in col.lower():
+                colName=col
+                break
+                
+        
+        logger.debug("currentValue:%s",self.GetParent().tableDict['rows'][self.lastSelectedCell[0]][colName])
+        self.GetParent().tableDict['rows'][self.lastSelectedCell[0]][colName]=self.comboBox.GetValue()
+        self.GetParent().updateTableEditorPanel()
 #         self.updateGridCell()
         event.Skip()
            
@@ -725,8 +739,8 @@ class SimpleGrid(wx.grid.Grid):
         self.ClearGrid()
         
         if data and len(data) > 0:
-            print('rows:', self.GetNumberRows())
-            print('cols:', self.GetNumberCols())
+            logger.debug('rows:%s', self.GetNumberRows())
+            logger.debug('cols:%s', self.GetNumberCols())
     #         self.DeleteRows()
             currentRows, currentCols = (self.GetNumberRows(), self.GetNumberCols())
             newRows = len(data) - 1
@@ -766,12 +780,13 @@ class SimpleGrid(wx.grid.Grid):
     
     def fillTableData(self, data=None):  
         for dataKey, dataValue in data.items():
-            print(dataKey, dataValue)
+            logger.debug("dataKey:%s , dataValue: %s",dataKey, dataValue)
             for idx, colValue in enumerate(dataValue):
-#                 print(idx, dataValue)
+#                 logger.debug(idx, dataValue)
                 if dataKey == 0:
                     self.SetColLabelValue(idx, str(colValue))
                 elif dataKey > 0 and idx == 2:
+                    #  idx == 2 means data type
                     # Create the GridCellChoiceEditor with a blank list. Items will
                     # be added later at runtime. "allowOthers" allows the user to
                     # create new selection items on the fly.
@@ -780,11 +795,11 @@ class SimpleGrid(wx.grid.Grid):
                     
                     selectedDataType = None
                     for dataType in self.dataTypeList:
-                        print(dataType[0], colValue)
                         if dataType[0] == colValue:
                             selectedDataType = dataType
                             break
                     self.SetCellValue(dataKey - 1, idx, selectedDataType[0])
+                    self.SetColSize(idx,100)
                     
                 elif dataKey > 0 and idx in self.comboBoxList:
                     self.SetCellValue(dataKey - 1, idx, str(colValue))      
@@ -797,12 +812,29 @@ class SimpleGrid(wx.grid.Grid):
                 elif dataKey > 0 and idx in self.textBoxColumns:
                     self.SetCellValue(dataKey - 1, idx, str(colValue))  
                 elif dataKey > 0 and idx in self.iconColumns:
-                    print("self.iconColumns:", self.iconColumns)
+                    logger.debug("self.iconColumns: %s", self.iconColumns)
                     attr = wx.grid.GridCellAttr()
                     attr.SetRenderer(GridCellIconRenderer(self.bmpList))
                     self.SetColAttr(idx, attr)  
                     self.SetCellValue(dataKey - 1, idx, str(colValue))
-                    
+                    self.SetColSize(idx,50)
+                
+                if idx==0:
+                    self.SetColSize(idx,50)  
+                elif idx==1:  
+                    self.SetColSize(idx,140)  
+                elif idx==2:  
+                    self.SetColSize(idx,150)  
+                elif idx==3:  
+                    self.SetColSize(idx,120)  
+                elif idx==4:  
+                    self.SetColSize(idx,100)  
+                elif idx==5:  
+                    self.SetColSize(idx,70)  
+                elif idx==6:  
+                    self.SetColSize(idx,150)  
+                elif idx==7:  
+                    self.SetColSize(idx,150)  
 class GridCellIconRenderer(wx.grid.PyGridCellRenderer):
     """
     Utility class for displaying an icon in a table column.
@@ -818,7 +850,7 @@ class GridCellIconRenderer(wx.grid.PyGridCellRenderer):
         try: 
             selectedBmp = self.bmpList[int(self.selectBmpIndex)]
         except Exception as e:
-            print(e) 
+            logger.error(e ,exc_info=True) 
         
         image = wx.MemoryDC()
         image.SelectObject(selectedBmp)

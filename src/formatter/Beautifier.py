@@ -57,7 +57,7 @@ class SqlBeautifierCommand():
 
             return formatted_sql
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
             return None
 
     def replace_region_with_formatted_sql(self, edit, region):

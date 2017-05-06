@@ -11,7 +11,9 @@ import rsvg
 from src.view.schema.GraphvizCreator import GraphvizDiagram
 from graphviz.dot import Digraph
 
+import logging
 
+logger = logging.getLogger('extensive')
 
 
 SCALE = 1.0  # Default is 1.
@@ -29,7 +31,7 @@ class SVGViewerPanel(wx.Panel):
 #             if fp and os.path.exists(gAppDir + os.sep + filePath):
 #                 sys.argv.append(gAppDir + os.sep + filePath)
         path = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'img/g6.svg'))
-        print(path)
+        logger.debug(path)
         self.gSVG = rsvg.Handle(file=path)
         self.gDimensionData = self.gSVG.get_dimension_data()
 #                 break        
@@ -68,7 +70,7 @@ class SVGViewerPanel(wx.Panel):
             nodes.append(tuple(node))
             idx += 1
             
-        print(nodes)
+        logger.debug(nodes)
         gd = GraphvizDiagram()
         
         g6 = gd.add_edges(

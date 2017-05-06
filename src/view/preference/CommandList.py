@@ -17,7 +17,9 @@ import  wx.lib.mixins.listctrl  as  listmix
 import  images
 # from src.static.constant import Workspace
 import os
+import logging
 
+logger = logging.getLogger('extensive')
 #---------------------------------------------------------------------------
 
 musicdata = {
@@ -189,7 +191,7 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
     def OnRightDown(self, event):
         x = event.GetX()
         y = event.GetY()
-        print("x, y = %s\n" % str((x, y)))
+        logger.debug("OnRightDown x, y = %s\n" , str((x, y)))
         item, flags = self.list.HitTest((x, y))
 
         if item != wx.NOT_FOUND and flags & wx.LIST_HITTEST_ONITEM:
@@ -206,14 +208,14 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
     def OnItemSelected(self, event):
         ##print event.GetItem().GetTextColour()
         self.currentItem = event.m_itemIndex
-        print("OnItemSelected: %s, %s, %s, %s\n" %
-                           (self.currentItem,
+        logger.debug("OnItemSelected: %s, %s, %s, %s\n" ,
+                            self.currentItem,
                             self.list.GetItemText(self.currentItem),
                             self.getColumnText(self.currentItem, 1),
-                            self.getColumnText(self.currentItem, 2)))
+                            self.getColumnText(self.currentItem, 2))
 
         if self.currentItem == 10:
-            print("OnItemSelected: Veto'd selection\n")
+            logger.debug("OnItemSelected: Veto'd selection\n")
             #event.Veto()  # doesn't work
             # this does
             self.list.SetItemState(10, 0, wx.LIST_STATE_SELECTED)
@@ -223,7 +225,7 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def OnItemDeselected(self, evt):
         item = evt.GetItem()
-        print("OnItemDeselected: %d" % evt.m_itemIndex)
+        logger.debug("OnItemDeselected: %d" , evt.m_itemIndex)
 
         # Show how to reselect something we don't want deselected
         if evt.m_itemIndex == 11:
@@ -232,15 +234,15 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def OnItemActivated(self, event):
         self.currentItem = event.m_itemIndex
-        print("OnItemActivated: %s\nTopItem: %s" %
-                           (self.list.GetItemText(self.currentItem), self.list.GetTopItem()))
+        logger.debug("OnItemActivated: %s\nTopItem: %s" ,
+                           self.list.GetItemText(self.currentItem), self.list.GetTopItem())
 
     def OnBeginEdit(self, event):
-        print("OnBeginEdit")
+        logger.debug("OnBeginEdit")
         event.Allow()
 
     def OnItemDelete(self, event):
-        print("OnItemDelete\n")
+        logger.debug("OnItemDelete\n")
 
     def OnColClick(self, event):
         print("OnColClick: %d\n" % event.GetColumn())
@@ -248,28 +250,28 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def OnColRightClick(self, event):
         item = self.list.GetColumn(event.GetColumn())
-        print("OnColRightClick: %d %s\n" %
-                           (event.GetColumn(), (item.GetText(), item.GetAlign(),
-                                                item.GetWidth(), item.GetImage())))
+        logger.debug("OnColRightClick: %d %s\n" ,
+                           event.GetColumn(), (item.GetText(), item.GetAlign(),
+                                                item.GetWidth(), item.GetImage()))
         if self.list.HasColumnOrderSupport():
-            print("OnColRightClick: column order: %d\n" %
+            logger.debug("OnColRightClick: column order: %d\n" ,
                                self.list.GetColumnOrder(event.GetColumn()))
 
     def OnColBeginDrag(self, event):
-        print("OnColBeginDrag\n")
+        logger.debug("OnColBeginDrag\n")
         ## Show how to not allow a column to be resized
         #if event.GetColumn() == 0:
         #    event.Veto()
 
 
     def OnColDragging(self, event):
-        print("OnColDragging\n")
+        logger.debug("OnColDragging\n")
 
     def OnColEndDrag(self, event):
-        print("OnColEndDrag\n")
+        logger.debug("OnColEndDrag\n")
 
     def OnDoubleClick(self, event):
-        print("OnDoubleClick item %s\n" % self.list.GetItemText(self.currentItem))
+        logger.debug("OnDoubleClick item %s\n" , self.list.GetItemText(self.currentItem))
         event.Skip()
 
     def OnRightClick(self, event):
@@ -308,12 +310,12 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
 
     def OnPopupOne(self, event):
-        print("Popup one\n")
-        print "FindItem:", self.list.FindItem(-1, "Roxette")
-        print "FindItemData:", self.list.FindItemData(-1, 11)
+        logger.debug("Popup one\n")
+        logger.debug( "FindItem:", self.list.FindItem(-1, "Roxette"))
+        logger.debug( "FindItemData:", self.list.FindItemData(-1, 11))
 
     def OnPopupTwo(self, event):
-        print("Selected items:\n")
+        logger.debug("Selected items:\n")
         index = self.list.GetFirstSelected()
 
         while index != -1:# def runTest(frame, nb, log):
@@ -323,7 +325,7 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
             index = self.list.GetNextSelected(index)
 
     def OnPopupThree(self, event):
-        print("Popup three\n")
+        logger.debug("Popup three\n")
         self.list.ClearAll()
         wx.CallAfter(self.PopulateList)
 

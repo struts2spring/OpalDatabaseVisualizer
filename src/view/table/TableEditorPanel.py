@@ -11,6 +11,9 @@ from src.view.images import images
 import os
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
+import logging
+
+logger = logging.getLogger('extensive')
 
 
 #----------------------------------------------------------------------
@@ -37,7 +40,7 @@ demoText = """select * from book;
 """
 
 #----------------------------------------------------------------------
-print(wx.Platform) 
+logger.debug(wx.Platform) 
 
 if wx.Platform == '__WXMSW__':
     faces = { 'times': 'Times New Roman',
@@ -217,7 +220,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.executeSQL()
         if key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
-            print(self.GetSelectedText())
+            logger.debug(self.GetSelectedText())
 #             self.AddText('viajy')
             self.AddSelection('viajy')
             
@@ -295,7 +298,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             # print pt
             # self.Refresh(False)
     def OnMarginClick(self, event):
-        print('on_margin_click', self, event)
+        logger.debug('on_margin_click ')
         # fold and unfold as needed
         if event.GetMargin() == 2:
             if event.GetShift() and event.GetControl():
@@ -384,7 +387,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
         return line
     def OnPopUp(self, event):
-        print('OnPopUp', self, event)
+        logger.debug('OnPopUp')
 #         if self.popmenu:
 #             self.popmenu.Destroy()
 #             self.popmenu = None
@@ -545,7 +548,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             elif len(uk) == 1:
                 ikey = ord(uk)
             else:
-                print("[TextEditor] Undefined char [%s]" % uk)
+                logger.debug("[TextEditor] Undefined char [%s]" , uk)
                 continue
         return f, ikey      
 
@@ -560,7 +563,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     
     def executeSQL(self):
         
-        print('executeSQL' ,self.GetSelectedText()  )
+        logger.debug('executeSQL: %s' ,self.GetSelectedText()  )
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         sqlOutput=sqlExecuter.executeText(self.GetSelectedText())
         creatingWorksheetPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
@@ -568,7 +571,6 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         resultListPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
         resultListPanel.createDataViewCtrl(data=sqlOutput,headerList=["Artist","Title","Genre"])
 #         resultListPanel.setResultData()
-        print(resultListPanel.Layout())
         
             
     def sqlStyle(self):

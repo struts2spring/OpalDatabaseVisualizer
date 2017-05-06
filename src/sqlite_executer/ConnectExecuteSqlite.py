@@ -82,11 +82,11 @@ class SQLExecuter():
                 match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)
                 columns = set(match)
                 if columns:
-                    print(columns)
+                    logger.debug(columns)
 #                 tableCreateStmt.replace(/^[^\(]+\(([^\)]+)\)/g, '$1').split(',')
-#                 print(rows)
+#                 logger.debug(rows)
 #                 for idx, item in enumerate(rows):
-#                     print(item)
+#                     logger.debug(item)
         except Exception as e:
             logger.error(e, exc_info=True)
             self.conn.rollback()
@@ -102,18 +102,18 @@ class SQLExecuter():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-#                 print('before')
+#                 logger.debug('before')
                 if text.strip().lower().startswith('update'):
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
-#                     print(rows)
-                    print(cur.description) 
-    #                 print(rows)
+#                     logger.debug(rows)
+                    logger.debug(cur.description) 
+    #                 logger.debug(rows)
                     if cur.description:
                         headerList = list()
                         for idx, desc in enumerate(cur.description):
-        #                     print(idx, desc)
+        #                     logger.debug(idx, desc)
                             headerList.append(desc[0])
                         sqlOutput[0] = tuple(headerList)
                         for idx, item in enumerate(rows):
@@ -184,9 +184,9 @@ class SQLExecuter():
         try:
             with self.conn:    
                 cur = self.conn.cursor()    
-#                 print('before')
+#                 logger.debug('before')
                 rows = cur.executescript(sqlScript).fetchall()
-                print(cur.description) 
+                logger.debug(cur.description) 
 
         except Exception as e:
             logger.error(e, exc_info=True)
@@ -221,55 +221,55 @@ class SQLExecuter():
             
             data = cur.fetchone()
             
-            print("SQLite version: %s" % data)   
+            logger.debug("SQLite version: %s" % data)   
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
             dbObjects = list()
-#             print types
+#             logger.debug types
             for t in types:
-#                 print t[0], type(t)
+#                 logger.debug t[0], type(t)
                 tObjectArrayList = list()
                 query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
-                print(query)
+                logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
-                        print(tableColumnsOrIndexesSql)
+                        logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
-#                         print objChildList
+#                         logger.debug objChildList
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild)
-#                             print objChild
+#                             logger.debug objChild
                         tableColumnList.append([tObj[0], tableColumnsOrIndexes])
                     if t[0] == 'view':
                         tableColumnList.append([tObj[0], []])
-                        print('view')
+                        logger.debug('view')
                         
 #                     if t[0] == 'index':
 #                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
 #                         tablesHavingIndexesList = cur.execute(tablesHavingIndexesSql).fetchall()
-#                         print tablesHavingIndexesSql
+#                         logger.debug tablesHavingIndexesSql
 #                         for tableHavingIndexes in tablesHavingIndexesList:
 #                             tableIndexesSql = "PRAGMA " + t[0] + "_list(%s);" % tObj[0]
-# #                         print objChildList
+# #                         logger.debug objChildList
 #                         tableColumnsOrIndexes = list()
 #                         for objChild in tableColumnsOrIndexesList:
 #                             tableColumnsOrIndexes.append(objChild)
                         
-#                         print tableColumnList
+#                         logger.debug tableColumnList
 #                 tObjectArrayList.append(tableColumnList)
-#                 print tObjectArrayList
+#                 logger.debug tObjectArrayList
                 dbObjects.append((t[0], tableColumnList))
-            print(dbObjects)
+            logger.debug(dbObjects)
 #                 dbObjects.append(tObjectArrayList)
-#             print dbObjects
-#             print cur.fetchallDict()
+#             logger.debug dbObjects
+#             logger.debug cur.fetchallDict()
 #             for row in cur.execute("select tbl_name from sqlite_master where type='table';"):
-#                 print row                
+#                 logger.debug row                
             
 #             data = cur.fetchone()
         except sqlite3.Error as e:
@@ -345,25 +345,25 @@ class ManageSqliteDatabase():
             
             data = cur.fetchone()
             
-            print("SQLite version: %s" % data)   
+            logger.debug("SQLite version: %s" % data)   
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
             dbObjects = list()
-#             print types
+#             logger.debug types
             for t in types:
-#                 print t[0], type(t)
+#                 logger.debug t[0], type(t)
                 tObjectArrayList = list()
                 query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
-                print(query)
+                logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
-                        print(tableColumnsOrIndexesSql)
+                        logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
-#                         print objChildList
+#                         logger.debug objChildList
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild)
@@ -371,10 +371,10 @@ class ManageSqliteDatabase():
                         tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
                     if t[0] == 'view':
                         tableColumnList.append({tObj[0]: []})
-                        print('view')
+                        logger.debug('view')
 
                 dbObjects.append({t[0]: tableColumnList})
-#             print(dbObjects)
+#             logger.debug(dbObjects)
 
         except sqlite3.Error as e:
             logger.error(e, exc_info=True)
@@ -396,18 +396,18 @@ class ManageSqliteDatabase():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-#                 print('before')
+#                 logger.debug('before')
                 if text.strip().lower().startswith('update'):
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
-                    print(rows)
-                    print(cur.description) 
-    #                 print(rows)
+                    logger.debug(rows)
+                    logger.debug(cur.description) 
+    #                 logger.debug(rows)
                     if cur.description:
                         headerList = list()
                         for idx, desc in enumerate(cur.description):
-        #                     print(idx, desc)
+        #                     logger.debug(idx, desc)
                             headerList.append(desc[0])
                         sqlOutput[0] = tuple(headerList)
                         for idx, item in enumerate(rows):
@@ -417,7 +417,7 @@ class ManageSqliteDatabase():
             raise e
             self.conn.rollback()
 #             raise e
-#         print(sqlOutput)
+#         logger.debug(sqlOutput)
         return sqlOutput
     
     def sqlite_insert(self, table, rows):
@@ -454,7 +454,7 @@ class ManageSqliteDatabase():
         with self.conn:    
             
             cur = self.conn.cursor() 
-#             print('before')
+#             logger.debug('before')
             cur.execute("SELECT * FROM " + table)
         
             rows = cur.fetchall()
@@ -473,39 +473,39 @@ class ManageSqliteDatabase():
                 match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)
                 columns = set(match)
                 if columns:
-                    print(columns)
+                    logger.debug(columns)
 #                 tableCreateStmt.replace(/^[^\(]+\(([^\)]+)\)/g, '$1').split(',')
-#                 print(rows)
+#                 logger.debug(rows)
 #                 for idx, item in enumerate(rows):
-#                     print(item)
+#                     logger.debug(item)
         except Exception as e:
             logger.error(e, exc_info=True)
             self.conn.rollback()
             raise e    
     
 if __name__ == "__main__":
-    print('hi')
+    logger.debug('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
     sqlExecuter = SQLExecuter(database='_opal.sqlite')
 #     sqlExecuter.getDbFilePath('database_sqlite_1')
     sqlExecuter.addNewConnectionRow(dbFilePath=r"c:\soft\4.sqlite", connectionName='4')
     result=sqlExecuter.executeText("select * from conns")
-    print(result)
+    logger.debug(result)
 #     obj=sqlExecuter.getObject()
-#     print(obj)
+#     logger.debug(obj)
 #     tableName = 'albums'
 #     sqlExecuter.getColumn(tableName)
 #     sql = "SELECT * FROM albums "
 #     result = sqlExecuter.executeText(text=sql)
-#     print(result)
+#     logger.debug(result)
 
 ##########################################################################################
 #     dbList = sqlExecuter.getListDatabase()
 #     for db in dbList:
 #         if db[3] == 1:
 #             dbObjects = ManageSqliteDatabase(connectionName=db[1] ,databaseAbsolutePath=db[2]).getObject()
-#             print(dbObjects)
+#             logger.debug(dbObjects)
 ##########################################################################################
             
-#     print(dbList)
+#     logger.debug(dbList)
 #     ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"c:\soft\1.sqlite")

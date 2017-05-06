@@ -135,9 +135,7 @@ class DatabaseMainFrame(wx.Frame):
 #                 'www.wxPython.org', 'www.osafoundation.org'
 #                 ]
         self._ctrl = TextCtrlAutoComplete(tb1, **args)
-        print('size------------->',self._ctrl.GetSize())
         self._ctrl.SetSize((200, 25))
-        print('size------------->',self._ctrl.GetSize())
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.setDynamicChoices)
         self._ctrl.SetMatchFunction(self.match)
@@ -177,7 +175,7 @@ class DatabaseMainFrame(wx.Frame):
         if c.startswith('www.'): c = c[4:]
         return c.startswith(t)    
     def createAuiManager(self):
-        print('createAuiManager')
+        logger.debug('createAuiManager')
         # tell FrameManager to manage this frame
         self._mgr = aui.AuiManager()
         self._mgr.SetManagedWindow(self)
@@ -267,7 +265,7 @@ class DatabaseMainFrame(wx.Frame):
         return "Line "+str(lineNo)+" , Column "+str(column)
         
     def createStatusBar(self):
-        print('creating status bar')
+        logger.debug('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
@@ -286,7 +284,7 @@ class DatabaseMainFrame(wx.Frame):
             logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
         
-        print('creating menu bar')
+        logger.debug('creating menu bar')
                 # create menu
         mb = wx.MenuBar()
 

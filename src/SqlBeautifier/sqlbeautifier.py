@@ -58,7 +58,7 @@ class SqlBeautifierCommand():
 
             return formatted_sql
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
             return None
 
     def replace_region_with_formatted_sql(self, edit, region):
@@ -116,4 +116,4 @@ FROM  book, author, book_author_link where book.id=book_author_link.id and autho
 
 """
     formatted_sql=SqlBeautifierCommand().format_sql(raw_sql)
-    print(formatted_sql)
+    logger.debug(formatted_sql)

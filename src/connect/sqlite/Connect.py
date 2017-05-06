@@ -68,7 +68,7 @@ class ConnectSqlite():
 #                 tObjectArrayList.append(tableColumnList)
 #                 print tObjectArrayList
                 dbObjects.append((t[0], tableColumnList))
-            print(dbObjects)
+            logger.debug(dbObjects)
 #                 dbObjects.append(tObjectArrayList)
 #             print dbObjects
 #             print cur.fetchallDict()

@@ -13,7 +13,7 @@ import logging
 
 logger = logging.getLogger('extensive')
 
-print('Opal preferences logger init')
+logger.debug('Opal preferences logger init')
 
 _demoPngs = ["overview", "recent", "frame", "dialog", "moredialog", "core",
      "book", "customcontrol", "morecontrols", "layout", "process",
