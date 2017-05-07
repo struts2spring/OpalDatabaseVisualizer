@@ -15,3 +15,4 @@ Database tool for developers,  DBAs and analysts.
 |6|Pressing key Alt+F4 on editor will open table / object detail window.|coming |
 |7|On connection switching to activily open new tab in editor||
 |8|updating status bar with enahace status bar||
+|9|Refreshing tree after updating it|comming|
