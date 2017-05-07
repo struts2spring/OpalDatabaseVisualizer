@@ -289,6 +289,12 @@ class DatabaseMainFrame(wx.Frame):
         mb = wx.MenuBar()
 
         file_menu = wx.Menu()
+        fileOpenItem = wx.MenuItem(file_menu, wx.ID_OPEN, 'Open Database connection \tCtrl+O')
+        openbmp = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_TOOLBAR, (16,16))
+        fileOpenItem.SetBitmap(openbmp)
+        file_menu.AppendItem(fileOpenItem)        
+        
+        
         qmi = wx.MenuItem(file_menu, wx.ID_EXIT, '&Quit \tCtrl+Q')
         bmp = wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_TOOLBAR, (16,16))
         qmi.SetBitmap(bmp)
@@ -371,33 +377,33 @@ class DatabaseMainFrame(wx.Frame):
         self.Close() 
         
     def onOpenConnection(self, event):
-        print('onOpenConnection')
+        logger.debug('onOpenConnection')
     def onNewConnection(self, event):
-        print('onNewConnection')
+        logger.debug('onNewConnection')
         CreateNewConncetionWixard().createWizard()
         
     def onNewWorksheet(self, event):
-        print('onNewWorksheet')
+        logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
         sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
-        print('onPreferences')
+        logger.debug('onPreferences')
         frame1 = OpalPreference(None, "Opal preferences")
         
     def onSqlLog(self, event):
-        print('onSqlLog')
+        logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def onSqlExecution(self, event):
-        print('onSqlExecution')
+        logger.debug('onSqlExecution')
         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def OnAbout(self, event):
-        print('OnAbout')
+        logger.debug('OnAbout')
 #         msg=u"\u00A9"
         msg = u"""Opal Database Visualizer 
 Version : 0.1 Release 

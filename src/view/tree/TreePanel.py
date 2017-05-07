@@ -14,6 +14,7 @@ from src.view.table.CreateNewTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
     ManageSqliteDatabase
 import logging
+from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 
 logger = logging.getLogger('extensive')
 
@@ -336,6 +337,8 @@ class CreatingTreePanel(wx.Panel):
         self.recreateTree(event)
     def onRootNewConnection(self, event):
         logger.debug('onRootNewConnection')
+        CreateNewConncetionWixard().createWizard()
+        
     def OnItemBackground(self, event):
         logger.debug('OnItemBackground')
         pt = event.GetPosition();

@@ -11,9 +11,8 @@ import os
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
     SQLExecuter
 from sqlite3 import OperationalError
-import logging
+from src.log.OpalLog import logger
 
-logger = logging.getLogger('extensive')
 
 class TitledPage(wx.wizard.WizardPageSimple):
     def __init__(self, parent, title):
@@ -149,26 +148,42 @@ class ConncectionSettings(wx.wizard.WizardPageSimple):
         hbox1 = wx.BoxSizer(wx.HORIZONTAL) 
         connectionNameLabel = wx.StaticText(self.panel, -1, "Connection name :   ")
         self.connectionNameTextCtrl = wx.TextCtrl(self.panel, size=(300,23))
+        self.connectionNameTextCtrl.Bind(wx.EVT_TEXT, self.onConnectionName)
         hbox1.Add(connectionNameLabel) 
         hbox1.Add(self.connectionNameTextCtrl,0,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,1)
         
         import wx.lib.filebrowsebutton as brows
-        self.markFile = brows.FileBrowseButton(self.panel,labelText="File path                  :",  fileMode=wx.OPEN, size=(400,30))
+        self.markFile = brows.FileBrowseButton(self.panel,labelText="File path                  :",  fileMode=wx.OPEN, size=(400,30),toolTip='Type database filename or click browse to choose file')
+        self.markFile.Bind(wx.EVT_TEXT, self.onMarkFile)
 
         vbox1.Add(hbox1)
         vbox1.Add(self.markFile)
         self.panel.SetSizer(vbox1) 
         self.sizer.Add(self.panel, 0, wx.ALL , 5)
         ####################################################################        
-        
+    def onConnectionName(self,event):
+        print('onConnectionName')   
+        if self.connectionNameTextCtrl.GetValue(): 
+            self.GetParent().Children[1].Enable()
+    def onMarkFile(self,event):
+        print('onMarkFile')     
 class CreateNewConncetionWixard():
     
     def __init__(self):
-        pass
+        self.wizard=None
+        self.pages = []
     def createWizard(self):
-        wizard = wx.wizard.Wizard(None, -1, "Create new connection")
-        page1 = SelectDatabaseNamePage(wizard, "Select new connection type")
-        page2 = ConncectionSettings(wizard, "Connection settings")
+        self.wizard = wx.wizard.Wizard(None, -1, "Create new connection")
+        
+        self.wizard.Bind(wx.wizard.EVT_WIZARD_PAGE_CHANGED, self.onPageChange)
+        self.wizard.Bind(wx.wizard.EVT_WIZARD_PAGE_CHANGING, self.onPageChanging)
+        self.wizard.Bind(wx.wizard.EVT_WIZARD_CANCEL, self.onCancel)
+        self.wizard.Bind(wx.wizard.EVT_WIZARD_FINISHED, self.onFinished)
+        
+        page1 = SelectDatabaseNamePage(self.wizard, "Select new connection type")
+        self.pages.append(page1)
+        page2 = ConncectionSettings(self.wizard, "Connection settings")
+        self.pages.append(page2)
 #         page3 = TitledPage(wizard, "Page 3")
 #         page4 = TitledPage(wizard, "Page 4")
 #         page1.sizer.Add(wx.StaticText(page1, -1, "Testing the wizard"))
@@ -176,9 +191,9 @@ class CreateNewConncetionWixard():
         wx.wizard.WizardPageSimple_Chain(page1, page2)
 #         wx.wizard.WizardPageSimple_Chain(page2, page3)
 #         wx.wizard.WizardPageSimple_Chain(page3, page4)
-        wizard.FitToPage(page1)
+        self.wizard.FitToPage(page1)
     
-        if wizard.RunWizard(page1):
+        if self.wizard.RunWizard(page1):
             logger.debug("Success")
             selectedItem=page1.tree.GetSelection()
             logger.debug(page1.tree.GetItemText(selectedItem))
@@ -186,7 +201,7 @@ class CreateNewConncetionWixard():
             databasefile=page2.markFile.GetValue() 
             connectionName=page2.connectionNameTextCtrl.GetValue()
             self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
-        wizard.Destroy()        
+        
     
     def createNewDatabase(self, databaseAbsolutePath=None,connectionName=None):
         try:
@@ -199,6 +214,40 @@ class CreateNewConncetionWixard():
             sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
         except OperationalError as err:
             logger.error(err, exc_info=True)
+            
+    def onPageChange(self,event):
+        '''Executed after the page has changed.'''
+        logger.debug('onPageChange')
+        if type(self.wizard.Children[1])==wx.Button and self.wizard.Children[1].LabelText=='Finish':
+            self.wizard.Children[1].Disable()
+    def onPageChanging(self,event):
+        '''Executed before the page changes, so we might veto it.'''
+        logger.debug('onPageChanging')
+    def onCancel(self,event):
+        '''Cancel button has been pressed.  Clean up and exit without continuing.''' 
+        logger.debug('onCancel')
+        page = event.GetPage()
+        logger.debug("on_cancel: %s\n",  page.__class__)
+        self.wizard.Destroy()
+
+#         # Prevent cancelling of the wizard.
+#         if page in self.pages:
+# #             wx.MessageDialog("Cancelling on the first page has been prevented.", "Sorry")
+# #             event.Veto()
+#             dlg = wx.MessageDialog(page, 
+#                 "Do you really want to close ?",
+#                 "Confirm Exit", wx.YES_NO |wx.ICON_QUESTION)
+#             result = dlg.ShowModal()
+#             if result == wx.ID_YES:
+#                 logger.debug( "Yes pressed")
+#                 self.wizard.Destroy()
+#             else:
+#                 logger.debug( "No pressed")
+#                 dlg.Destroy()
+    def onFinished(self,event):
+        logger.debug('onFinished')
+        wx.GetApp().ExitMainLoop()
+               
 if __name__ == "__main__":
 
     app = wx.App()
