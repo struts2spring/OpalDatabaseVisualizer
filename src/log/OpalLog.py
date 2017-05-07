@@ -5,7 +5,6 @@ import tempfile
 logger = logging.getLogger('extensive')
 
 
-
 LOG_SETTINGS = {
 'version': 1,
 'handlers': {
@@ -43,3 +42,4 @@ LOG_SETTINGS = {
 }
 }
 logging.config.dictConfig(LOG_SETTINGS)
+print(os.path.join(tempfile.gettempdir()))
