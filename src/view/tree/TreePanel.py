@@ -27,8 +27,8 @@ class CreatingTreePanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        sqlExecuter = SQLExecuter()
-        self._treeList = sqlExecuter.getObject()
+        self.sqlExecuter = SQLExecuter()
+        self._treeList = self.sqlExecuter.getObject()
         self.treeMap = {}
         self.searchItems = {}
         self.tree = databaseNavigationTree(self)
@@ -390,7 +390,12 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onEditConnection')
     def onDeleteConnection(self, event):
         logger.debug('onDeleteConnection')
-
+        selectedItemId=self.tree.GetSelection()
+        selectedItemText=self.tree.GetItemText(self.tree.GetSelection())
+        logger.debug(selectedItemText)
+        if selectedItemText:
+            self.sqlExecuter.removeConnctionRow(selectedItemText)
+            self.recreateTree()
     def onNewTable(self, event):
         logger.debug('onNewTable')
         tableFrame = CreateTableFrame(None, 'Table creation')

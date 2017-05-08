@@ -204,6 +204,15 @@ class SQLExecuter():
         rowList.append(row)
         self.sqlite_insert('conns', rowList)
 #         "insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_2.sqlite', 1);"
+
+    def removeConnctionRow(self,connectionName=None):
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                sqlQuery="DELETE FROM conns WHERE connection_name=?"
+                cur.execute(sqlQuery,(connectionName,))
+        except Exception as e:
+            logger.error(e, exc_info=True)
     def getObject(self):
     
         con = None

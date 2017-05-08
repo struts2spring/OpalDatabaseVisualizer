@@ -381,7 +381,9 @@ class DatabaseMainFrame(wx.Frame):
     def onNewConnection(self, event):
         logger.debug('onNewConnection')
         CreateNewConncetionWixard().createWizard()
-        
+        databaseNavTab=self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor")
+        databaseNavTab.window.recreateTree()
+        logger.debug("recreating database navigation tree.")
     def onNewWorksheet(self, event):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()

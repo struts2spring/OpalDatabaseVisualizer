@@ -246,6 +246,7 @@ class CreateNewConncetionWixard():
 #                 dlg.Destroy()
     def onFinished(self,event):
         logger.debug('onFinished')
+        
         wx.GetApp().ExitMainLoop()
                
 if __name__ == "__main__":
