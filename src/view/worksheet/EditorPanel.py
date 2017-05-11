@@ -107,6 +107,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
         self.popmenu = None
         self.frame = None
+        self.adviceList=list()
         self.SetHighlightGuide(1)
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
@@ -346,7 +347,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             lineText, column = self.GetCurLine()
             logger.debug('left right up down. lineText: %s line: %s column:%s', lineText, line, column)
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
-            self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
+            if hasattr(self.GetTopLevelParent(),'statusbar'):
+                self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
     
 #     def duplicateLine(self, lineText, lineNo):
 #         print('duplicateLine', lineText)       
@@ -429,27 +431,25 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
 #                 kw = keyword.kwlist[:]
 #                 self.AutoCompSetSeparator('|')
-                
-                kw = []
-                kw.append(("select * from | create table"))
-                kw.append("desc")
-                kw.append("create table")
-                kw.append("zzaaaaa?2")
-                kw.append("zzbaaaa?2")
-                kw.append("this_is_a_longer_value")
                 # kw.append("this_is_a_much_much_much_much_much_much_much_longer_value")
 
 #                 kw.sort()  # Python sorts are case sensitive
                 self.AutoCompSetIgnoreCase(True)  # so this needs to match
-
+                self.AutoCompSetSeparator(124)
                 # Images are specified with a appended "?type"
 #                 for i in range(len(kw)):
 #                     if kw[i] in keyword.kwlist:
 #                         kw[i] = kw[i] + "?1"
 
-                self.AutoCompShow(0, " ".join(kw))
+                self.AutoCompShow(0, "|".join(self.getAdvice()))
         else:
             event.Skip()
+            
+    def getAdvice(self):
+        del self.adviceList[:]
+        self.adviceList.append("select * from ")
+        self.adviceList.append("desc ")
+        return self.adviceList
     def OnUpdateUI(self, evt):
         # check for matching braces
         braceAtCaret = -1
@@ -580,7 +580,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         logger.debug('onLeftMouseUp lineText:%s line:%s column:%s', lineText, line, column)
         logger.debug('GetHighlightGuide: %s', self.GetHighlightGuide())
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
-        self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
+        if hasattr(self.GetTopLevelParent(),'statusbar'):
+            self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
         
         event.Skip()
     def onRightMouseDown(self, event):
