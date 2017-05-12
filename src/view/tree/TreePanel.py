@@ -24,8 +24,8 @@ class CreatingTreePanel(wx.Panel):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         
+        self.connDict=dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
-
         ####################################################################
         self.sqlExecuter = SQLExecuter()
         self._treeList = self.sqlExecuter.getObject()
@@ -248,8 +248,12 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
             self.Bind(wx.EVT_MENU, self.onRootNewConnection, rootNewConnection)
         elif rightClickDepth == 1:
-            item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
-            item2 = menu.Append(ID_CONNECT_DB, "Connect")
+            if self.connDict.has_key(self.tree.GetItemText(self.tree.GetSelection())) :
+                item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
+                self.Bind(wx.EVT_MENU, self.onDisconnectDb, item1)
+            else:
+                item2 = menu.Append(ID_CONNECT_DB, "Connect")
+                self.Bind(wx.EVT_MENU, self.onConnectDb, item2)
             
             sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
             sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "script.png"))))
@@ -276,8 +280,8 @@ class CreatingTreePanel(wx.Panel):
             deleteMenuItem.SetBitmap(delBmp)
             delMenu = menu.AppendItem(deleteMenuItem)
 #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-            self.Bind(wx.EVT_MENU, self.onDisconnectDb, item1)
-            self.Bind(wx.EVT_MENU, self.onConnectDb, item2)
+            
+            
             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
@@ -341,12 +345,17 @@ class CreatingTreePanel(wx.Panel):
         
     def OnItemBackground(self, event):
         logger.debug('OnItemBackground')
-        pt = event.GetPosition();
-        item, flags = self.tree.HitTest(pt)
-        self.tree.EditLabel(item)
+        try:
+            pt = event.GetPosition();
+            item, flags = self.tree.HitTest(pt)
+            self.tree.EditLabel(item)
+        except Exception as e:
+            logger.error(e, exc_info=True)
     def onConnectDb(self, event):
         logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
+        
+        self.connDict[self.tree.GetItemText(self.tree.GetSelection())]=True
         selectedItemId=self.tree.GetSelection()
         if self.getNodeOnOpenConnection(selectedItemId):
 #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
@@ -360,17 +369,19 @@ class CreatingTreePanel(wx.Panel):
         This is to set autocomplete text as we connect to database
         '''
         logger.debug(selectedItemText)
-        tb1=self.GetTopLevelParent()._mgr.GetPane("tb1").window
-        choice=self.GetTopLevelParent()._ctrl.GetChoices()
-        textCtrl=self.GetTopLevelParent()._ctrl
-        textCtrl.SetValue(selectedItemText)
-#         textCtrl.SetSelection(choice.index(selectedItemText))
-        textCtrl.SetInsertionPointEnd()
-        textCtrl.SetSelection( -1, -1 )
-        textCtrl._showDropDown( False )
+        if hasattr(self.GetTopLevelParent(),'_mgr'):
+            tb1=self.GetTopLevelParent()._mgr.GetPane("tb1").window
+            choice=self.GetTopLevelParent()._ctrl.GetChoices()
+            textCtrl=self.GetTopLevelParent()._ctrl
+            textCtrl.SetValue(selectedItemText)
+    #         textCtrl.SetSelection(choice.index(selectedItemText))
+            textCtrl.SetInsertionPointEnd()
+            textCtrl.SetSelection( -1, -1 )
+            textCtrl._showDropDown( False )
     
     def onDisconnectDb(self, event):
         logger.debug('onDisconnectDb')
+        del self.connDict[self.tree.GetItemText(self.tree.GetSelection())]
         selectedItem = self.tree.GetSelection()
         if selectedItem:
             self.tree.DeleteChildren(selectedItem)
@@ -379,8 +390,9 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onOpenSqlEditorTab')
         self.openWorksheet()
     def openWorksheet(self):
-        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-        sqlExecutionTab.window.addTab("Worksheet")
+        if hasattr(self.GetTopLevelParent(),'_mgr'):
+            sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+            sqlExecutionTab.window.addTab("Worksheet")
 
     def onProperties(self, event):
         logger.debug('onProperties')
