@@ -1,6 +1,8 @@
 import wx
 from src.view.preference.CommandList import CommandKeyListCtrlPanel
 from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
+from src.connect.sqlite.Connect import logger
+from sys import exc_info
 
 class UserPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -380,9 +382,10 @@ class KeysPanel(wx.Panel):
         vBoxHeader.Add(self.header, 0, wx.ALL | wx.EXPAND, 5)
         vBoxHeader.Add(self.st, 0, wx.ALL | wx.EXPAND, 5)
         ####################################################################
-        
-        self.commandKeyListCtrlPanel = CommandKeyListCtrlPanel(self) 
-
+        try:
+            self.commandKeyListCtrlPanel = CommandKeyListCtrlPanel(self) 
+        except Exception as e:
+            logger.error(e, exc_info=True)
         ####################################################################
         '''
         Footer section
