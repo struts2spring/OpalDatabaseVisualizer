@@ -298,13 +298,13 @@ class CreatingTreePanel(wx.Panel):
 
                 
             if 'view' in self.tree.GetItemText(item):
-                newTableItem = menu.Append(wx.ID_ANY, "Create new view")
+                newViewItem = menu.Append(wx.ID_ANY, "Create new view")
                 item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
+                self.Bind(wx.EVT_MENU, self.onNewView, newViewItem)
             if 'index' in self.tree.GetItemText(item) :
-                newTableItem = menu.Append(wx.ID_ANY, "Create new index")
+                newIndexItem = menu.Append(wx.ID_ANY, "Create new index")
                 item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
+                self.Bind(wx.EVT_MENU, self.onNewIndex, newIndexItem)
                 
         elif 'Columns' in self.tree.GetItemText(item) :
             item1 = menu.Append(wx.ID_ANY, "Create new column")
@@ -411,6 +411,19 @@ class CreatingTreePanel(wx.Panel):
     def onNewTable(self, event):
         logger.debug('onNewTable')
         tableFrame = CreateTableFrame(None, 'Table creation')
+#         frame = CreateTableFrame(None, 'table creation')
+    
+        tableDict = dict()
+        tableFrame.setData(tableDict)
+        tableFrame.Show()
+#         app.MainLoop()
+        
+    def onNewView(self, event):
+        logger.debug('onNewView')
+#         tableFrame = CreateTableFrame(None, 'Table creation')
+    def onNewIndex(self, event):
+        logger.debug('onNewIndex')
+#         tableFrame = CreateTableFrame(None, 'Table creation')
         
         
     def getNodeOnOpenConnection(self, selectedItemId):

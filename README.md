@@ -16,3 +16,7 @@ Database tool for developers,  DBAs and analysts.
 |7|On connection switching to activily open new tab in editor||
 |8|updating status bar with enahace status bar||
 |9|Refreshing tree after updating it|comming|
+
+
+---
+need to work on refresh after execution of Create statement. 
