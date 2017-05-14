@@ -311,7 +311,9 @@ class CreatingTreePanel(wx.Panel):
             
         elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             logger.debug(self.tree.GetItemText(item))
-            editTableItem = menu.Append(wx.ID_ANY, "Edit table")
+            editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
+            renameTableItem = menu.Append(wx.ID_ANY, "Rename Table ")
+            copyCreateTableItem = menu.Append(wx.ID_ANY, "Copy create table statement")
                             
             deleteTableItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16,16))
@@ -320,7 +322,9 @@ class CreatingTreePanel(wx.Panel):
             
             
             self.Bind(wx.EVT_MENU, self.onDeleteTable, delTableMenu)
-            self.Bind(wx.EVT_MENU, self.OnItemBackground, editTableItem)
+            self.Bind(wx.EVT_MENU, self.onEditTable, editTableItem)
+            self.Bind(wx.EVT_MENU, self.onRenameTable, renameTableItem)
+            self.Bind(wx.EVT_MENU, self.onCopyCreateTableStatement, copyCreateTableItem)
             
         elif 'Column' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             logger.debug(self.tree.GetItemText(item))
@@ -343,6 +347,12 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onRootNewConnection')
         CreateNewConncetionWixard().createWizard()
         
+    def onCopyCreateTableStatement(self, event):
+        logger.debug('onCopyCreateTableStatement')
+    def onRenameTable(self, event):
+        logger.debug('onRenameTable')
+    def onEditTable(self, event):
+        logger.debug('onEditTable')
     def OnItemBackground(self, event):
         logger.debug('OnItemBackground')
         try:

@@ -20,3 +20,5 @@ Database tool for developers,  DBAs and analysts.
 
 ---
 need to work on refresh after execution of Create statement. 
+
+executing multiple sql in single select.
