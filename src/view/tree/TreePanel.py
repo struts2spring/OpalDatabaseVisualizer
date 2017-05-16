@@ -351,6 +351,17 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onCopyCreateTableStatement')
     def onRenameTable(self, event):
         logger.debug('onRenameTable')
+        dlg = wx.TextEntryDialog( self, 'Rename table', 'Rename table', 'Python')
+
+        dlg.SetValue(self.tree.GetItemText(self.tree.GetSelection()))
+
+        if dlg.ShowModal() == wx.ID_OK:
+            logger.info('You entered: %s\n', dlg.GetValue())
+            if dlg.GetValue() !=self.tree.GetItemText(self.tree.GetSelection()):
+                logger.info('update table execute')
+
+        dlg.Destroy()
+        
     def onEditTable(self, event):
         logger.debug('onEditTable')
     def OnItemBackground(self, event):
