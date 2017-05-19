@@ -55,7 +55,7 @@ class CreatingNewConnectionPanel(wx.Panel):
         self.selectedConnectionTypeText = wx.StaticText(self, -1, "This is to create a new connection.") 
         self.header.SetFont(bf)
         
-        self.tree = databaseNavigationTree(self)
+        self.tree = DatabaseNavigationTree(self)
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter database name")
         self.filter.ShowCancelButton(True)
@@ -144,7 +144,7 @@ class CreatingNewConnectionPanel(wx.Panel):
         databaseLeaf = self.tree.AppendItem(self.root, 'SQLite', image=16)
 
                                    
-class databaseNavigationTree(ExpansionState, TreeCtrl):
+class DatabaseNavigationTree(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in database page
     '''
@@ -241,11 +241,11 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
 
     def Freeze(self):
         if 'wxMSW' in wx.PlatformInfo:
-            return super(databaseNavigationTree, self).Freeze()
+            return super(DatabaseNavigationTree, self).Freeze()
                          
     def Thaw(self):
         if 'wxMSW' in wx.PlatformInfo:
-            return super(databaseNavigationTree, self).Thaw()
+            return super(DatabaseNavigationTree, self).Thaw()
 #---------------------------------------------------------------------------
       
 if __name__ == '__main__':

@@ -31,7 +31,7 @@ class CreatingTreePanel(wx.Panel):
         self._treeList = self.sqlExecuter.getObject()
         self.treeMap = {}
         self.searchItems = {}
-        self.tree = databaseNavigationTree(self)
+        self.tree = DatabaseNavigationTree(self)
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter table name")
         self.filter.ShowCancelButton(True)
@@ -45,9 +45,12 @@ class CreatingTreePanel(wx.Panel):
         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
         self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
+        self.tree.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
+        self.tree.Bind(wx.EVT_TREE_BEGIN_DRAG, self.onTreeBeginDrag)
         
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnTreeRightDown)
         self.tree.Bind(wx.EVT_RIGHT_UP, self.OnTreeRightUp)
+#         self.tree.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown, self)
         ####################################################################
         vBox.Add(self.filter , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
@@ -189,6 +192,37 @@ class CreatingTreePanel(wx.Panel):
         event.Skip()
 
     #---------------------------------------------
+    def onTreeBeginDrag(self, event):
+        logger.debug('onTreeBeginDrag')
+        event.Skip()
+        
+    def onTreeKeyDown(self, event):
+        logger.debug('onTreeKeyDown')
+        keypress=self.GetKeyPress(event)
+        keycode = event.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        logger.debug('onTreeKeyDown keycode: %s  keyname:%s keypress: %s',keycode,keyname,keypress)
+        event.Skip()
+        
+    def GetKeyPress(self, evt):
+        keycode = evt.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        modifiers = ""
+        for mod, ch in ((evt.GetKeyEvent().ControlDown(), 'Ctrl+'),
+                        (evt.GetKeyEvent().AltDown(),     'Alt+'),
+                        (evt.GetKeyEvent().ShiftDown(),   'Shift+'),
+                        (evt.GetKeyEvent().MetaDown(),    'Meta+')):
+            if mod:
+                modifiers += ch
+    
+        if keyname is None:
+            if 27 < keycode < 256:
+                keyname = chr(keycode)
+            else:
+                keyname = "(%s)unknown" % keycode
+        return modifiers + keyname
+
+        
     def OnTreeLeftDown(self, event):
         # reset the overview text if the tree item is clicked on again
         pt = event.GetPosition();
@@ -215,6 +249,7 @@ class CreatingTreePanel(wx.Panel):
 
     #---------------------------------------------
     def OnTreeRightUp(self, event):
+        event.Skip
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
@@ -336,6 +371,7 @@ class CreatingTreePanel(wx.Panel):
         
         self.PopupMenu(menu)
         menu.Destroy() 
+        
     
     def onDeleteTable(self, event):
         logger.debug('onDeleteTable')
@@ -359,6 +395,19 @@ class CreatingTreePanel(wx.Panel):
             logger.info('You entered: %s\n', dlg.GetValue())
             if dlg.GetValue() !=self.tree.GetItemText(self.tree.GetSelection()):
                 logger.info('update table execute')
+                data=self.tree.GetPyData(self.tree.GetSelection())
+                connectionName=data['connection_name']
+                databaseAbsolutePath=data['db_file_path']
+                if os.path.isfile(databaseAbsolutePath):     
+                    '''
+                    First you rename the old table:
+                    ALTER TABLE orig_table_name RENAME TO tmp_table_name;
+                    Then create the new table, based on the old table but with the updated column name:
+                    Then copy the contents across from the original table.
+                    
+
+                    '''
+                    dbObjects = ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
 
         dlg.Destroy()
         
@@ -533,7 +582,7 @@ class CreatingTreePanel(wx.Panel):
 
 
         
-class databaseNavigationTree(ExpansionState, TreeCtrl):
+class DatabaseNavigationTree(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in database page
     '''
@@ -594,7 +643,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
             else:
                 keyname = "unknown (%s)" % keycode
                 
-        self.log.write("OnKeyDown: You Pressed '" + keyname + "'\n")
+        logger.debug("OnKeyDown: You Pressed : %s", keyname)
 
         event.Skip()            
     def BuildTreeImageList(self):
@@ -645,11 +694,11 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
 
     def Freeze(self):
         if 'wxMSW' in wx.PlatformInfo:
-            return super(databaseNavigationTree, self).Freeze()
+            return super(DatabaseNavigationTree, self).Freeze()
                          
     def Thaw(self):
         if 'wxMSW' in wx.PlatformInfo:
-            return super(databaseNavigationTree, self).Thaw()
+            return super(DatabaseNavigationTree, self).Thaw()
 #---------------------------------------------------------------------------
 
 class MainPanel(wx.Panel):

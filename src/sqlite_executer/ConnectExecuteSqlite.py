@@ -490,13 +490,13 @@ class ManageSqliteDatabase():
 if __name__ == "__main__":
     logger.debug('hi')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
-    sqlExecuter = SQLExecuter(database='_opal.sqlite')
-#     sqlExecuter.getDbFilePath('database_sqlite_1')
-    sqlExecuter.addNewConnectionRow(dbFilePath=r"c:\soft\4.sqlite", connectionName='4')
-    obj=sqlExecuter.getObject()
-    if len(obj[1])==0:
-        sqlExecuter.createOpalTables()
-    logger.debug(len(obj[1]))
+#     sqlExecuter = SQLExecuter(database='_opal.sqlite')
+# #     sqlExecuter.getDbFilePath('database_sqlite_1')
+#     sqlExecuter.addNewConnectionRow(dbFilePath=r"c:\soft\4.sqlite", connectionName='4')
+#     obj=sqlExecuter.getObject()
+#     if len(obj[1])==0:
+#         sqlExecuter.createOpalTables()
+#     logger.debug(len(obj[1]))
 #     result=sqlExecuter.executeText("select * from conns")
 #     logger.debug(result)
 #     obj=sqlExecuter.getObject()
@@ -516,4 +516,4 @@ if __name__ == "__main__":
 ##########################################################################################
             
 #     logger.debug(dbList)
-#     ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"c:\soft\1.sqlite")
+    ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"_opal_1.sqlite")
