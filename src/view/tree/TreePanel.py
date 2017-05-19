@@ -202,6 +202,9 @@ class CreatingTreePanel(wx.Panel):
         keycode = event.GetKeyCode()
         keyname = keyMap.get(keycode, None)
         logger.debug('onTreeKeyDown keycode: %s  keyname:%s keypress: %s',keycode,keyname,keypress)
+        
+        if keypress=='Ctrl+C':
+            self.onTreeCopy(event)
         event.Skip()
         
     def GetKeyPress(self, evt):
@@ -221,7 +224,18 @@ class CreatingTreePanel(wx.Panel):
             else:
                 keyname = "(%s)unknown" % keycode
         return modifiers + keyname
-
+    #----------------------------------------------------------------------
+    def onTreeCopy(self, event):
+        """"""
+        self.dataObj = wx.TextDataObject()
+        self.dataObj.SetText(self.tree.GetItemText(self.tree.GetSelection()))
+        if not wx.TheClipboard.IsOpened():  # may crash, otherwise
+            wx.TheClipboard.Open()
+        try:
+            with wx.Clipboard.Get() as clipboard:
+                clipboard.SetData(self.dataObj)
+        except TypeError:
+            wx.MessageBox("Unable to open the clipboard", "Error")
         
     def OnTreeLeftDown(self, event):
         # reset the overview text if the tree item is clicked on again
