@@ -18,7 +18,10 @@ Database tool for developers,  DBAs and analysts.
 |9|Refreshing tree after updating it|comming|
 
 
+
 ---
 need to work on refresh after execution of Create statement. 
-
 executing multiple sql in single select.
+copying create table sql.
+Rename table, 
+Rename column
