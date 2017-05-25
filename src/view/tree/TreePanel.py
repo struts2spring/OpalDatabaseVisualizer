@@ -45,6 +45,7 @@ class CreatingTreePanel(wx.Panel):
         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
         self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
+        self.tree.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.onTreeItemActivated)
         self.tree.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
         self.tree.Bind(wx.EVT_TREE_BEGIN_DRAG, self.onTreeBeginDrag)
         
@@ -195,6 +196,11 @@ class CreatingTreePanel(wx.Panel):
     def onTreeBeginDrag(self, event):
         logger.debug('onTreeBeginDrag')
         event.Skip()
+        
+    def onTreeItemActivated(self, event):
+        logger.debug('onTreeItemActivated')
+        self.onConnectDb(event)
+        
         
     def onTreeKeyDown(self, event):
         logger.debug('onTreeKeyDown')
@@ -439,9 +445,9 @@ class CreatingTreePanel(wx.Panel):
                     Then create the new table, based on the old table but with the updated column name:
                     Then copy the contents across from the original table.
                     
-
                     '''
-                    dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
+                    pass
+#                     dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
 
         dlg.Destroy()
         
@@ -458,15 +464,15 @@ class CreatingTreePanel(wx.Panel):
     def onConnectDb(self, event):
         logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
-        
-        self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = True
-        selectedItemId = self.tree.GetSelection()
-        if self.getNodeOnOpenConnection(selectedItemId):
-#         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
-        # Todo change icon to enable
-            selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
-            self.setAutoCompleteText(selectedItemText)
-            self.openWorksheet()
+        if not self.connDict.has_key(self.tree.GetItemText(self.tree.GetSelection())):
+            self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = True
+            selectedItemId = self.tree.GetSelection()
+            if self.getNodeOnOpenConnection(selectedItemId):
+    #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
+            # Todo change icon to enable
+                selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
+                self.setAutoCompleteText(selectedItemText)
+                self.openWorksheet()
     
     def setAutoCompleteText(self, selectedItemText):
         '''
