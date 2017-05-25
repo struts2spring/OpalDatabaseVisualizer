@@ -401,7 +401,10 @@ class ManageSqliteDatabase():
             with self.conn:    
                 cur = self.conn.cursor() 
 #                 logger.debug('before')
-                if text.strip().lower().startswith('update'):
+                listOfSqls=text.strip().lower().split(';')
+                if len(listOfSqls)>1 and not text.strip().lower().startswith('select'):
+                    cur.executescript(text)
+                elif text.strip().lower().startswith('update'):
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()

@@ -394,9 +394,9 @@ class CreatingTreePanel(wx.Panel):
             logger.debug(self.tree.GetItemText(item))
             item1 = menu.Append(wx.ID_ANY, "Edit column")
             renameColumnItem = menu.Append(wx.ID_ANY, "Rename Column ")
-            item1 = menu.Append(wx.ID_ANY, "Create new column")
-            self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-            self.Bind(wx.EVT_MENU, self.onColumnTable, renameColumnItem)
+#             item1 = menu.Append(wx.ID_ANY, "Create new column")
+#             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+            self.Bind(wx.EVT_MENU, self.onRenameColumn, renameColumnItem)
         
         
         
@@ -406,7 +406,25 @@ class CreatingTreePanel(wx.Panel):
     
     def onDeleteTable(self, event):
         logger.debug('onDeleteTable')
-        
+        try:
+#             data = self.tree.GetPyData(self.tree.GetSelection()).Data
+            depth = self.tree.GetItemData(self.tree.GetSelection()).Data['depth']
+            ##################################################################################
+            sqlExecuter = SQLExecuter(database='_opal.sqlite')
+            textCtrl=self.GetTopLevelParent()._ctrl
+            selectedItemText=textCtrl.GetValue()
+            databaseAbsolutePath=sqlExecuter.getDbFilePath(selectedItemText)
+            logger.debug("dbFilePath: %s",databaseAbsolutePath)
+            
+            ##################################################################################
+    #         connectionName = data['connection_name']
+#             databaseAbsolutePath = data['db_file_path']
+            if os.path.isfile(databaseAbsolutePath) and depth == 3:     
+                text='DROP TABLE '+self.tree.GetItemText(self.tree.GetSelection())
+                dbObjects = ManageSqliteDatabase(connectionName=selectedItemText , databaseAbsolutePath=databaseAbsolutePath).executeText(text)
+                self.recreateTree(event) 
+        except Exception as e:
+            logger.error(e, exc_info=True)
     def onRootRefresh(self, event):
         logger.debug('onRootRefresh')
         self.recreateTree(event)
@@ -418,11 +436,8 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onCopyCreateTableStatement')
     def onRenameColumn(self, event):
         logger.debug('onRenameColumn')
-    def onRenameTable(self, event):
-        logger.debug('onRenameTable')
-        initialTableName = self.tree.GetItemText(self.tree.GetSelection())
-        dlg = wx.TextEntryDialog(self, 'Rename table ' + initialTableName, 'Rename table ' + initialTableName, 'Python')
-
+        initialColumnName = self.tree.GetItemText(self.tree.GetSelection())
+        dlg = wx.TextEntryDialog(self, 'Rename column ' + initialColumnName, 'Rename column ' + initialColumnName, 'Python')
         dlg.SetValue(self.tree.GetItemText(self.tree.GetSelection()))
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -442,7 +457,26 @@ class CreatingTreePanel(wx.Panel):
 
                     '''
                     dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
+        dlg.Destroy()
 
+    def onRenameTable(self, event):
+        logger.debug('onRenameTable')
+        initialTableName = self.tree.GetItemText(self.tree.GetSelection())
+        dlg = wx.TextEntryDialog(self, 'Rename table ' + initialTableName, 'Rename table ' + initialTableName, 'Python')
+        dlg.SetValue(self.tree.GetItemText(self.tree.GetSelection()))
+
+        if dlg.ShowModal() == wx.ID_OK:
+            logger.info('You entered: %s\n', dlg.GetValue())
+            if dlg.GetValue() != self.tree.GetItemText(self.tree.GetSelection()):
+                logger.info('update table execute')
+                data = self.tree.GetPyData(self.tree.GetSelection())
+                connectionName = data['connection_name']
+                databaseAbsolutePath = data['db_file_path']
+                if os.path.isfile(databaseAbsolutePath):     
+                    '''
+                    First you rename the old table:
+                    '''
+                    dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
         dlg.Destroy()
         
     def onEditTable(self, event):
