@@ -448,6 +448,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def getAdvice(self):
         del self.adviceList[:]
         self.adviceList.append("select * from ")
+        self.adviceList.append("create table Table_1 ( id number); ")
         self.adviceList.append("desc ")
         return self.adviceList
     def OnUpdateUI(self, evt):
