@@ -58,14 +58,14 @@ class CreateWorksheetTabPanel(wx.Panel):
         else:
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
 #             worksheetPanel.worksheetPanel.editorPanel
-            name='Worksheet '+str(len(self.GetPages(type(worksheetPanel))))
+            name = 'Worksheet ' + str(len(self.GetPages(type(worksheetPanel))))
             self._nb.AddPage(worksheetPanel, name, imageId=0)
             self.Bind(aui.EVT__AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
             self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)
 
     def onBgDoubleClick(self, event):
-        print('onBgDoubleClick')
-        name='Worksheet '
+        logger.debug('onBgDoubleClick')
+        name = 'Worksheet '
         self.addTab(name)
     def __DoLayout(self):
         """Layout the panel"""
@@ -80,7 +80,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         Set the current page to the page given
         """
         n = self._nb.GetPageIndex(page)
-        if n!=-1:
+        if n != -1:
             self._nb.SetSelection(n)
             return True
         return False    
@@ -89,8 +89,8 @@ class CreateWorksheetTabPanel(wx.Panel):
         """
         Get the current active Page page
         """
-        num  = self._nb.GetSelection()
-        if num==-1:
+        num = self._nb.GetSelection()
+        if num == -1:
             page = None
         else:
             page = self._nb.GetPage(num)
@@ -102,19 +102,55 @@ class CreateWorksheetTabPanel(wx.Panel):
         """
         npages = self._nb.GetPageCount()
         res = []
-        for n in range(0,npages):
+        for n in range(0, npages):
             page = self._nb.GetPage(n)
             if isinstance(page, page_type):
                 res.append(page)
         return res        
+    
+    def onCloseTab(self, event):
+        logger.debug("onCloseTab")
+        
+    def onCloseOthersTabs(self, event):
+        logger.debug("onCloseOthersTab")
+        
+    def onCloseLeftTabs(self, event):
+        logger.debug("onCloseLeftTabs")
+    
+    def onCloseRightTabs(self, event):
+        logger.debug("onCloseRightTabs")
+    
+    def onCloseAllTabs(self, event):
+        logger.debug("onCloseAllTabs")
+    
     def onTabRightDown(self, event):
-        print('rightdown PopUp')
+        logger.debug('rightdown PopUp')
 
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
-        for text in "Close,Close Others,Close Other tabs to the left,Close &All".split(','):
-            item = self.popupmenu.Append(-1, text)
-        print(self.GetCurrentPage())
+        popupList = [
+            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseTab},
+            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseOthersTabs},
+            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseLeftTabs},
+            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseRightTabs},
+            {'label':'Close &All', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseAllTabs}
+            ]
+        for popupRow in popupList:
+            itemId = wx.ID_ANY
+            item = wx.MenuItem(self.popupmenu, itemId, popupRow['label'])
+            item.SetBitmap(wx.ArtProvider.GetBitmap(popupRow['icon'], wx.ART_MENU, (16, 16)))
+            self.popupmenu.AppendItem(item)
+            self.Bind(wx.EVT_MENU,  popupRow['eventMethod'], item)
+#             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
+#             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
+#             deleteMenuItem.SetBitmap(delBmp)
+#             delMenu = menu.AppendItem(deleteMenuItem)
+# #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+#             
+#             
+#             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
+            
+        logger.debug("onTabRightDown: current page %s", self.GetCurrentPage())
         self.PopupMenu(self.popupmenu, pos)
 #         tab = event.GetEventObject()
 #         num = tab.GetActivePage()
@@ -177,6 +213,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         self.SetSizer(sizer)    
         
     def constructWorksheetToolBar(self):
+        logger.debug("constructWorksheetToolBar")
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
@@ -187,7 +224,6 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
                 head, tail = os.path.split(path)
         except Exception as e:
             logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->',path)
         path = os.path.abspath(os.path.join(path, "images"))
                 
         # create some toolbars
@@ -276,8 +312,8 @@ class CreatingWorksheetPanel(wx.Panel):
         self.splitter.SizeWindows()        
     
     def setResultData(self, data=None):  
-        print('setResultData:', data)
-        self.data=data
+        logger.debug('setResultData: %s', data)
+        self.data = data
 #         self.data = music
         self.resultPanel.Layout()
     def getData(self):

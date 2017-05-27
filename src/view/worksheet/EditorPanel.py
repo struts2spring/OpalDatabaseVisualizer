@@ -16,12 +16,12 @@ from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 from src.view import SqliteKeywords
 from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
-from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter,\
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
 from datetime import date, datetime
 import time
 import logging
-from sys import exc_info
+# from sys import exc_info
 from sqlite3 import OperationalError
 
 logger = logging.getLogger('extensive')
@@ -107,7 +107,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
         self.popmenu = None
         self.frame = None
-        self.adviceList=list()
+        self.adviceList = list()
         self.SetHighlightGuide(1)
 #         self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
 #         self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
@@ -120,7 +120,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         keywords = list()
         keywords.extend(lowerKeyword)
         keywords.extend(upperKeyword)
-        print(keywords)
+        logger.debug("keywords: %s",keywords)
         self.SetKeyWords(0, " ".join(keywords))
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
@@ -231,7 +231,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         path = os.path.abspath(__file__)
         tail = None
 #         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
+#         logger.debug(('createAuiManager',head, tail )
         try:
             while tail != 'src':
                 path = os.path.abspath(os.path.join(path, '..',))
@@ -257,7 +257,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         formatted_sql = SqlBeautifierCommand().format_sql(inputText)
 #         new=Beautify().format_sql(inputText)
         s = self.GetText()
-        print(s, '\n', inputText, '\n', new)
+        logger.debug("formatCode: %s \n   %s  \n  %s ", s, inputText, new)
         new_str = string.replace(s, inputText, formatted_sql, maxreplace=1)
         self.SetText(new_str)
  
@@ -347,7 +347,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             lineText, column = self.GetCurLine()
             logger.debug('left right up down. lineText: %s line: %s column:%s', lineText, line, column)
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
-            if hasattr(self.GetTopLevelParent(),'statusbar'):
+            if hasattr(self.GetTopLevelParent(), 'statusbar'):
                 self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
     
 #     def duplicateLine(self, lineText, lineNo):
@@ -580,7 +580,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         logger.debug('onLeftMouseUp lineText:%s line:%s column:%s', lineText, line, column)
         logger.debug('GetHighlightGuide: %s', self.GetHighlightGuide())
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
-        if hasattr(self.GetTopLevelParent(),'statusbar'):
+        if hasattr(self.GetTopLevelParent(), 'statusbar'):
             self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
         
         event.Skip()
@@ -762,36 +762,36 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CmdKeyExecute(cmd)
     
     def executeSQL(self):
-        error='success'
+        error = 'success'
         sqlText = self.GetSelectedText()
         if self.GetSelectedText() == '' or self.GetSelectedText() == None:
             sqlText, column = self.GetCurLine()
         
         ##################################################################################
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
-        textCtrl=self.GetTopLevelParent()._ctrl
-        selectedItemText=textCtrl.GetValue()
-        dbFilePath=sqlExecuter.getDbFilePath(selectedItemText)
-        logger.debug("dbFilePath: %s",dbFilePath)
+        textCtrl = self.GetTopLevelParent()._ctrl
+        selectedItemText = textCtrl.GetValue()
+        dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
+        logger.debug("dbFilePath: %s", dbFilePath)
         
         ##################################################################################
         logger.debug('executeSQL: %s' , sqlText)
         try:
             if os.path.isfile(dbFilePath):
-                sqlOutput=None
-                startTime=time.time()
+                sqlOutput = None
+                startTime = time.time()
                 try:
-                    manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText,databaseAbsolutePath=dbFilePath)
+                    manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
                     sqlOutput = manageSqliteDatabase.executeText(sqlText)
                 except OperationalError as oe:
-                    self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n"+str(oe))
+                    self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + str(oe))
                 except Exception as e:
                     logger.error(e, exc_info=True)
-                endTime=time.time()
-                logger.debug('duration: %s',endTime-startTime)
-                duration=endTime-startTime
+                endTime = time.time()
+                logger.debug('duration: %s', endTime - startTime)
+                duration = endTime - startTime
                 if selectedItemText:
-                    self.updateSqlLog(sqlText, duration,connectionName=selectedItemText)
+                    self.updateSqlLog(sqlText, duration, connectionName=selectedItemText)
         
                 creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
                 creatingWorksheetPanel.setResultData(data=sqlOutput)
@@ -801,13 +801,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         except TypeError as te:
             logger.error(te, exc_info=True)
             if not dbFilePath:
-                error='Unable to connect. Please choose a database to execute Script.'
-                self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n"+error)
+                error = 'Unable to connect. Please choose a database to execute Script.'
+                self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + error)
         except Exception as e:
             logger.error(e, exc_info=True)
-            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n"+str(e))
+            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + str(e))
 #             print(e)
-            error=str(e)
+            error = str(e)
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
 #         scriptOutputPanel = self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window
 #         scriptOutputPanel.text.AppendText(error)
@@ -818,9 +818,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #             self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
         # TODO Update update sql log history grid
         
-    def updateSqlLog(self, sqlText, duration,connectionName=None):
-#         print('updating sql log', sqlText)
-        logger.debug('updating sql log %s', sqlText)
+    def updateSqlLog(self, sqlText, duration, connectionName=None):
+        logger.debug('updateSqlLog : %s', sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         table = 'sql_log'
         rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
@@ -828,8 +827,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
     def refreshSqlLogUi(self):
         logger.debug('refreshSqlLogUi')
-        historyGrid=self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
-        sqlText='select * from sql_log order by created_time desc;'
+        historyGrid = self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
+        sqlText = 'select * from sql_log order by created_time desc;'
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         sqlOutput = sqlExecuter.executeText(sqlText)
         historyGrid.addData(data=sqlOutput)
