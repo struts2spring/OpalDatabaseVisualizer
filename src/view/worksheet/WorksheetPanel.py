@@ -108,31 +108,55 @@ class CreateWorksheetTabPanel(wx.Panel):
                 res.append(page)
         return res        
     
-    def onCloseTab(self, event):
+    def onCloseTab(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        self._nb.DeletePage(currentlySelectedPage)
         
-    def onCloseOthersTabs(self, event):
+    def onCloseOthersTabs(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseOthersTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        npages = self._nb.GetPageCount()
         
-    def onCloseLeftTabs(self, event):
+        for n in range(currentlySelectedPage, npages):
+            self._nb.DeletePage(currentlySelectedPage+1)
+        for n in range(0, currentlySelectedPage):
+            self._nb.DeletePage(0)
+        
+    def onCloseLeftTabs(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseLeftTabs")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        for n in range(0, currentlySelectedPage):
+            self._nb.DeletePage(0)
     
-    def onCloseRightTabs(self, event):
+    def onCloseRightTabs(self, event=None, currentlySelectedPage=None):
+        npages = self._nb.GetPageCount()
+        
+        for n in range(currentlySelectedPage, npages):
+            self._nb.DeletePage(currentlySelectedPage+1)
         logger.debug("onCloseRightTabs")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
     
     def onCloseAllTabs(self, event):
         logger.debug("onCloseAllTabs")
-    
-    def onTabRightDown(self, event):
+        npages = self._nb.DeleteAllPages()
+#         GetPageCount()
+#         for n in range(0, npages):
+#             page = self._nb.GetPage(n)
+#             page.
+#     
+    def onTabRightDown(self, evt=None):
         logger.debug('rightdown PopUp')
-
+        currentlySelectedPage = self._nb.GetSelection()
+        logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
+        
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
         popupList = [
-            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseTab},
-            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseOthersTabs},
-            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseLeftTabs},
-            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseRightTabs},
+            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod": lambda event: self.onCloseTab(event, currentlySelectedPage)},
+            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseOthersTabs(event, currentlySelectedPage)},
+            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseLeftTabs(event, currentlySelectedPage)},
+            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseRightTabs(event, currentlySelectedPage)},
             {'label':'Close &All', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseAllTabs}
             ]
         for popupRow in popupList:
@@ -140,7 +164,7 @@ class CreateWorksheetTabPanel(wx.Panel):
             item = wx.MenuItem(self.popupmenu, itemId, popupRow['label'])
             item.SetBitmap(wx.ArtProvider.GetBitmap(popupRow['icon'], wx.ART_MENU, (16, 16)))
             self.popupmenu.AppendItem(item)
-            self.Bind(wx.EVT_MENU,  popupRow['eventMethod'], item)
+            self.Bind(wx.EVT_MENU, popupRow['eventMethod'], item)
 #             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
 #             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
 #             deleteMenuItem.SetBitmap(delBmp)
@@ -150,7 +174,6 @@ class CreateWorksheetTabPanel(wx.Panel):
 #             
 #             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
             
-        logger.debug("onTabRightDown: current page %s", self.GetCurrentPage())
         self.PopupMenu(self.popupmenu, pos)
 #         tab = event.GetEventObject()
 #         num = tab.GetActivePage()
@@ -259,9 +282,9 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         logger.debug('CreatingWorksheetWithToolbarPanel.executeSQL')
         self.GetTopLevelParent()
 #         x=self.GetParent()
-        creatingEditorPanel=self.GetChildren()[1].splitter.Children[0]
+        creatingEditorPanel = self.GetChildren()[1].splitter.Children[0]
         creatingEditorPanel.sstc.executeSQL()
-        resultPanel=self.GetChildren()[1].splitter.Children[1]
+        resultPanel = self.GetChildren()[1].splitter.Children[1]
 #         resultPanel.createDataViewCtrl(data=music,headerList=["Artist","Title","Genre"])
 #         resultPanel.setModel(music)
 #         resultPanel.Layout()

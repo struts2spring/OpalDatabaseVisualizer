@@ -5,7 +5,9 @@ Created on 05-Feb-2017
 '''
 import wx
 
+import logging
 
+logger = logging.getLogger('extensive')
 
 class CreatingFindAndReplaceFrame(wx.Frame):
 
