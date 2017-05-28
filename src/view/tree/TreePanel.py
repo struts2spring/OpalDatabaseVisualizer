@@ -417,16 +417,16 @@ class CreatingTreePanel(wx.Panel):
             depth = self.tree.GetItemData(self.tree.GetSelection()).Data['depth']
             ##################################################################################
             sqlExecuter = SQLExecuter(database='_opal.sqlite')
-            textCtrl=self.GetTopLevelParent()._ctrl
-            selectedItemText=textCtrl.GetValue()
-            databaseAbsolutePath=sqlExecuter.getDbFilePath(selectedItemText)
-            logger.debug("dbFilePath: %s",databaseAbsolutePath)
+            textCtrl = self.GetTopLevelParent()._ctrl
+            selectedItemText = textCtrl.GetValue()
+            databaseAbsolutePath = sqlExecuter.getDbFilePath(selectedItemText)
+            logger.debug("dbFilePath: %s", databaseAbsolutePath)
             
             ##################################################################################
     #         connectionName = data['connection_name']
 #             databaseAbsolutePath = data['db_file_path']
             if os.path.isfile(databaseAbsolutePath) and depth == 3:     
-                text='DROP TABLE '+self.tree.GetItemText(self.tree.GetSelection())
+                text = 'DROP TABLE ' + self.tree.GetItemText(self.tree.GetSelection())
                 dbObjects = ManageSqliteDatabase(connectionName=selectedItemText , databaseAbsolutePath=databaseAbsolutePath).executeText(text)
                 self.recreateTree(event) 
         except Exception as e:
@@ -543,8 +543,26 @@ class CreatingTreePanel(wx.Panel):
 
     def onProperties(self, event):
         logger.debug('onProperties')
-    def onRefresh(self, event):
+        
+        
+    def onRefresh(self, event=None):
         logger.debug('onRefresh')
+        '''
+        1. find current active connection.
+        2. refresh only that connection.
+        '''
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        textCtrl = self.GetTopLevelParent()._ctrl
+        selectedItemText = textCtrl.GetValue()
+        dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
+        logger.debug("dbFilePath: %s", dbFilePath)
+        
+        ##################################################################################
+#         selectedItem = self.tree.GetSelection()
+#         if selectedItem:
+#             self.tree.DeleteChildren(selectedItem)        
+#             self.getNodeOnOpenConnection(selectedItemId)
     def onEditConnection(self, event):
         logger.debug('onEditConnection')
     def onDeleteConnection(self, event):
