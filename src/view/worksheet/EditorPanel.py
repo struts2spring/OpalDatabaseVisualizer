@@ -402,7 +402,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         elif key == wx.WXK_RETURN and event.ControlDown():
             logger.debug('ctrl+Enter: execute sql')
             self.executeSQL()
-            self.refreshSqlLogUi()
+            
+            
+            # Refresh tree if it required
+            
             
         elif key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
@@ -809,6 +812,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + str(e))
 #             print(e)
             error = str(e)
+            
+            
+        self.refreshSqlLogUi()
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
 #         scriptOutputPanel = self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window
 #         scriptOutputPanel.text.AppendText(error)
