@@ -766,17 +766,20 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.CmdKeyExecute(cmd)
     
     def executeSQL(self):
+        '''
+        '''
         error = 'success'
         sqlText = self.GetSelectedText()
         if self.GetSelectedText() == '' or self.GetSelectedText() == None:
             sqlText, column = self.GetCurLine()
         
         ##################################################################################
-        sqlExecuter = SQLExecuter(database='_opal.sqlite')
-        textCtrl = self.GetTopLevelParent()._ctrl
-        selectedItemText = textCtrl.GetValue()
-        dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
-        logger.debug("dbFilePath: %s", dbFilePath)
+        selectedItemText, dbFilePath = self.findingConnectionName()
+#         sqlExecuter = SQLExecuter(database='_opal.sqlite')
+#         textCtrl = self.GetTopLevelParent()._ctrl
+#         selectedItemText = textCtrl.GetValue()
+#         dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
+#         logger.debug("dbFilePath: %s", dbFilePath)
         
         ##################################################################################
         logger.debug('executeSQL: %s' , sqlText)
@@ -824,6 +827,21 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #             self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
 #             self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
         # TODO Update update sql log history grid
+        
+    def findingConnectionName(self):
+        '''
+        This method defines connection name based on selected connection in the tree.
+        @return: (connectionName, databaseAbsolutePath)
+        '''
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        textCtrl = self.GetTopLevelParent()._ctrl
+        connectionName = textCtrl.GetValue()
+        databaseAbsolutePath = sqlExecuter.getDbFilePath(connectionName)
+        logger.debug("databaseAbsolutePath: %s", databaseAbsolutePath)
+        
+        ##################################################################################        
+        return connectionName, databaseAbsolutePath
         
     def updateSqlLog(self, sqlText, duration, connectionName=None):
         logger.debug('updateSqlLog : %s', sqlText)
