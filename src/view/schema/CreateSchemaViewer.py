@@ -12,28 +12,26 @@ from src.view.schema.GraphvizCreator import GraphvizDiagram
 from graphviz.dot import Digraph
 
 import logging
+import tempfile
 
 logger = logging.getLogger('extensive')
 
 
 SCALE = 1.0  # Default is 1.
 INCREMENT = 0.1
-gTmpPngPath = os.path.expandvars('%temp%' + os.sep + 'tmpSVG.png')
+gTmpPngPath = os.path.expandvars(tempfile.gettempdir() + os.sep + 'tmpSVG.png')
 
 class SVGViewerPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
+        self.tables = None
         
-        self.createGraphviz()
 #         for filePath in os.listdir(gAppDir):
 #             fp = (gAppDir + os.sep + filePath).lower().endswith('.svg')
 #             if fp and os.path.exists(gAppDir + os.sep + filePath):
 #                 sys.argv.append(gAppDir + os.sep + filePath)
-        path = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', 'img/g6.svg'))
-        logger.debug(path)
-        self.gSVG = rsvg.Handle(file=path)
-        self.gDimensionData = self.gSVG.get_dimension_data()
+
 #                 break        
         
         
@@ -41,31 +39,37 @@ class SVGViewerPanel(wx.Panel):
         self.Bind(wx.EVT_MOUSEWHEEL, self.OnMouseWheel)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
 
-
-    def getTableDetail(self):
+    def setTableDetail(self, tables=None):
         
-        tables = dict()
-        tables['book'] = ['id', 'book_name', ]
-        tables['author'] = ['id', 'author_name', ]
-        tables['book_author'] = ['id', 'author_id', 'book_id']
-        tables.iteritems()
-        self.tables = tables
+        tableDict = dict()
+        logger.debug(tables)
+        for table in tables:
+            logger.debug(table)
+            columns=list()
+            for col in table.values()[0]:
+                columns.append(col[1])
+            tableDict[table.keys()[0]]=columns
+#         tables['book'] = ['id', 'book_name', ]
+#         tables['author'] = ['id', 'author_name', ]
+#         tables['book_author'] = ['id', 'author_id', 'book_id']
+#         tables.iteritems()
+        self.tables = tableDict
 
     def createGraphviz(self):
-        self.getTableDetail()
+#         self.getTableDetail()
         nodes = list()
         idx = 0
         for  k, columns in self.tables.iteritems():
-            node=list()
+            node = list()
 #             print(idx, k, columns)
             nodeColumnName = dict()
             label = ''
             for index, column_name in enumerate(columns):
 #                 print(column_name)
-                label = label + '| <f' + str(index+1) + '> ' + column_name
-            nodeColumnName['label'] = '<f0> '+k+label
+                label = label + '| <f' + str(index + 1) + '> ' + column_name
+            nodeColumnName['label'] = '<f0> ' + k + label
 #             print(nodeColumnName)
-            node.append('node'+str(idx))
+            node.append('node' + str(idx))
             node.append(nodeColumnName)
             nodes.append(tuple(node))
             idx += 1
@@ -82,7 +86,7 @@ class SVGViewerPanel(wx.Panel):
                                                             ]
         )
         g6 = gd.apply_styles(g6)
-        g6.render('img/g6')
+        g6.render(tempfile.gettempdir() + os.sep + 'g6')
     def OnMouseWheel(self, event):
         global SCALE
         if event.GetWheelRotation() > 0:
@@ -113,16 +117,27 @@ class SVGViewerPanel(wx.Panel):
         dc = wx.PaintDC(self)
         dc.DrawBitmap(svgBmp, 0, 0)    
 
-class TestFrame(wx.Frame):
+class CreateErDiagramFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, "SVG Viewer", size=(640, 480))
-        svgViewer = SVGViewerPanel(self)
-
+        self.svgViewer = SVGViewerPanel(self)
+        
+    def setDbObjects(self, dbObjects=None):
+        logger.debug('setDbObjects')
+        dbObjects[1].sort()
+        tables = dbObjects[1][1]['table']
+        self.svgViewer.setTableDetail(tables=tables)
+        self.svgViewer.createGraphviz()
+#         self.svgViewer.
+        path = os.path.abspath(os.path.join(tempfile.gettempdir(), 'g6.svg'))
+        logger.debug(path)
+        self.svgViewer.gSVG = rsvg.Handle(file=path)
+        self.svgViewer.gDimensionData = self.svgViewer.gSVG.get_dimension_data()
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
 #     frame = wx.Frame(None)
 
-    frame = TestFrame(None)
+    frame = CreateErDiagramFrame(None)
     frame.Show()
     app.MainLoop()

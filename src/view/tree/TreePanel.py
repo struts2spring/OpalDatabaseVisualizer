@@ -15,6 +15,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
 import logging
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
+from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 
 logger = logging.getLogger('extensive')
 
@@ -363,8 +364,10 @@ class CreatingTreePanel(wx.Panel):
         elif rightClickDepth == 2:
             if 'table' in self.tree.GetItemText(item):
                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
+                erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
                 item2 = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                 self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
+                self.Bind(wx.EVT_MENU, self.onCreateErDiagramItem, erDiagramItem)
 
                 
             if 'view' in self.tree.GetItemText(item):
@@ -573,6 +576,24 @@ class CreatingTreePanel(wx.Panel):
         if selectedItemText:
             self.sqlExecuter.removeConnctionRow(selectedItemText)
             self.recreateTree()
+            
+    def onCreateErDiagramItem(self, event):
+        logger.debug('onCreateErDiagramItem')
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        textCtrl = self.GetTopLevelParent()._ctrl
+        selectedItemText = textCtrl.GetValue()
+        dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
+        logger.debug("dbFilePath: %s", dbFilePath)
+        
+        ################################################################################## 
+        depth = self.tree.GetItemData(self.tree.GetSelection()).Data['depth']   
+        if os.path.isfile(dbFilePath):     
+            dbObjects = ManageSqliteDatabase(connectionName=selectedItemText , databaseAbsolutePath=dbFilePath).getObject()   
+             
+        createErDiagramFrame = CreateErDiagramFrame(None)
+        createErDiagramFrame.setDbObjects(dbObjects=dbObjects)
+        createErDiagramFrame.Show()        
     def onNewTable(self, event):
         logger.debug('onNewTable')
         tableFrame = CreateTableFrame(None, 'Table creation')
