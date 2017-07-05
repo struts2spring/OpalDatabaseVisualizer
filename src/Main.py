@@ -45,7 +45,7 @@ LOG_SETTINGS = {
 'loggers': {
     'extensive': {
         'level':'DEBUG',
-        'handlers': ['file', ]
+        'handlers': ['file','console' ]
         },
 }
 }
