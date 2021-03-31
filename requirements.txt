@@ -44,7 +44,7 @@ Kivy-Garden==0.1.4
 launchpadlib==1.10.3
 lazr.restfulclient==0.13.4
 lazr.uri==1.0.3
-lxml==3.5.0
+lxml==4.6.3
 lzw==0.1.11
 Mako==1.0.3
 MarkupSafe==0.23
