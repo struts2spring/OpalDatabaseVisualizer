@@ -94,7 +94,7 @@ PyOpenGL-Demo==3.0.1b1
 pyOpenSSL==0.15.1
 pyparsing==2.1.1
 pyPdf==1.13
-PyPDF2==1.25.1
+PyPDF2==1.27.5
 python-apt==1.1.0b1
 python-dateutil==2.6.0
 python-debian==0.1.27
