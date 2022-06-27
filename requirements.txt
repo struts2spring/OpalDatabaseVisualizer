@@ -104,7 +104,7 @@ pytz==2016.7
 pyxdg==0.25
 rarfile==2.7
 reportbug===6.6.6ubuntu1
-reportlab==3.3.0
+reportlab==3.5.55
 requests==2.10.0
 rsa==3.4.2
 rubber==1.4
