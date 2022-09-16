@@ -46,7 +46,7 @@ lazr.restfulclient==0.13.4
 lazr.uri==1.0.3
 lxml==3.5.0
 lzw==0.1.11
-Mako==1.0.3
+Mako==1.2.2
 MarkupSafe==0.23
 mcomix==1.2.1
 mutagen==1.32
